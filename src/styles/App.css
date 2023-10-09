@@ -1,0 +1,34 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  padding: 2em;
+}
+
+.url-input {
+  width: 700px;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the content horizontally */
+}
+
+.checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create 4 columns in each row */
+  gap: 10px; /* Adjust the gap between items */
+}
+
+.checkbox-container label {
+  margin-left: 10px;
+}
+
+.checkbox-container input {
+  margin-right: 5px;
+}
