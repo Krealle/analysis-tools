@@ -1,7 +1,11 @@
 import { RequestDocument } from "graphql-request";
 import { RootReport } from "../gql/types";
 import { createGraphQLClient } from "../gql/graphqlClient";
-import { getEventsQuery, getFightsQuery } from "../gql/queries";
+import {
+  getEventsQuery,
+  getFightsQuery,
+  getPlayerDetailsQuery,
+} from "../gql/queries";
 import { AnyEvent, EventType } from "../events/types";
 
 export type Variables = {
@@ -28,6 +32,7 @@ export async function fetchReportData(
     const data = (await client.request(requestType, variables)) as RootReport;
 
     const report = data.reportData.report;
+    //console.log("root report:", data);
     return report;
   } catch (error) {
     console.error("GraphQL request error:", error);
@@ -44,6 +49,15 @@ export async function getFights(variables: Variables) {
   }
 }
 
+export async function getPlayerDetails(variables: Variables) {
+  const response = await fetchReportData(getPlayerDetailsQuery, variables);
+  if (!response || !response.playerDetails) {
+    return;
+  }
+
+  return response.playerDetails.data.playerDetails;
+}
+
 export async function getEvents<T extends AnyEvent>(
   variables: EventVariables,
   eventType?: EventType,
@@ -58,17 +72,20 @@ export async function getEvents<T extends AnyEvent>(
   }
 
   /** Add event type filter if eventType is provided. */
-  if (eventType && !recurse) {
-    const eventFilter = `type = "${eventType}"`;
-    variables.filterExpression += variables.filterExpression
-      ? ` AND ` + eventFilter
-      : eventFilter;
-    console.log("filter:", variables.filterExpression);
+  if (!recurse) {
+    if (eventType) {
+      const eventFilter = `type = "${eventType}"`;
+      variables.filterExpression += variables.filterExpression
+        ? ` AND ` + eventFilter
+        : eventFilter;
+      console.log(`added type: "` + eventType + `" to filter`);
+    }
+    console.log("filter for fetching Events:", variables.filterExpression);
   }
 
   const response = await fetchReportData(getEventsQuery, variables);
 
-  console.log("response:", response);
+  console.log("Event response:", response);
 
   const { data = [], nextPageTimestamp = null } = response?.events ?? {};
 

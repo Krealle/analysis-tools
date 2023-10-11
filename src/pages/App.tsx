@@ -2,8 +2,8 @@ import "../styles/App.css";
 import { useEffect, useState } from "react";
 import { setWCLAuthentication } from "../wcl/util/auth";
 import GetFights from "../components/GetFights";
-import GetEvents from "../components/GetEvents";
 import React from "react";
+import GetTopPumpers from "../components/GetTopPumpers";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -60,7 +60,7 @@ function App() {
               onClick: handleCheckboxClick,
             })
           )}
-          <GetEvents selectedFights={selectedIds} reportCode={reportCode} />
+          <GetTopPumpers selectedFights={selectedIds} reportCode={reportCode} />
         </div>
       )}
 

@@ -43,7 +43,32 @@ query getReport($reportID: String!) {
         name
         difficulty
         kill
+        friendlyPlayers
       }
+      masterData(translate: true) {
+        actors(
+          type: "",
+          subType: ""
+        ) {
+          gameID
+          id
+          name
+          petOwner
+          subType
+          type
+        }
+      }
+      visibility
+    }
+  }
+}
+`;
+
+export const getPlayerDetailsQuery = `
+query getReport($reportID: String!, $fightIDs: [Int]!) {
+  reportData {
+    report(code: $reportID) {
+      playerDetails(fightIDs: $fightIDs)
     }
   }
 }
