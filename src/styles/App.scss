@@ -13,24 +13,63 @@
   width: 700px;
 }
 
-.checkbox-container {
+.fights-container {
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the content horizontally */
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.checkbox-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Create 4 columns in each row */
-  gap: 10px; /* Adjust the gap between items */
+.fights-button-container {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 10px;
+  gap: 20px;
 }
 
-.checkbox-container label {
-  margin-left: 10px;
+.checkbox-fight {
+  display: flex;
+  justify-content: center;
+  margin: 6px;
+
+  label {
+    border: 2px solid;
+    padding: 2px;
+    border-radius: 5px;
+    min-width: 220px;
+  }
+  label:hover {
+    transform: scale(1.08);
+    transition: transform 0.1s;
+  }
+
+  input[type="checkbox"]:checked + label {
+    border-color: white;
+  }
+  input {
+    accent-color: #00ff98;
+    display: none;
+  }
+
+  .flavor-text {
+    color: darkgray;
+    font-size: 14px;
+    font-style: italic;
+  }
 }
 
-.checkbox-container input {
-  margin-right: 5px;
+#fight-wipe {
+  color: #a335ee;
+}
+
+#fight-kill {
+  color: #80e666;
+}
+
+.pumpers-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  gap: 20px;
 }
 
 .pumperTable {

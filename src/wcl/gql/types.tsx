@@ -124,6 +124,8 @@ export type ReportFight = {
   startTime: number;
   endTime: number;
   gameZone: GameZone;
+  fightPercentage?: number;
+  lastPhase?: number;
   name?: string;
   difficulty?: number;
   kill?: boolean;

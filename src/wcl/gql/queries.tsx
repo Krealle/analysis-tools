@@ -41,6 +41,8 @@ query getReport($reportID: String!) {
           id
         }
         name
+        fightPercentage
+        lastPhase
         difficulty
         kill
         friendlyPlayers
