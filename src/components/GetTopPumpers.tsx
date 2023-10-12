@@ -59,7 +59,7 @@ function getFilter(playerDetails: PlayerDetails) {
   return filter;
 }
 
-function getMetaData(report?: Report) {
+function handleMetaData(report?: Report) {
   if (!report || !report.fights || !report.masterData) {
     console.log("getMetaData - no report found");
     return null;
@@ -324,7 +324,7 @@ const GetTopPumpers: React.FC<Props> = ({
   };
 
   async function findPumpers() {
-    const fights = getMetaData(metaData);
+    const fights = handleMetaData(metaData);
     console.log("GetTopPumpers - fights:", fights);
 
     // TODO: make some sort of fallback

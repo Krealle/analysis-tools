@@ -26,7 +26,7 @@ export const GetFights = async (code: string) => {
   return checkboxes;
 };
 
-export const genMetaData = async (code: string) => {
+export const GetMetaData = async (code: string) => {
   const report = await getFights({ reportID: code });
   return report;
 };

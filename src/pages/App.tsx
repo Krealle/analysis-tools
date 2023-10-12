@@ -1,7 +1,7 @@
 import "../styles/App.scss";
 import { useEffect, useState } from "react";
 import { setWCLAuthentication } from "../wcl/util/auth";
-import { GetFights, genMetaData } from "../components/GetFights";
+import { GetFights, GetMetaData } from "../components/GetFights";
 import React from "react";
 import GetTopPumpers from "../components/GetTopPumpers";
 import { Report } from "../wcl/gql/types";
@@ -37,7 +37,7 @@ function App() {
       setReportCodeValue(reportCode);
 
       const fightBoxes = await GetFights(reportCode);
-      const metaData = await genMetaData(reportCode);
+      const metaData = await GetMetaData(reportCode);
       setCheckboxes(fightBoxes);
       setMetaData(metaData);
     };
