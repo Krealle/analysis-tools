@@ -8,6 +8,9 @@ import {
   getFights,
   getPlayerDetails,
 } from "../wcl/util/queryWCL";
+import "../styles/TopPumper.scss";
+import { ABILITY_BLACKLIST, ABILITY_SOFT_LIST } from "../util/constants";
+import { formatDuration } from "../util/format";
 
 type Props = {
   selectedFights: number[];
@@ -43,10 +46,13 @@ function getFilter(playerDetails: PlayerDetails) {
   const nameFilter = playerDetails.dps
     .map((player) => `"${player.name}"`)
     .join(`,`);
+  const abilityFilter = ABILITY_BLACKLIST.map((ability) => `${ability}`).join(
+    `,`
+  );
 
   const filter = `(source.name in (${nameFilter}) OR source.owner.name in (${nameFilter})) 
+    AND (ability.id not in (${abilityFilter}))
     AND (target.id != source.id)
-    AND (supportedActor.id = 0) 
     AND target.id not in(169428, 169430, 169429, 169426, 169421, 169425, 168932)
     AND not (target.id = source.owner.id)
     AND not (source.id = target.owner.id)`;
@@ -176,10 +182,22 @@ function handleFightData(selectedFights: number[]): TotInterval[] {
         currentInterval++;
       }
 
-      const sourceID = petToPlayerMap.get(event.sourceID) ?? event.sourceID;
+      const sourceID = event.subtractsFromSupportedActor
+        ? petToPlayerMap.get(event.supportID ?? -1) ?? event.supportID ?? -1
+        : petToPlayerMap.get(event.sourceID) ?? event.sourceID;
 
       const intervalEntry = interval.find((entry) => entry.id === sourceID);
-      const amount = event.amount + (event.absorbed ?? 0);
+
+      let amount = 0;
+      if (event.subtractsFromSupportedActor) {
+        amount = -(event.amount + (event.absorbed ?? 0));
+      } else {
+        // abilities on soft doesn't scale off mainstat so they should be devalued
+        amount = ABILITY_SOFT_LIST.includes(event.abilityGameID)
+          ? (event.amount + (event.absorbed ?? 0)) * 0.2
+          : event.amount + (event.absorbed ?? 0);
+      }
+
       if (intervalEntry) {
         intervalEntry.damage += amount;
       } else {
@@ -203,25 +221,26 @@ function averageOutIntervals(totIntervals: TotInterval[]): TotInterval[] {
 
   for (const entry of totIntervals) {
     const currentInterval = entry.currentInterval;
-    const intervalData: {
-      [id: number]: { totalDamage: number; count: number };
-    } = {};
+    const intervalRecord: Record<
+      number,
+      { totalDamage: number; count: number }
+    > = {};
 
     for (const interval of entry.intervalEntries) {
       for (const { id, damage } of interval) {
-        if (!intervalData[id]) {
-          intervalData[id] = { totalDamage: damage, count: 1 };
+        if (!intervalRecord[id]) {
+          intervalRecord[id] = { totalDamage: damage, count: 1 };
         } else {
-          intervalData[id].totalDamage += damage;
-          intervalData[id].count++;
+          intervalRecord[id].totalDamage += damage;
+          intervalRecord[id].count++;
         }
       }
     }
 
-    const intervalSet: IntervalEntry[] = Object.keys(intervalData).map(
-      (id) => ({
+    const intervalSet: IntervalEntry[] = Object.entries(intervalRecord).map(
+      ([id, intervalData]) => ({
         id: +id,
-        damage: intervalData[+id].totalDamage / intervalData[+id].count,
+        damage: intervalData.totalDamage / intervalData.count,
       })
     );
 
@@ -264,7 +283,7 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
   // TODO: interval shouldn't be static
   let intervalStart = 0;
   for (const interval of top4Pumpers) {
-    const intervalEnd = intervalStart + 30;
+    const intervalEnd = intervalStart + 30_000;
     const formattedEntriesTable: JSX.Element[][] = interval.intervalEntries.map(
       (entries) =>
         entries.map((player) => (
@@ -279,17 +298,19 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
 
     tableRows.push(
       <tr key={interval.currentInterval}>
-        <td>{`${intervalStart} - ${intervalEnd}`}</td>
+        <td>
+          {formatDuration(intervalStart)} - {formatDuration(intervalEnd)}
+        </td>
         {formattedEntriesTable}
       </tr>
     );
-    intervalStart += 30;
+    intervalStart += 30_000;
   }
 
   return (
     <div>
-      <table>
-        <tbody className="table">
+      <table className="pumperTable">
+        <tbody>
           {headerRow}
           {tableRows}
         </tbody>

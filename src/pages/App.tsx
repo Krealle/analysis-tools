@@ -1,4 +1,4 @@
-import "../styles/App.css";
+import "../styles/App.scss";
 import { useEffect, useState } from "react";
 import { setWCLAuthentication } from "../wcl/util/auth";
 import GetFights from "../components/GetFights";

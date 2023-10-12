@@ -1,0 +1,86 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  padding: 2em;
+}
+
+.url-input {
+  width: 700px;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the content horizontally */
+}
+
+.checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Create 4 columns in each row */
+  gap: 10px; /* Adjust the gap between items */
+}
+
+.checkbox-container label {
+  margin-left: 10px;
+}
+
+.checkbox-container input {
+  margin-right: 5px;
+}
+
+.pumperTable {
+  background: #302e2e;
+  border-spacing: 0;
+  border-collapse: collapse;
+  th,
+  td {
+    border: 1px solid #6f6f6f;
+    padding: 4px 12px;
+    text-align: center;
+  }
+}
+
+.DeathKnight {
+  color: #c41f3b !important;
+}
+.Druid {
+  color: #ff7d0a !important;
+}
+.Hunter {
+  color: #abd473 !important;
+}
+.Mage {
+  color: #69ccf0 !important;
+}
+.Monk {
+  color: #00ff98 !important;
+}
+.Paladin {
+  color: #f58cba !important;
+}
+.Priest {
+  color: #ffffff !important;
+}
+.Rogue {
+  color: #fff569 !important;
+}
+.Shaman {
+  color: #2459ff !important;
+}
+.Warlock {
+  color: #9482c9 !important;
+}
+.Warrior {
+  color: #c79c6e !important;
+}
+.DemonHunter {
+  color: #a330c9 !important;
+}
+.Evoker {
+  color: #33937f !important;
+}
