@@ -1,15 +1,17 @@
 import "../styles/App.scss";
 import { useEffect, useState } from "react";
 import { setWCLAuthentication } from "../wcl/util/auth";
-import GetFights from "../components/GetFights";
+import { GetFights, genMetaData } from "../components/GetFights";
 import React from "react";
 import GetTopPumpers from "../components/GetTopPumpers";
+import { Report } from "../wcl/gql/types";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [checkboxes, setCheckboxes] = useState<JSX.Element[] | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [reportCode, setReportCodeValue] = useState("");
+  const [metaData, setMetaData] = useState<Report | undefined>();
 
   const handleCheckboxClick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checkboxId = parseFloat(e.target.value);
@@ -31,11 +33,13 @@ function App() {
 
       const reportCode = url.pathname.split("/").pop() ?? "";
 
-      console.log("Code from url:", reportCode);
+      //console.log("Code from url:", reportCode);
       setReportCodeValue(reportCode);
 
       const fightBoxes = await GetFights(reportCode);
+      const metaData = await genMetaData(reportCode);
       setCheckboxes(fightBoxes);
+      setMetaData(metaData);
     };
 
     fetchFights();
@@ -60,7 +64,11 @@ function App() {
               onClick: handleCheckboxClick,
             })
           )}
-          <GetTopPumpers selectedFights={selectedIds} reportCode={reportCode} />
+          <GetTopPumpers
+            selectedFights={selectedIds}
+            reportCode={reportCode}
+            metaData={metaData}
+          />
         </div>
       )}
 

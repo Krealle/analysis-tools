@@ -1,7 +1,7 @@
-import { format } from "date-fns";
 import { getFights } from "../wcl/util/queryWCL";
+import { formatDuration } from "../util/format";
 
-const GetFights = async (code: string) => {
+export const GetFights = async (code: string) => {
   const response = await getFights({ reportID: code });
 
   if (!response || !response.fights) {
@@ -17,7 +17,7 @@ const GetFights = async (code: string) => {
         <label>
           <input type="checkbox" value={fight.id} />
           {fight.name} #{fight.id} - Duration:{" "}
-          {format(new Date(fight.endTime - fight.startTime), "mm:ss")}{" "}
+          {formatDuration(fight.endTime - fight.startTime)}{" "}
           {fight.kill ? "(kill)" : "(wipe)"}
         </label>
       </div>
@@ -26,4 +26,7 @@ const GetFights = async (code: string) => {
   return checkboxes;
 };
 
-export default GetFights;
+export const genMetaData = async (code: string) => {
+  const report = await getFights({ reportID: code });
+  return report;
+};

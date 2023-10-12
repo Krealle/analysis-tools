@@ -3,18 +3,17 @@ import { DamageEvent, EventType } from "../wcl/events/types";
 import { PlayerDetails, Actor, ReportFight } from "../wcl/gql/types";
 import {
   EventVariables,
-  Variables,
   getEvents,
-  getFights,
   getPlayerDetails,
 } from "../wcl/util/queryWCL";
-import "../styles/TopPumper.scss";
 import { ABILITY_BLACKLIST, ABILITY_SOFT_LIST } from "../util/constants";
-import { formatDuration } from "../util/format";
+import { formatDuration, formatNumber } from "../util/format";
+import { Report } from "../wcl/gql/types";
 
 type Props = {
   selectedFights: number[];
   reportCode: string;
+  metaData: Report | undefined;
 };
 
 type FightTracker = {
@@ -60,19 +59,12 @@ function getFilter(playerDetails: PlayerDetails) {
   return filter;
 }
 
-async function genMetaData(reportCode: string) {
-  const variables: Variables = {
-    reportID: reportCode,
-    limit: 10000,
-  };
-
-  const report = await getFights(variables);
-
+function getMetaData(report?: Report) {
   if (!report || !report.fights || !report.masterData) {
-    console.log("genMetaData - no report found");
+    console.log("getMetaData - no report found");
     return null;
   }
-  console.log("genMetaData - report found:", report);
+  console.log("getMetaData - report found:", report);
 
   /** Link pet to owner
    * and populate playerTracker for class informations */
@@ -290,7 +282,7 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
           <td key={player.id}>
             <span className={playerTracker.get(player.id)?.subType}>
               {playerTracker.get(player.id)?.name} -{" "}
-              {player.damage.toLocaleString()}
+              {formatNumber(player.damage)}
             </span>
           </td>
         ))
@@ -319,7 +311,11 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
   );
 }
 
-const GetTopPumpers: React.FC<Props> = ({ selectedFights, reportCode }) => {
+const GetTopPumpers: React.FC<Props> = ({
+  selectedFights,
+  reportCode,
+  metaData,
+}) => {
   const [content, setContent] = useState<JSX.Element | null>(null);
 
   const handleButtonClick = async () => {
@@ -328,7 +324,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, reportCode }) => {
   };
 
   async function findPumpers() {
-    const fights = await genMetaData(reportCode);
+    const fights = getMetaData(metaData);
     console.log("GetTopPumpers - fights:", fights);
 
     // TODO: make some sort of fallback
