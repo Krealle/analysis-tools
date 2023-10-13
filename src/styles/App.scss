@@ -29,15 +29,17 @@
 .checkbox-fight {
   display: flex;
   justify-content: center;
+  background-color: #0d0d0d;
   margin: 6px;
+  cursor: pointer;
+  transition: transform 0.1s;
 
-  border: 2px solid;
+  border: 2px solid #0d0d0d;
   padding: 2px;
   border-radius: 5px;
   min-width: 220px;
 
   .flavor-text {
-    color: darkgray;
     font-size: 14px;
     font-style: italic;
   }
@@ -49,15 +51,20 @@
 }
 
 .checkbox-fight.selected {
-  border-color: white;
+  border: 2px solid white;
+  transition: border-color 0.5s;
 }
 
 #fight-wipe {
-  color: #a335ee;
+  .flavor-text {
+    color: #e45f5a;
+  }
 }
 
 #fight-kill {
-  color: #80e666;
+  .flavor-text {
+    color: #80e666;
+  }
 }
 
 .pumpers-container {

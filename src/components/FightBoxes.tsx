@@ -38,19 +38,18 @@ export const FightBoxes = ({
             id={fight.kill ? "fight-kill" : "fight-wipe"}
             onClick={() => handleDivClick(fight.id)}
           >
-            <label>
+            <div>
               {fight.name}
               <br />
               <span className="flavor-text">
-                Fight: {fight.id} -{" "}
-                {formatDuration(fight.endTime - fight.startTime)}
+                {fight.id} - {formatDuration(fight.endTime - fight.startTime)}
                 {fight.kill
                   ? ` (kill)`
                   : ` (wipe ${fight.fightPercentage}%${
                       fight.lastPhase ?? 0 > 0 ? ` P${fight.lastPhase}` : ""
                     })`}
               </span>
-            </label>
+            </div>
           </div>
         ))}
     </>
