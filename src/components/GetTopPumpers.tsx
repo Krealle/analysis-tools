@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DamageEvent, EventType } from "../wcl/events/types";
 import { PlayerDetails, Actor, ReportFight } from "../wcl/gql/types";
 import {
@@ -12,12 +12,12 @@ import { Report } from "../wcl/gql/types";
 
 type Props = {
   selectedFights: number[];
-  reportCode: string;
   metaData: Report | undefined;
 };
 
 type FightTracker = {
   fightId: number;
+  reportCode: string;
   startTime: number;
   endTime: number;
   actors: number[];
@@ -99,7 +99,9 @@ async function parseFights(
   for (const fight of fights) {
     if (
       !fight.difficulty ||
-      fightTracker.some((entry) => entry.fightId === fight.id) ||
+      fightTracker.some(
+        (entry) => entry.fightId === fight.id && entry.reportCode === reportCode
+      ) ||
       !selectedFights.includes(fight.id)
     ) {
       console.log("parseFights - Skipping fight");
@@ -126,6 +128,7 @@ async function parseFights(
     console.log("parseFights - fetched events:", events);
     fightTracker.push({
       fightId: fight.id,
+      reportCode: reportCode,
       startTime: fight.startTime,
       endTime: fight.endTime,
       actors: fight.friendlyPlayers ?? [],
@@ -136,11 +139,17 @@ async function parseFights(
   return;
 }
 
-function handleFightData(selectedFights: number[]): TotInterval[] {
+function handleFightData(
+  selectedFights: number[],
+  reportCode: string
+): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
 
   for (const fight of fightTracker) {
-    if (!selectedFights.includes(fight.fightId)) {
+    if (
+      !selectedFights.includes(fight.fightId) ||
+      fight.reportCode !== reportCode
+    ) {
       continue;
     }
 
@@ -258,6 +267,9 @@ function getTop4Pumpers(topPumpersData: TotInterval[]): TotInterval[] {
 // TODO: getMRTNote()
 
 function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
+  if (avgTopPumpersData.length === 0) {
+    return <>No data found</>;
+  }
   const top4Pumpers: TotInterval[] = getTop4Pumpers(avgTopPumpersData);
 
   const tableRows: JSX.Element[] = [];
@@ -311,14 +323,21 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
   );
 }
 
-const GetTopPumpers: React.FC<Props> = ({
-  selectedFights,
-  reportCode,
-  metaData,
-}) => {
+const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [content, setContent] = useState<JSX.Element | null>(null);
 
+  useEffect(() => {
+    setContent(null);
+  }, [metaData]);
+
   const handleButtonClick = async () => {
+    if (selectedFights.length === 0) {
+      alert("No fight selected!");
+      return;
+    }
+
+    setContent(<>Loading..</>);
+
     console.log("GetTopPumpers - selected fights:", selectedFights);
     await findPumpers();
   };
@@ -328,15 +347,15 @@ const GetTopPumpers: React.FC<Props> = ({
     console.log("GetTopPumpers - fights:", fights);
 
     // TODO: make some sort of fallback
-    if (!fights) {
+    if (!fights || !metaData) {
       console.log("GetTopPumpers - no fights found");
       return;
     }
 
-    await parseFights(reportCode, fights, selectedFights);
+    await parseFights(metaData.code, fights, selectedFights);
     console.log("GetTopPumpers - fightTracker:", fightTracker);
 
-    const topPumpersData = handleFightData(selectedFights);
+    const topPumpersData = handleFightData(selectedFights, metaData.code);
     console.log("GetTopPumpers - topPumpersData:", topPumpersData);
 
     const avgTopPumpersData = averageOutIntervals(topPumpersData);
@@ -349,6 +368,8 @@ const GetTopPumpers: React.FC<Props> = ({
   return (
     <div>
       <button onClick={handleButtonClick}>Get Pumpers</button>
+      <br />
+      <br />
       {content}
     </div>
   );

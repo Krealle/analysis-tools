@@ -33,6 +33,7 @@ query getReport($reportID: String!) {
   reportData {
     report(code: $reportID) {
       title
+      code
       fights(translate: true) {
         id
         startTime
