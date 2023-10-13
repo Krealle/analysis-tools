@@ -31,30 +31,25 @@
   justify-content: center;
   margin: 6px;
 
-  label {
-    border: 2px solid;
-    padding: 2px;
-    border-radius: 5px;
-    min-width: 220px;
-  }
-  label:hover {
-    transform: scale(1.08);
-    transition: transform 0.1s;
-  }
-
-  input[type="checkbox"]:checked + label {
-    border-color: white;
-  }
-  input {
-    accent-color: #00ff98;
-    display: none;
-  }
+  border: 2px solid;
+  padding: 2px;
+  border-radius: 5px;
+  min-width: 220px;
 
   .flavor-text {
     color: darkgray;
     font-size: 14px;
     font-style: italic;
   }
+}
+
+.checkbox-fight:hover {
+  transform: scale(1.08);
+  transition: transform 0.1s;
+}
+
+.checkbox-fight.selected {
+  border-color: white;
 }
 
 #fight-wipe {
