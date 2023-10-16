@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Report } from "../wcl/gql/types";
 import { getFights } from "../wcl/util/queryWCL";
 import { parseWCLUrl } from "../wcl/util/parseWCLUrl";
@@ -8,26 +8,51 @@ interface WCLUrlInputProps {
 }
 
 export const WCLUrlInput = ({ onFightChange }: WCLUrlInputProps) => {
-  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const newUrl = event.target.value;
+  const [url, setUrl] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    const reportCode = parseWCLUrl(newUrl);
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const reportCode = parseWCLUrl(url);
 
     if (!reportCode) {
       onFightChange(undefined);
       return;
     }
-    const newFightReport = await getFights({ reportID: reportCode });
 
-    onFightChange(newFightReport);
+    setIsSubmitting(true);
+
+    try {
+      const newFightReport = await getFights({ reportID: reportCode });
+      onFightChange(newFightReport);
+    } catch (error) {
+      // Handle errors here
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUrl(event.target.value);
   };
 
   return (
-    <input
-      type="text"
-      className="url-input"
-      onChange={handleChange}
-      placeholder="Enter WCL URL"
-    />
+    <form onSubmit={handleSubmit} className="wcl-form-container">
+      <div className="inner-container">
+        <div className="input-container">
+          <input
+            type="text"
+            placeholder="Enter WCL URL"
+            value={url}
+            onChange={handleChange}
+            disabled={isSubmitting}
+          />
+        </div>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Fetching..." : "Fetch Fights"}
+        </button>
+      </div>
+    </form>
   );
 };

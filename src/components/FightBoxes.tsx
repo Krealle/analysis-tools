@@ -39,7 +39,7 @@ export const FightBoxes = ({
             onClick={() => handleDivClick(fight.id)}
           >
             <div>
-              {fight.name}
+              <span className="fight-name">{fight.name}</span>
               <br />
               <span className="flavor-text">
                 {fight.id} - {formatDuration(fight.endTime - fight.startTime)}
