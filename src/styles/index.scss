@@ -67,3 +67,16 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.footer {
+  display: flex;
+  align-items: center;
+  height: 5rem;
+  span {
+    display: flex;
+    a {
+      text-decoration-line: underline;
+      color: inherit;
+    }
+  }
+}
