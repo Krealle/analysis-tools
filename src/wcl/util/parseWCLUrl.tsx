@@ -51,7 +51,7 @@ export const parseWCLUrl = (maybeURL: string) => {
     // WCL url, points to reports, but no fight selected
     if (!hash) {
       return {
-        reportCode: maybeURL,
+        reportCode: maybeReportID,
         error: null,
       };
     }
@@ -61,7 +61,7 @@ export const parseWCLUrl = (maybeURL: string) => {
     // no fightID at all
     if (!maybeFightID) {
       return {
-        reportCode: maybeURL,
+        reportCode: maybeReportID,
         error: null,
       };
     }
@@ -69,13 +69,13 @@ export const parseWCLUrl = (maybeURL: string) => {
     // fightID may be `last` or numeric
     if (maybeFightID === "last" || Number.parseInt(maybeFightID) > 0) {
       return {
-        reportCode: maybeURL,
+        reportCode: maybeReportID,
         error: null,
       };
     }
 
     return {
-      reportCode: maybeURL,
+      reportCode: maybeReportID,
       error: null,
     };
   } catch {
