@@ -13,10 +13,8 @@ export const FightBoxes = ({
   const handleDivClick = (id: number) => {
     const isSelected = selectedIds.includes(id);
     if (isSelected) {
-      // Deselect the fight
       setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
     } else {
-      // Select the fight
       setSelectedIds([...selectedIds, id]);
     }
   };

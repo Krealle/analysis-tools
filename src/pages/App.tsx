@@ -21,10 +21,15 @@ function App() {
     if (fightReport && fightReport.fights) {
       const allFightIds = fightReport.fights
         .filter((fight) => {
+          return fight.difficulty !== null;
+        })
+        .filter((fight) => {
           if (selectKills === undefined) {
-            return fight.difficulty;
+            return fight.difficulty !== null;
           } else {
-            return fight.difficulty && selectKills ? fight.kill : !fight.kill;
+            return fight.difficulty !== null && selectKills
+              ? fight.kill
+              : !fight.kill;
           }
         })
         .map((fight) => fight.id);

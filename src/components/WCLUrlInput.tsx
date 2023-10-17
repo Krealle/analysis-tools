@@ -17,16 +17,13 @@ export const WCLUrlInput = ({ onFightChange }: WCLUrlInputProps) => {
     event.preventDefault();
 
     const { reportCode, error } = parseWCLUrl(url);
-
     if (!reportCode || error) {
       if (error) {
         setErrorBear(error);
-      } else {
-        setErrorBear(undefined);
       }
-      onFightChange(undefined);
       return;
     }
+    setErrorBear(undefined);
 
     setIsSubmitting(true);
 

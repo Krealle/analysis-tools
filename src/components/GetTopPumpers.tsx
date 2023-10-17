@@ -271,6 +271,7 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
 
 const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [content, setContent] = useState<JSX.Element | null>(null);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   useEffect(() => {
     setContent(null);
@@ -282,6 +283,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       return;
     }
 
+    setIsFetching(true);
     setContent(
       <>
         <img src={bearDancing} />
@@ -292,6 +294,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
 
     console.log("GetTopPumpers - selected fights:", selectedFights);
     await findPumpers();
+    setIsFetching(false);
   };
 
   async function parseFights(
@@ -386,7 +389,9 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
 
   return (
     <div>
-      <button onClick={handleButtonClick}>Get Pumpers</button>
+      <button onClick={handleButtonClick} disabled={isFetching}>
+        Get Pumpers
+      </button>
       <br />
       <br />
       {content}
