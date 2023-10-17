@@ -27,3 +27,12 @@ export type TimeSkipIntervals = {
   start: number;
   end: number;
 };
+
+export type TimeIntervals = {
+  start: string;
+  end: string;
+};
+
+export type FightParameters = {
+  timeIntervals: TimeIntervals[];
+};

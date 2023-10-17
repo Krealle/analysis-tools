@@ -1,26 +1,30 @@
-import React, { useState } from "react";
+import React from "react";
+import { FightParameters } from "../helpers/types";
 
 type CustomFightParametersProps = {
   onFightParameterChange: (fightCustomParameters: FightParameters) => void;
-};
-
-export type TimeIntervals = {
-  start: string;
-  end: string;
-};
-
-export type FightParameters = {
-  timeIntervals: TimeIntervals[];
+  timeIntervals: { start: string; end: string }[];
+  customBlacklist: string;
+  setTimeIntervals: (intervals: { start: string; end: string }[]) => void;
+  setCustomBlacklist: (blacklist: string) => void;
 };
 
 const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
   onFightParameterChange,
+  timeIntervals,
+  customBlacklist,
+  setTimeIntervals,
+  setCustomBlacklist,
 }) => {
-  const [timeIntervals, setTimeIntervals] = useState([{ start: "", end: "" }]);
-  const [customBlacklist, setCustomBlacklist] = useState("");
-
   const addTimeInterval = () => {
     setTimeIntervals([...timeIntervals, { start: "", end: "" }]);
+  };
+
+  const removeTimeInterval = (index: number) => {
+    const updatedIntervals = [...timeIntervals];
+    updatedIntervals.splice(index, 1);
+    setTimeIntervals(updatedIntervals);
+    onFightParameterChange({ timeIntervals: updatedIntervals });
   };
 
   const handleInputChange = (
@@ -37,19 +41,20 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
   return (
     <>
       <div className="time-intervals-container">
-        <p>Time intervals to skip.</p>
+        <p>Time intervals to skip</p>
         {timeIntervals.map((interval, index) => (
           <div className="time-intervals-content" key={index}>
+            <button onClick={() => removeTimeInterval(index)}>X</button>
             <input
-              placeholder="Start"
+              placeholder="0:45"
               value={interval.start}
               onChange={(e) =>
                 handleInputChange(index, "start", e.target.value)
               }
-            />
-            -
+            />{" "}
+            -{" "}
             <input
-              placeholder="End"
+              placeholder="1:05"
               value={interval.end}
               onChange={(e) => handleInputChange(index, "end", e.target.value)}
             />
@@ -58,7 +63,7 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
         <button onClick={addTimeInterval}>Add period</button>
       </div>
       <div className="blacklist-container">
-        <p>Custom Blacklist</p>
+        <p>Abilities to blacklist</p>
         <div className="blacklist-content">
           <input
             type="text"

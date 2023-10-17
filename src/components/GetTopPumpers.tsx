@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { formatTime } from "../util/format";
 import { Report } from "../wcl/gql/types";
 import bearDancing from "/static/bear/dance.gif";
-import CustomFightParameters, {
-  FightParameters,
-} from "./CustomFightParameters";
+import CustomFightParameters from "./CustomFightParameters";
 import {
   averageOutIntervals,
   handleFightData,
@@ -12,7 +10,11 @@ import {
   parseFights,
 } from "../helpers/dataProcessing";
 import { renderTableContent2 as renderTableContent } from "../helpers/contentRender";
-import { FightTracker, TimeSkipIntervals } from "../helpers/types";
+import {
+  FightParameters,
+  FightTracker,
+  TimeSkipIntervals,
+} from "../helpers/types";
 
 type Props = {
   selectedFights: number[];
@@ -31,6 +33,8 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [onlyBossDamage, setOnlyBossDamage] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [parameterError, setParameterError] = useState<boolean>(false);
+  const [timeIntervals, setTimeIntervals] = useState([{ start: "", end: "" }]);
+  const [customBlacklist, setCustomBlacklist] = useState("");
 
   useEffect(() => {
     setContent(null);
@@ -51,7 +55,6 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       </>
     );
 
-    console.log("GetTopPumpers - selected fights:", selectedFights);
     await findPumpers();
     setIsFetching(false);
   };
@@ -112,7 +115,6 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       }
     }
     setParameterError(false);
-    console.log(timeSkipIntervals);
   };
 
   return (
@@ -134,7 +136,13 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
         </label>
       </div>
       <div className="pumpers-content">
-        <CustomFightParameters onFightParameterChange={handleParameterChange} />
+        <CustomFightParameters
+          onFightParameterChange={handleParameterChange}
+          timeIntervals={timeIntervals}
+          customBlacklist={customBlacklist}
+          setTimeIntervals={setTimeIntervals}
+          setCustomBlacklist={setCustomBlacklist}
+        />
       </div>
       <div className="pumpers-content">{content}</div>
     </>
