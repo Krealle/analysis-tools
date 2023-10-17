@@ -24,7 +24,10 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
     const updatedIntervals = [...timeIntervals];
     updatedIntervals.splice(index, 1);
     setTimeIntervals(updatedIntervals);
-    onFightParameterChange({ timeIntervals: updatedIntervals });
+    onFightParameterChange({
+      timeIntervals: updatedIntervals,
+      customBlacklist,
+    });
   };
 
   const handleInputChange = (
@@ -35,7 +38,15 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
     const updatedIntervals = [...timeIntervals];
     updatedIntervals[index][field] = value;
     setTimeIntervals(updatedIntervals);
-    onFightParameterChange({ timeIntervals: updatedIntervals });
+    onFightParameterChange({
+      timeIntervals: updatedIntervals,
+      customBlacklist,
+    });
+  };
+
+  const handleBlacklistChange = (value: string) => {
+    setCustomBlacklist(value);
+    onFightParameterChange({ timeIntervals, customBlacklist: value });
   };
 
   return (
@@ -69,7 +80,7 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
             type="text"
             placeholder="2975,1560,23"
             value={customBlacklist}
-            onChange={(e) => setCustomBlacklist(e.target.value)}
+            onChange={(e) => handleBlacklistChange(e.target.value)}
           />
         </div>
       </div>

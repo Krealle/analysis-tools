@@ -18,13 +18,16 @@ import {
   TotInterval,
 } from "./types";
 
-function getFilter(playerDetails: PlayerDetails) {
+function getFilter(playerDetails: PlayerDetails, customBlacklist: string) {
   const nameFilter = playerDetails.dps
     .map((player) => `"${player.name}"`)
     .join(`,`);
-  const abilityFilter = ABILITY_BLACKLIST.map((ability) => `${ability}`).join(
+  let abilityFilter = ABILITY_BLACKLIST.map((ability) => `${ability}`).join(
     `,`
   );
+  if (customBlacklist !== "") {
+    abilityFilter += `,${customBlacklist}`;
+  }
 
   const filter = `(source.name in (${nameFilter}) OR source.owner.name in (${nameFilter})) 
     AND (ability.id not in (${abilityFilter}))
@@ -232,7 +235,8 @@ export async function parseFights(
   reportCode: string,
   fights: ReportFight[],
   selectedFights: number[],
-  fightTracker: FightTracker[] = []
+  fightTracker: FightTracker[] = [],
+  customBlacklist: string
 ) {
   const variables: EventVariables = {
     reportID: reportCode,
@@ -263,7 +267,7 @@ export async function parseFights(
     const playerDetails = await getPlayerDetails(variables);
 
     if (playerDetails) {
-      const filter = getFilter(playerDetails);
+      const filter = getFilter(playerDetails, customBlacklist);
       variables.filterExpression = filter;
     }
 

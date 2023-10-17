@@ -35,4 +35,5 @@ export type TimeIntervals = {
 
 export type FightParameters = {
   timeIntervals: TimeIntervals[];
+  customBlacklist: string;
 };

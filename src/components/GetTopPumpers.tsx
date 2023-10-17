@@ -33,6 +33,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [onlyBossDamage, setOnlyBossDamage] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [parameterError, setParameterError] = useState<boolean>(false);
+  const [parameterErrorMsg, setParameterErrorMsg] = useState("");
   const [timeIntervals, setTimeIntervals] = useState([{ start: "", end: "" }]);
   const [customBlacklist, setCustomBlacklist] = useState("");
 
@@ -43,6 +44,10 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
       alert("No fight selected!");
+      return;
+    }
+    if (parameterError) {
+      alert(parameterErrorMsg);
       return;
     }
 
@@ -76,7 +81,8 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       metaData.code,
       fights,
       selectedFights,
-      fightTracker
+      fightTracker,
+      customBlacklist
     );
 
     const topPumperData = handleFightData(
@@ -97,33 +103,46 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
 
   const handleParameterChange = (fightCustomParameters: FightParameters) => {
     const timeIntervalParam = fightCustomParameters.timeIntervals;
+    const blacklist = fightCustomParameters.customBlacklist;
     timeSkipIntervals = [];
-    if (timeIntervalParam.length === 0) {
-      return;
-    } else {
-      for (const interval of timeIntervalParam) {
-        const formatedStartTime = formatTime(interval.start);
-        const formatedEndTime = formatTime(interval.end);
-        if (!formatedStartTime || !formatedEndTime) {
-          setParameterError(true);
-          return;
-        }
-        timeSkipIntervals.push({
-          start: formatedStartTime,
-          end: formatedEndTime,
-        });
+
+    for (const interval of timeIntervalParam) {
+      const formatedStartTime = formatTime(interval.start);
+      const formatedEndTime = formatTime(interval.end);
+      if (
+        !formatedStartTime ||
+        !formatedEndTime ||
+        formatedStartTime > formatedEndTime
+      ) {
+        setParameterErrorMsg("Invalid time interval");
+        setParameterError(true);
+        return;
       }
+      timeSkipIntervals.push({
+        start: formatedStartTime,
+        end: formatedEndTime,
+      });
     }
+
+    /** In my eyes this is black magic but all
+     * it does is check if blacklist format is correct:
+     * eg. "23,25,25" / "24, 255, 23478" */
+    const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
+    const blackListValid = regex.test(blacklist);
+    console.log("test");
+    if (!blackListValid) {
+      setParameterErrorMsg("Invalid blacklist");
+      setParameterError(true);
+      return;
+    }
+
     setParameterError(false);
   };
 
   return (
     <>
       <div className="pumpers-content">
-        <button
-          onClick={handleButtonClick}
-          disabled={isFetching || parameterError}
-        >
+        <button onClick={handleButtonClick} disabled={isFetching}>
           Get Pumpers
         </button>
         <label className="only-boss-damage">
