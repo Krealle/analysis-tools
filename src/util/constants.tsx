@@ -52,3 +52,20 @@ export const ABILITY_SOFT_LIST: number[] = [
   408469, // Call to Suffering (Self Harm)
   184689, // Shield of Vengeance
 ];
+
+/** Bosses */
+export const BOSS_ID_LIST: number[] = [
+  201261, // Kazzara
+  199659, // Warlord Kagni
+  200912, // Neldris
+  200913, // Thadrion
+  200918, // Rionthus
+  201774, // Essence of Shadow
+  201773, // Eternal Blaze
+  201934, // Shadowflame Amalgamation
+  201320, // Rashok
+  202637, // Zskarn
+  201579, // Magmorax
+  201668, // Neltharion
+  201754, // Sarkareth
+];

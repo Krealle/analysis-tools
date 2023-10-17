@@ -6,7 +6,11 @@ import {
   getEvents,
   getPlayerDetails,
 } from "../wcl/util/queryWCL";
-import { ABILITY_BLACKLIST, ABILITY_SOFT_LIST } from "../util/constants";
+import {
+  ABILITY_BLACKLIST,
+  ABILITY_SOFT_LIST,
+  BOSS_ID_LIST,
+} from "../util/constants";
 import { formatDuration, formatNumber } from "../util/format";
 import { Report } from "../wcl/gql/types";
 import bearDancing from "/static/bear/dance.gif";
@@ -41,6 +45,7 @@ type IntervalEntry = {
 const fightTracker: FightTracker[] = [];
 const playerTracker = new Map<number, Actor>();
 const petToPlayerMap = new Map<number, number>();
+const bossIdList = new Set<number>();
 
 function getFilter(playerDetails: PlayerDetails) {
   const nameFilter = playerDetails.dps
@@ -70,14 +75,15 @@ function handleMetaData(report?: Report) {
   /** Link pet to owner
    * and populate playerTracker for class informations */
   if (report.masterData.actors) {
-    const pets: number[] = [];
     for (const actor of report.masterData.actors) {
       if (actor.petOwner) {
         petToPlayerMap.set(actor.id, actor.petOwner);
-        pets.push(actor.id);
       }
       if (actor.type === "Player") {
         playerTracker.set(actor.id, actor);
+      }
+      if (BOSS_ID_LIST.includes(actor.gameID ?? -1)) {
+        bossIdList.add(actor.id);
       }
     }
   }
@@ -87,7 +93,8 @@ function handleMetaData(report?: Report) {
 
 function handleFightData(
   selectedFights: number[],
-  reportCode: string
+  reportCode: string,
+  onlyBosses?: boolean
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
 
@@ -107,6 +114,10 @@ function handleFightData(
     let interval: IntervalSet = [];
 
     for (const event of fight.events) {
+      if (onlyBosses && !bossIdList.has(event.targetID)) {
+        continue;
+      }
+
       if (event.timestamp > intervalTimer + intervalDur) {
         const sortedInterval = interval.slice();
         sortedInterval.sort((a, b) => b.damage - a.damage);
@@ -271,6 +282,7 @@ function renderTableContent(avgTopPumpersData: TotInterval[]): JSX.Element {
 
 const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [content, setContent] = useState<JSX.Element | null>(null);
+  const [onlyBossDamage, setOnlyBossDamage] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   useEffect(() => {
@@ -377,7 +389,11 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
     await parseFights(metaData.code, fights, selectedFights);
     console.log("GetTopPumpers - fightTracker:", fightTracker);
 
-    const topPumpersData = handleFightData(selectedFights, metaData.code);
+    const topPumpersData = handleFightData(
+      selectedFights,
+      metaData.code,
+      onlyBossDamage
+    );
     console.log("GetTopPumpers - topPumpersData:", topPumpersData);
 
     const avgTopPumpersData = averageOutIntervals(topPumpersData);
@@ -388,14 +404,22 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   }
 
   return (
-    <div>
-      <button onClick={handleButtonClick} disabled={isFetching}>
-        Get Pumpers
-      </button>
-      <br />
-      <br />
-      {content}
-    </div>
+    <>
+      <div className="pumpers-content">
+        <button onClick={handleButtonClick} disabled={isFetching}>
+          Get Pumpers
+        </button>
+        <label className="only-boss-damage">
+          <input
+            type="checkbox"
+            disabled={isFetching}
+            onChange={(event) => setOnlyBossDamage(event.target.checked)}
+          />
+          <span>Only Boss Damage</span>
+        </label>
+      </div>
+      <div className="pumpers-content">{content}</div>
+    </>
   );
 };
 
