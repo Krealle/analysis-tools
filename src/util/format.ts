@@ -7,7 +7,7 @@ export function formatDuration(
   const posSeconds = Math.abs(totalSeconds);
   const minutes = Math.floor(posSeconds / 60);
   const mult = Math.pow(10, precision);
-  const rest = (Math.floor((posSeconds % 60) * mult) / mult).toFixed(precision);
+  const rest = (Math.round((posSeconds % 60) * mult) / mult).toFixed(precision);
   const seconds = Number(rest) < 10 ? `0${rest}` : rest;
 
   return `${neg}${minutes}:${seconds}`;
@@ -26,4 +26,16 @@ export function formatNumber(number: number): string {
     return `${Math.round(number / 1000)}k`;
   }
   return formatThousands(number);
+}
+
+/** Function to convert "mm:ss" time format to milliseconds */
+export function formatTime(time: string): number | undefined {
+  const timePattern = /^\d+:\d+$/; // Regular expression to match "mm:ss" format
+
+  if (!timePattern.test(time)) {
+    return;
+  }
+
+  const [minutes, seconds] = time.split(":").map(Number);
+  return minutes * 60 * 1000 + seconds * 1000;
 }
