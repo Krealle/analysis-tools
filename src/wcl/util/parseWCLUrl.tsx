@@ -1,6 +1,27 @@
+export enum ReportParseError {
+  INVALID_HOST = "INVALID_HOST",
+  INVALID_REPORT_ID = "INVALID_REPORT_ID",
+  INVALID_URL = "INVALID_URL",
+}
+
+export const reportParseErrorMap: Record<ReportParseError, string> = {
+  INVALID_HOST: "This doesn't seem to be a Warcraft Logs link.",
+  INVALID_REPORT_ID: "The report ID seems to be malformed.",
+  INVALID_URL: "This doesn't seem to be a valid URL.",
+};
+
+export const reportParseErrorIconMap: Record<ReportParseError, string> = {
+  INVALID_HOST: "/static/bear/cry-48.png",
+  INVALID_REPORT_ID: "/static/bear/concern-48.png",
+  INVALID_URL: "/static/bear/bonk-48.png",
+};
+
 export const parseWCLUrl = (maybeURL: string) => {
   if (isValidReportId(maybeURL)) {
-    return maybeURL;
+    return {
+      reportCode: maybeURL,
+      error: null,
+    };
   }
 
   try {
@@ -11,36 +32,57 @@ export const parseWCLUrl = (maybeURL: string) => {
       !host.includes("warcraftlogs.com") ||
       !pathname.startsWith("/reports/")
     ) {
-      return;
+      return {
+        reportCode: null,
+        error: ReportParseError.INVALID_HOST,
+      };
     }
 
     const maybeReportID = pathname.replace("/reports/", "").replace("/", "");
 
     // WCL url, but doesnt point to reports
     if (!isValidReportId(maybeReportID)) {
-      return;
+      return {
+        reportCode: null,
+        error: ReportParseError.INVALID_REPORT_ID,
+      };
     }
 
     // WCL url, points to reports, but no fight selected
     if (!hash) {
-      return maybeReportID;
+      return {
+        reportCode: maybeURL,
+        error: null,
+      };
     }
 
     const maybeFightID = new URLSearchParams(hash.slice(1)).get("fight");
 
     // no fightID at all
     if (!maybeFightID) {
-      return maybeReportID;
+      return {
+        reportCode: maybeURL,
+        error: null,
+      };
     }
 
     // fightID may be `last` or numeric
     if (maybeFightID === "last" || Number.parseInt(maybeFightID) > 0) {
-      return maybeReportID;
+      return {
+        reportCode: maybeURL,
+        error: null,
+      };
     }
 
-    return maybeReportID;
+    return {
+      reportCode: maybeURL,
+      error: null,
+    };
   } catch {
-    return;
+    return {
+      reportCode: null,
+      error: ReportParseError.INVALID_URL,
+    };
   }
 };
 

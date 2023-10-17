@@ -39,15 +39,17 @@ function App() {
       {fightReport && (
         <>
           <h2>Select fights to analyze</h2>
-          <button onClick={() => handleSelectFights()}>
-            Select All Fights
-          </button>
-          <button onClick={() => handleSelectFights(true)}>
-            Select All Kills
-          </button>
-          <button onClick={() => handleSelectFights(false)}>
-            Select All Wipes
-          </button>
+          <div className="select-fights-button-container">
+            <button onClick={() => handleSelectFights()}>
+              Select All Fights
+            </button>
+            <button onClick={() => handleSelectFights(true)}>
+              Select All Kills
+            </button>
+            <button onClick={() => handleSelectFights(false)}>
+              Select All Wipes
+            </button>
+          </div>
           <div className="fights-container">
             <FightBoxes
               fights={fightReport.fights}

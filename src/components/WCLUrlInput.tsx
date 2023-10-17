@@ -1,7 +1,8 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Report } from "../wcl/gql/types";
 import { getFights } from "../wcl/util/queryWCL";
-import { parseWCLUrl } from "../wcl/util/parseWCLUrl";
+import { ReportParseError, parseWCLUrl } from "../wcl/util/parseWCLUrl";
+import ErrorBear from "./ErrorBear";
 
 interface WCLUrlInputProps {
   onFightChange: (newFightReport: Report | undefined) => void;
@@ -10,13 +11,19 @@ interface WCLUrlInputProps {
 export const WCLUrlInput = ({ onFightChange }: WCLUrlInputProps) => {
   const [url, setUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [errorBear, setErrorBear] = useState<ReportParseError | undefined>();
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    const reportCode = parseWCLUrl(url);
+    const { reportCode, error } = parseWCLUrl(url);
 
-    if (!reportCode) {
+    if (!reportCode || error) {
+      if (error) {
+        setErrorBear(error);
+      } else {
+        setErrorBear(undefined);
+      }
       onFightChange(undefined);
       return;
     }
@@ -38,21 +45,24 @@ export const WCLUrlInput = ({ onFightChange }: WCLUrlInputProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="wcl-form-container">
-      <div className="inner-container">
-        <div className="input-container">
-          <input
-            type="text"
-            placeholder="Enter WCL URL"
-            value={url}
-            onChange={handleChange}
-            disabled={isSubmitting}
-          />
+    <>
+      <form onSubmit={handleSubmit} className="wcl-form-container">
+        <div className="inner-container">
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="Enter WCL URL"
+              value={url}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            />
+          </div>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Fetching..." : "Fetch Fights"}
+          </button>
         </div>
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Fetching..." : "Fetch Fights"}
-        </button>
-      </div>
-    </form>
+      </form>
+      {errorBear && <ErrorBear error={errorBear} />}
+    </>
   );
 };

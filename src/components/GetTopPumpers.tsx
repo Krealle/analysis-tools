@@ -9,6 +9,7 @@ import {
 import { ABILITY_BLACKLIST, ABILITY_SOFT_LIST } from "../util/constants";
 import { formatDuration, formatNumber } from "../util/format";
 import { Report } from "../wcl/gql/types";
+import bearDancing from "/static/bear/dance.gif";
 
 type Props = {
   selectedFights: number[];
@@ -82,61 +83,6 @@ function handleMetaData(report?: Report) {
   }
 
   return report.fights;
-}
-
-async function parseFights(
-  reportCode: string,
-  fights: ReportFight[],
-  selectedFights: number[]
-) {
-  const variables: EventVariables = {
-    reportID: reportCode,
-    limit: 10000,
-    startTime: 0,
-    endTime: 0,
-  };
-
-  for (const fight of fights) {
-    if (
-      !fight.difficulty ||
-      fightTracker.some(
-        (entry) => entry.fightId === fight.id && entry.reportCode === reportCode
-      ) ||
-      !selectedFights.includes(fight.id)
-    ) {
-      console.log("parseFights - Skipping fight");
-      continue;
-    }
-
-    variables.startTime = fight.startTime;
-    variables.endTime = fight.endTime;
-    variables.fightIDs = [fight.id]; // TODO: maybe remove
-
-    const playerDetails = await getPlayerDetails(variables);
-
-    if (playerDetails) {
-      const filter = getFilter(playerDetails);
-      variables.filterExpression = filter;
-    }
-
-    console.log("parseFights - fetching events for:", fight);
-    const events = (await getEvents(
-      variables,
-      EventType.DamageEvent
-    )) as DamageEvent[];
-
-    console.log("parseFights - fetched events:", events);
-    fightTracker.push({
-      fightId: fight.id,
-      reportCode: reportCode,
-      startTime: fight.startTime,
-      endTime: fight.endTime,
-      actors: fight.friendlyPlayers ?? [],
-      events: events,
-    });
-  }
-
-  return;
 }
 
 function handleFightData(
@@ -336,11 +282,84 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       return;
     }
 
-    setContent(<>Loading..</>);
+    setContent(
+      <>
+        <img src={bearDancing} />
+        <br />
+        Fetching data from fight: 1/{selectedFights.length}
+      </>
+    );
 
     console.log("GetTopPumpers - selected fights:", selectedFights);
     await findPumpers();
   };
+
+  async function parseFights(
+    reportCode: string,
+    fights: ReportFight[],
+    selectedFights: number[]
+  ) {
+    const variables: EventVariables = {
+      reportID: reportCode,
+      limit: 10000,
+      startTime: 0,
+      endTime: 0,
+    };
+
+    let currentFightIndex = 0;
+    for (const fight of fights) {
+      if (!fight.difficulty || !selectedFights.includes(fight.id)) {
+        console.log("parseFights - Skipping fight");
+        continue;
+      }
+      currentFightIndex++;
+      if (
+        fightTracker.some(
+          (entry) =>
+            entry.fightId === fight.id && entry.reportCode === reportCode
+        )
+      ) {
+        console.log("parseFights - Fight already parsed");
+        continue;
+      }
+
+      setContent(
+        <>
+          <img src={bearDancing} />
+          <br />
+          Fetching data from fight: {currentFightIndex}/{selectedFights.length}
+        </>
+      );
+      variables.startTime = fight.startTime;
+      variables.endTime = fight.endTime;
+      variables.fightIDs = [fight.id]; // TODO: maybe remove
+
+      const playerDetails = await getPlayerDetails(variables);
+
+      if (playerDetails) {
+        const filter = getFilter(playerDetails);
+        variables.filterExpression = filter;
+      }
+
+      console.log("parseFights - fetching events for:", fight);
+      const events = (await getEvents(
+        variables,
+        EventType.DamageEvent
+      )) as DamageEvent[];
+
+      console.log("parseFights - fetched events:", events);
+      fightTracker.push({
+        fightId: fight.id,
+        reportCode: reportCode,
+        startTime: fight.startTime,
+        endTime: fight.endTime,
+        actors: fight.friendlyPlayers ?? [],
+        events: events,
+      });
+    }
+
+    return;
+  }
 
   async function findPumpers() {
     const fights = handleMetaData(metaData);
