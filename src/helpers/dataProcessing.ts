@@ -245,39 +245,40 @@ export async function parseFights(
     endTime: 0,
   };
 
-  for (const fight of fights) {
-    if (!fight.difficulty || !selectedFights.includes(fight.id)) {
-      console.log("parseFights - Skipping fight");
-      continue;
-    }
+  const eventPromises = fights
+    .filter((fight) => fight.difficulty && selectedFights.includes(fight.id))
+    .filter(
+      (fight) =>
+        !fightTracker.some(
+          (entry) =>
+            entry.fightId === fight.id && entry.reportCode === reportCode
+        )
+    )
+    .map(async (fight) => {
+      variables.startTime = fight.startTime;
+      variables.endTime = fight.endTime;
+      variables.fightIDs = [fight.id];
 
-    if (
-      fightTracker.some(
-        (entry) => entry.fightId === fight.id && entry.reportCode === reportCode
-      )
-    ) {
-      console.log("parseFights - Fight already parsed");
-      continue;
-    }
+      const playerDetails = await getPlayerDetails(variables);
 
-    variables.startTime = fight.startTime;
-    variables.endTime = fight.endTime;
-    variables.fightIDs = [fight.id]; // TODO: maybe remove
+      if (playerDetails) {
+        const filter = getFilter(playerDetails, customBlacklist);
+        variables.filterExpression = filter;
+      }
 
-    const playerDetails = await getPlayerDetails(variables);
+      console.log("parseFights - fetching events for:", fight);
 
-    if (playerDetails) {
-      const filter = getFilter(playerDetails, customBlacklist);
-      variables.filterExpression = filter;
-    }
+      const events = (await getEvents(
+        variables,
+        EventType.DamageEvent
+      )) as DamageEvent[];
+      return { fight: fight, events };
+    });
 
-    console.log("parseFights - fetching events for:", fight);
-    const events = (await getEvents(
-      variables,
-      EventType.DamageEvent
-    )) as DamageEvent[];
+  const fightEvents = await Promise.all(eventPromises);
 
-    console.log("parseFights - fetched events:", events);
+  fightEvents.forEach((fightEvent) => {
+    const { fight, events } = fightEvent;
     fightTracker.push({
       fightId: fight.id,
       reportCode: reportCode,
@@ -286,7 +287,7 @@ export async function parseFights(
       actors: fight.friendlyPlayers ?? [],
       events: events,
     });
-  }
+  });
 
   return fightTracker;
 }
