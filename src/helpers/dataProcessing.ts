@@ -238,7 +238,7 @@ export async function parseFights(
   fightTracker: FightTracker[] = [],
   customBlacklist: string
 ) {
-  const variables: EventVariables = {
+  const baseVariables: EventVariables = {
     reportID: reportCode,
     limit: 10000,
     startTime: 0,
@@ -255,9 +255,13 @@ export async function parseFights(
         )
     )
     .map(async (fight) => {
-      variables.startTime = fight.startTime;
-      variables.endTime = fight.endTime;
-      variables.fightIDs = [fight.id];
+      const variables: EventVariables = {
+        ...baseVariables,
+        reportID: reportCode,
+        startTime: fight.startTime,
+        endTime: fight.endTime,
+        fightIDs: [fight.id],
+      };
 
       const playerDetails = await getPlayerDetails(variables);
 
@@ -266,8 +270,6 @@ export async function parseFights(
         variables.filterExpression = filter;
       }
 
-      console.log("parseFights - fetching events for:", fight);
-
       const events = (await getEvents(
         variables,
         EventType.DamageEvent
@@ -275,17 +277,16 @@ export async function parseFights(
       return { fight: fight, events };
     });
 
-  const fightEvents = await Promise.all(eventPromises);
-
-  fightEvents.forEach((fightEvent) => {
-    const { fight, events } = fightEvent;
-    fightTracker.push({
-      fightId: fight.id,
-      reportCode: reportCode,
-      startTime: fight.startTime,
-      endTime: fight.endTime,
-      actors: fight.friendlyPlayers ?? [],
-      events: events,
+  await Promise.all(eventPromises).then((results) => {
+    results.forEach(({ fight, events }) => {
+      fightTracker.push({
+        fightId: fight.id,
+        reportCode: reportCode,
+        startTime: fight.startTime,
+        endTime: fight.endTime,
+        actors: fight.friendlyPlayers ?? [],
+        events: events,
+      });
     });
   });
 
