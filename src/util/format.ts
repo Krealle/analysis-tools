@@ -5,12 +5,19 @@ export function formatDuration(
   const totalSeconds = duration / 1000;
   const neg = totalSeconds < 0 ? "-" : "";
   const posSeconds = Math.abs(totalSeconds);
-  const minutes = Math.floor(posSeconds / 60);
+  let minutes = Math.floor(posSeconds / 60);
   const mult = Math.pow(10, precision);
-  const rest = (Math.round((posSeconds % 60) * mult) / mult).toFixed(precision);
-  const seconds = Number(rest) < 10 ? `0${rest}` : rest;
+  let rest = (Math.round((posSeconds % 60) * mult) / mult).toFixed(precision);
 
-  return `${neg}${minutes}:${seconds}`;
+  // Check if seconds should round up to 60
+  if (parseFloat(rest) >= 60) {
+    minutes += 1;
+    rest = "00";
+  } else if (parseFloat(rest) < 10) {
+    rest = `0${rest}`;
+  }
+
+  return `${neg}${minutes}:${rest}`;
 }
 
 export function formatThousands(number: number): string {
