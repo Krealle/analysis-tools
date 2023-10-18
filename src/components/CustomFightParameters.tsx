@@ -5,16 +5,20 @@ type CustomFightParametersProps = {
   onFightParameterChange: (fightCustomParameters: FightParameters) => void;
   timeIntervals: { start: string; end: string }[];
   customBlacklist: string;
+  onlyBossDamage: boolean;
   setTimeIntervals: (intervals: { start: string; end: string }[]) => void;
   setCustomBlacklist: (blacklist: string) => void;
+  setOnlyBossDamage: (onlyBossDamage: boolean) => void;
 };
 
 const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
   onFightParameterChange,
   timeIntervals,
   customBlacklist,
+  onlyBossDamage,
   setTimeIntervals,
   setCustomBlacklist,
+  setOnlyBossDamage,
 }) => {
   const addTimeInterval = () => {
     setTimeIntervals([...timeIntervals, { start: "", end: "" }]);
@@ -82,6 +86,15 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
             value={customBlacklist}
             onChange={(e) => handleBlacklistChange(e.target.value)}
           />
+        </div>
+      </div>
+      <div className="blacklist-container">
+        <p>Mob blacklist</p>
+        <div
+          className={`only-boss-damage ${onlyBossDamage ? "selected" : ""}`}
+          onClick={() => setOnlyBossDamage(!onlyBossDamage)}
+        >
+          <span>Only Boss Damage</span>
         </div>
       </div>
     </>

@@ -38,6 +38,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
     { start: string; end: string }[]
   >([]);
   const [customBlacklist, setCustomBlacklist] = useState("");
+  const [showOptions, setShowOptions] = useState(false);
 
   useEffect(() => {
     setContent(null);
@@ -143,27 +144,42 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   return (
     <>
       <div className="pumpers-content">
-        <button onClick={handleButtonClick} disabled={isFetching}>
+        <button
+          onClick={handleButtonClick}
+          disabled={isFetching || showOptions}
+        >
           Get Pumpers
         </button>
-        <label className="only-boss-damage">
-          <input
-            type="checkbox"
-            disabled={isFetching}
-            onChange={(event) => setOnlyBossDamage(event.target.checked)}
-          />
-          <span>Only Boss Damage</span>
-        </label>
+        <button
+          onClick={() => setShowOptions(!showOptions)}
+          disabled={isFetching || parameterError}
+        >
+          {showOptions
+            ? parameterError
+              ? " Invalid Parameters"
+              : "Hide options"
+            : "Show options"}
+        </button>
       </div>
-      <div className="pumpers-content">
+
+      <div
+        className={`pumpers-content ${
+          showOptions
+            ? "custom-fight-parameters"
+            : "custom-fight-parameters-hidden"
+        }`}
+      >
         <CustomFightParameters
           onFightParameterChange={handleParameterChange}
           timeIntervals={timeIntervals}
           customBlacklist={customBlacklist}
           setTimeIntervals={setTimeIntervals}
           setCustomBlacklist={setCustomBlacklist}
+          setOnlyBossDamage={setOnlyBossDamage}
+          onlyBossDamage={onlyBossDamage}
         />
       </div>
+
       <div className="pumpers-content">{content}</div>
     </>
   );
