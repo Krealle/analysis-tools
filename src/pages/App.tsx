@@ -9,9 +9,6 @@ function App() {
   const [fightReport, setFightReport] = useState<Report | undefined>();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  console.log("fightReport", fightReport);
-  console.log("selectedIds", selectedIds);
-
   const handleFightChange = (newFightReport: Report | undefined) => {
     setFightReport(newFightReport);
     setSelectedIds([]);

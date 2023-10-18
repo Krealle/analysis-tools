@@ -34,7 +34,9 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [parameterError, setParameterError] = useState<boolean>(false);
   const [parameterErrorMsg, setParameterErrorMsg] = useState("");
-  const [timeIntervals, setTimeIntervals] = useState([{ start: "", end: "" }]);
+  const [timeIntervals, setTimeIntervals] = useState<
+    { start: string; end: string }[]
+  >([]);
   const [customBlacklist, setCustomBlacklist] = useState("");
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
       <>
         <img src={bearDancing} />
         <br />
-        Fetching data from fight: 1/{selectedFights.length}
+        Fetching data
       </>
     );
 
@@ -129,8 +131,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
      * eg. "23,25,25" / "24, 255, 23478" */
     const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
     const blackListValid = regex.test(blacklist);
-    console.log("test");
-    if (!blackListValid) {
+    if (!blackListValid && blacklist !== "") {
       setParameterErrorMsg("Invalid blacklist");
       setParameterError(true);
       return;
