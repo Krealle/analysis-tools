@@ -98,6 +98,7 @@ export function handleFightData(
     const intervalDur = 30_000;
     let intervalTimer = fight.startTime;
     let interval: IntervalSet = [];
+    let latestTimestamp = 0;
 
     for (const event of fight.events) {
       if (onlyBosses && !bossIdList.has(event.targetID)) {
@@ -126,6 +127,8 @@ export function handleFightData(
           (entry) => entry.currentInterval === currentInterval
         );
 
+        const endTimestamp =
+          latestTimestamp > 0 ? latestTimestamp : event.timestamp;
         if (existingEntry) {
           existingEntry.intervalEntries.push(sortedInterval);
         } else {
@@ -133,7 +136,7 @@ export function handleFightData(
             currentInterval,
             intervalEntries: [sortedInterval],
             start: intervalTimer - fight.startTime,
-            end: event.timestamp - fight.startTime,
+            end: endTimestamp - fight.startTime,
           });
         }
 
@@ -144,6 +147,7 @@ export function handleFightData(
           continue;
         }
       }
+      latestTimestamp = event.timestamp;
 
       const sourceID = event.subtractsFromSupportedActor
         ? petToPlayerMap.get(event.supportID ?? -1) ?? event.supportID ?? -1
