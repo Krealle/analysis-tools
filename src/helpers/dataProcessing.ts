@@ -1,7 +1,9 @@
 import {
   ABILITY_BLACKLIST,
-  ABILITY_SOFT_LIST,
+  ABILITY_NO_SCALING,
+  ABILITY_NO_EM_SCALING,
   BOSS_ID_LIST,
+  ABILITY_NO_BOE_SCALING,
 } from "../util/constants";
 import { DamageEvent, EventType } from "../wcl/events/types";
 import { Actor, PlayerDetails, Report, ReportFight } from "../wcl/gql/types";
@@ -159,10 +161,50 @@ export function handleFightData(
       if (event.subtractsFromSupportedActor) {
         amount = -(event.amount + (event.absorbed ?? 0));
       } else {
-        // abilities on soft doesn't scale off mainstat so they should be devalued
-        amount = ABILITY_SOFT_LIST.includes(event.abilityGameID)
-          ? (event.amount + (event.absorbed ?? 0)) * 0.2
-          : event.amount + (event.absorbed ?? 0);
+        /**
+         * To determine accurate values, we use a weighted system:
+         * - Abilities that synergize with Ebon Might, Shifting Sands, Prescience, and
+         *   Breath of Eons are weighted at 1 as our baseline.
+         *
+         * - Abilities that don't scale with the mainstat, only with Shifting Sands or
+         *   Prescience, receive lower weights.
+         *
+         * - Abilities not contributing to Breath of Eons are devalued; fortunately, this
+         *   is straightforward, as non-mainstat-scaling abilities, e.g., trinkets, don't
+         *   count toward Breath of Eons.
+         *
+         * - Assuming a weight of 1 for a constant 80% uptime of Ebon Might (EM), we need
+         *   to establish the EM uptime to Shifting Sands uptime ratio. The average total
+         *   Shifting Sands uptime is around 50-60%, distributed with 2-4 buffs, making
+         *   it necessary to determine a reasonable average for individual players. An
+         *   uptime of 20-30% from top logs suggests a practical value. Using 20% for
+         *   simplicity, Shifting Sands is assigned a weight of 0.25.
+         *
+         * - It's important to note that Shifting Sands is a more potent buff than EM and
+         *   typically contributes more to damage in terms of uptime and throughput.
+         *   Taking into account the scaling of Prescience/Fate Mirror into this, a weight
+         *   of 0.5 for Shifting Sands seems reasonable.
+         *
+         * - If an ability doesn't scale with Breath of Eons it will lose 0.1 weight as well.
+         *
+         * - Keep in mind that our calculations depend on Blizzard's data and attribution.
+         *   Therefore, the result will have some degree of inaccuracy no matter the
+         *   formula. Nevertheless, this approach should provide a more reliable result
+         *   compared to a strict reliance on logs.
+         */
+        const noScaling = ABILITY_NO_SCALING.includes(event.abilityGameID);
+        const noEMScaling = ABILITY_NO_EM_SCALING.includes(event.abilityGameID)
+          ? 0.5
+          : 0;
+        const noBOEScaling = ABILITY_NO_BOE_SCALING.includes(
+          event.abilityGameID
+        )
+          ? 0.1
+          : 0;
+
+        const weight = noScaling ? 0.1 : 1 - noEMScaling - noBOEScaling;
+
+        amount = (event.amount + (event.absorbed ?? 0)) * weight;
       }
 
       if (intervalEntry) {
@@ -274,10 +316,10 @@ export async function parseFights(
         variables.filterExpression = filter;
       }
 
-      const events = (await getEvents(
+      const events = await getEvents<DamageEvent>(
         variables,
         EventType.DamageEvent
-      )) as DamageEvent[];
+      );
       return { fight: fight, events };
     });
 

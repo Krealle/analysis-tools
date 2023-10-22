@@ -100,5 +100,5 @@ export async function getEvents<T extends AnyEvent>(
     );
   }
 
-  return allEvents.sort((a, b) => a.timestamp - b.timestamp);
+  return allEvents.sort((a, b) => a.timestamp - b.timestamp) as T[];
 }
