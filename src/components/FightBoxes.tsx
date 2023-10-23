@@ -1,31 +1,31 @@
+import { useAppSelecter } from "../redux/hooks";
 import { formatDuration } from "../util/format";
-import { ReportFight } from "../wcl/gql/types";
+import { useAppDispatch } from "../redux/hooks";
+import { setSelectedIds } from "../redux/slices/FightBoxesSlice";
 
-export const FightBoxes = ({
-  fights,
-  selectedIds,
-  setSelectedIds,
-}: {
-  fights: ReportFight[] | undefined;
-  selectedIds: number[];
-  setSelectedIds: (ids: number[]) => void;
-}) => {
+export const FightBoxes = () => {
+  const report = useAppSelecter((state) => state.WCLUrlInput.fightReport);
+  const selectedIds = useAppSelecter((state) => state.fightBoxes.selectedIds);
+  const dispatch = useAppDispatch();
+
   const handleDivClick = (id: number) => {
     const isSelected = selectedIds.includes(id);
     if (isSelected) {
-      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      dispatch(
+        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id))
+      );
     } else {
-      setSelectedIds([...selectedIds, id]);
+      dispatch(setSelectedIds([...selectedIds, id]));
     }
   };
 
-  if (!fights) {
+  if (!report?.fights) {
     return;
   }
 
   return (
     <>
-      {fights
+      {report.fights
         .filter((fight) => fight.difficulty)
         .map((fight) => (
           <div

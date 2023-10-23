@@ -3,10 +3,10 @@ export type RootReport = {
 };
 
 export type ReportData = {
-  report: Report;
+  report: WCLReport;
 };
 
-export type Report = {
+export type WCLReport = {
   __typename?: "Report";
   archiveStatus?: ReportArchiveStatus;
   title: string;

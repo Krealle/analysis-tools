@@ -1,25 +1,25 @@
-import React from "react";
-import { FightParameters } from "../helpers/types";
-
-type CustomFightParametersProps = {
-  onFightParameterChange: (fightCustomParameters: FightParameters) => void;
-  timeIntervals: { start: string; end: string }[];
-  customBlacklist: string;
-  onlyBossDamage: boolean;
-  setTimeIntervals: (intervals: { start: string; end: string }[]) => void;
-  setCustomBlacklist: (blacklist: string) => void;
-  setOnlyBossDamage: (onlyBossDamage: boolean) => void;
-};
-
-const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
-  onFightParameterChange,
-  timeIntervals,
-  customBlacklist,
-  onlyBossDamage,
-  setTimeIntervals,
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelecter } from "../redux/hooks";
+import {
+  setTimeSkipIntervals,
   setCustomBlacklist,
   setOnlyBossDamage,
-}) => {
+  setParameterErrorMsg,
+  setParameterError,
+} from "../redux/slices/customFightParametersSlice";
+import { formatTime } from "../util/format";
+import { TimeSkipIntervals } from "../helpers/types";
+
+const CustomFightParameters = () => {
+  const [timeIntervals, setTimeIntervals] = useState<
+    { start: string; end: string }[]
+  >([]);
+
+  const dispatch = useAppDispatch();
+  const { customBlacklist, onlyBossDamage } = useAppSelecter(
+    (state) => state.customFightParameters
+  );
+
   const addTimeInterval = () => {
     setTimeIntervals([...timeIntervals, { start: "", end: "" }]);
   };
@@ -28,10 +28,6 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
     const updatedIntervals = [...timeIntervals];
     updatedIntervals.splice(index, 1);
     setTimeIntervals(updatedIntervals);
-    onFightParameterChange({
-      timeIntervals: updatedIntervals,
-      customBlacklist,
-    });
   };
 
   const handleInputChange = (
@@ -42,15 +38,46 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
     const updatedIntervals = [...timeIntervals];
     updatedIntervals[index][field] = value;
     setTimeIntervals(updatedIntervals);
-    onFightParameterChange({
-      timeIntervals: updatedIntervals,
-      customBlacklist,
-    });
   };
 
-  const handleBlacklistChange = (value: string) => {
-    setCustomBlacklist(value);
-    onFightParameterChange({ timeIntervals, customBlacklist: value });
+  useEffect(() => {
+    checkForErrorAndDispatch();
+  }, [customBlacklist, timeIntervals]);
+
+  const checkForErrorAndDispatch = () => {
+    const formatedIntervals: TimeSkipIntervals[] = [];
+    for (const interval of timeIntervals) {
+      const formatedStartTime = formatTime(interval.start);
+      const formatedEndTime = formatTime(interval.end);
+      if (
+        !formatedStartTime ||
+        !formatedEndTime ||
+        formatedStartTime > formatedEndTime
+      ) {
+        dispatch(setParameterErrorMsg("Invalid time interval"));
+        dispatch(setParameterError(true));
+        return;
+      }
+      formatedIntervals.push({
+        start: formatedStartTime,
+        end: formatedEndTime,
+      });
+    }
+    dispatch(setTimeSkipIntervals(formatedIntervals));
+
+    /** In my eyes this is black magic but all
+     * it does is check if blacklist format is correct:
+     * eg. "23,25,25" / "24, 255, 23478" */
+    const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
+    const blackListValid = regex.test(customBlacklist);
+    if (!blackListValid && customBlacklist !== "") {
+      dispatch(setParameterErrorMsg("Invalid blacklist"));
+      dispatch(setParameterError(true));
+      return;
+    }
+
+    dispatch(setParameterErrorMsg(""));
+    dispatch(setParameterError(false));
   };
 
   return (
@@ -84,7 +111,7 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
             type="text"
             placeholder="2975,1560,23"
             value={customBlacklist}
-            onChange={(e) => handleBlacklistChange(e.target.value)}
+            onChange={(e) => dispatch(setCustomBlacklist(e.target.value))}
           />
         </div>
       </div>
@@ -92,7 +119,7 @@ const CustomFightParameters: React.FC<CustomFightParametersProps> = ({
         <p>Mob blacklist</p>
         <div
           className={`only-boss-damage ${onlyBossDamage ? "selected" : ""}`}
-          onClick={() => setOnlyBossDamage(!onlyBossDamage)}
+          onClick={() => dispatch(setOnlyBossDamage(!onlyBossDamage))}
         >
           <span>Only Boss Damage</span>
         </div>

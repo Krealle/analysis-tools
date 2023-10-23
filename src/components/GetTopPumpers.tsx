@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { formatTime } from "../util/format";
-import { Report } from "../wcl/gql/types";
+import { useState } from "react";
 import bearDancing from "/static/bear/dance.gif";
 import CustomFightParameters from "./CustomFightParameters";
 import {
@@ -10,39 +8,32 @@ import {
   parseFights,
 } from "../helpers/dataProcessing";
 import { renderTableContent2 as renderTableContent } from "../helpers/contentRender";
-import {
-  FightParameters,
-  FightTracker,
-  TimeSkipIntervals,
-} from "../helpers/types";
-
-type Props = {
-  selectedFights: number[];
-  metaData: Report | undefined;
-};
+import { FightTracker } from "../helpers/types";
+import { useAppSelecter } from "../redux/hooks";
 
 /** Global since we want to semi-persist data */
 let fightTracker: FightTracker[] = [];
-let timeSkipIntervals: TimeSkipIntervals[] = [];
 
 // TODO: getDefaultTargets()
 // TODO: getMRTNote()
 
-const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
+const GetTopPumpers = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
-  const [onlyBossDamage, setOnlyBossDamage] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [parameterError, setParameterError] = useState<boolean>(false);
-  const [parameterErrorMsg, setParameterErrorMsg] = useState("");
-  const [timeIntervals, setTimeIntervals] = useState<
-    { start: string; end: string }[]
-  >([]);
-  const [customBlacklist, setCustomBlacklist] = useState("");
   const [showOptions, setShowOptions] = useState(false);
 
-  useEffect(() => {
-    setContent(null);
-  }, [metaData]);
+  const metaData = useAppSelecter((state) => state.WCLUrlInput.fightReport);
+  const selectedFights = useAppSelecter(
+    (state) => state.fightBoxes.selectedIds
+  );
+
+  const {
+    timeSkipIntervals,
+    customBlacklist,
+    onlyBossDamage,
+    parameterError,
+    parameterErrorMsg,
+  } = useAppSelecter((state) => state.customFightParameters);
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -104,43 +95,6 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
     setContent(content);
   }
 
-  const handleParameterChange = (fightCustomParameters: FightParameters) => {
-    const timeIntervalParam = fightCustomParameters.timeIntervals;
-    const blacklist = fightCustomParameters.customBlacklist;
-    timeSkipIntervals = [];
-
-    for (const interval of timeIntervalParam) {
-      const formatedStartTime = formatTime(interval.start);
-      const formatedEndTime = formatTime(interval.end);
-      if (
-        !formatedStartTime ||
-        !formatedEndTime ||
-        formatedStartTime > formatedEndTime
-      ) {
-        setParameterErrorMsg("Invalid time interval");
-        setParameterError(true);
-        return;
-      }
-      timeSkipIntervals.push({
-        start: formatedStartTime,
-        end: formatedEndTime,
-      });
-    }
-
-    /** In my eyes this is black magic but all
-     * it does is check if blacklist format is correct:
-     * eg. "23,25,25" / "24, 255, 23478" */
-    const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
-    const blackListValid = regex.test(blacklist);
-    if (!blackListValid && blacklist !== "") {
-      setParameterErrorMsg("Invalid blacklist");
-      setParameterError(true);
-      return;
-    }
-
-    setParameterError(false);
-  };
-
   return (
     <>
       <div className="pumpers-content">
@@ -169,15 +123,7 @@ const GetTopPumpers: React.FC<Props> = ({ selectedFights, metaData }) => {
             : "custom-fight-parameters-hidden"
         }`}
       >
-        <CustomFightParameters
-          onFightParameterChange={handleParameterChange}
-          timeIntervals={timeIntervals}
-          customBlacklist={customBlacklist}
-          setTimeIntervals={setTimeIntervals}
-          setCustomBlacklist={setCustomBlacklist}
-          setOnlyBossDamage={setOnlyBossDamage}
-          onlyBossDamage={onlyBossDamage}
-        />
+        <CustomFightParameters />
       </div>
 
       <div className="pumpers-content">{content}</div>

@@ -6,7 +6,7 @@ import {
   ABILITY_NO_BOE_SCALING,
 } from "../util/constants";
 import { DamageEvent, EventType } from "../wcl/events/types";
-import { Actor, PlayerDetails, Report, ReportFight } from "../wcl/gql/types";
+import { Actor, PlayerDetails, WCLReport, ReportFight } from "../wcl/gql/types";
 import {
   EventVariables,
   getEvents,
@@ -41,7 +41,7 @@ function getFilter(playerDetails: PlayerDetails, customBlacklist: string) {
   return filter;
 }
 
-export function handleMetaData(report?: Report) {
+export function handleMetaData(report?: WCLReport) {
   if (!report || !report.fights || !report.masterData) {
     console.log("getMetaData - no report found");
     return null;

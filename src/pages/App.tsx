@@ -1,18 +1,13 @@
-import { useState } from "react";
 import { WCLUrlInput } from "../components/WCLUrlInput";
 import "../styles/App.scss";
-import { Report } from "../wcl/gql/types";
 import { FightBoxes } from "../components/FightBoxes";
 import GetTopPumpers from "../components/GetTopPumpers";
+import { useAppDispatch, useAppSelecter } from "../redux/hooks";
+import { setSelectedIds } from "../redux/slices/FightBoxesSlice";
 
 function App() {
-  const [fightReport, setFightReport] = useState<Report | undefined>();
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  const handleFightChange = (newFightReport: Report | undefined) => {
-    setFightReport(newFightReport);
-    setSelectedIds([]);
-  };
+  const fightReport = useAppSelecter((state) => state.WCLUrlInput.fightReport);
+  const dispatch = useAppDispatch();
 
   const handleSelectFights = (selectKills?: boolean) => {
     if (fightReport && fightReport.fights) {
@@ -30,14 +25,14 @@ function App() {
           }
         })
         .map((fight) => fight.id);
-      setSelectedIds(allFightIds);
+      dispatch(setSelectedIds(allFightIds));
     }
   };
 
   return (
     <>
       <h1>WCL URL</h1>
-      <WCLUrlInput onFightChange={handleFightChange} />
+      <WCLUrlInput />
       {fightReport && (
         <>
           <h2>Select fights to analyze</h2>
@@ -53,17 +48,10 @@ function App() {
             </button>
           </div>
           <div className="fights-container">
-            <FightBoxes
-              fights={fightReport.fights}
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-            />
+            <FightBoxes />
           </div>
           <div className="pumpers-container">
-            <GetTopPumpers
-              selectedFights={selectedIds}
-              metaData={fightReport}
-            />
+            <GetTopPumpers />
           </div>
         </>
       )}
