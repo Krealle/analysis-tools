@@ -16,7 +16,7 @@ const CustomFightParameters = () => {
   >([]);
 
   const dispatch = useAppDispatch();
-  const { customBlacklist, onlyBossDamage } = useAppSelecter(
+  const { customBlacklist, onlyBossDamage, showOptions } = useAppSelecter(
     (state) => state.customFightParameters
   );
 
@@ -41,10 +41,6 @@ const CustomFightParameters = () => {
   };
 
   useEffect(() => {
-    checkForErrorAndDispatch();
-  }, [customBlacklist, timeIntervals]);
-
-  const checkForErrorAndDispatch = () => {
     const formatedIntervals: TimeSkipIntervals[] = [];
     for (const interval of timeIntervals) {
       const formatedStartTime = formatTime(interval.start);
@@ -78,10 +74,16 @@ const CustomFightParameters = () => {
 
     dispatch(setParameterErrorMsg(""));
     dispatch(setParameterError(false));
-  };
+  }, [customBlacklist, timeIntervals, dispatch]);
 
   return (
-    <>
+    <div
+      className={`pumpers-content ${
+        showOptions
+          ? "custom-fight-parameters"
+          : "custom-fight-parameters-hidden"
+      }`}
+    >
       <div className="time-intervals-container">
         <p>Time intervals to skip</p>
         {timeIntervals.map((interval, index) => (
@@ -124,7 +126,7 @@ const CustomFightParameters = () => {
           <span>Only Boss Damage</span>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -7,9 +7,10 @@ import {
   handleMetaData,
   parseFights,
 } from "../helpers/dataProcessing";
-import { renderTableContent2 as renderTableContent } from "../helpers/contentRender";
+import { renderTableContent as renderTableContent } from "../helpers/contentRender";
 import { FightTracker } from "../helpers/types";
-import { useAppSelecter } from "../redux/hooks";
+import { useAppDispatch, useAppSelecter } from "../redux/hooks";
+import { setShowOptions } from "../redux/slices/customFightParametersSlice";
 
 /** Global since we want to semi-persist data */
 let fightTracker: FightTracker[] = [];
@@ -20,7 +21,11 @@ let fightTracker: FightTracker[] = [];
 const GetTopPumpers = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [showOptions, setShowOptions] = useState(false);
+
+  const dispatch = useAppDispatch();
+  const showOptions = useAppSelecter(
+    (state) => state.customFightParameters.showOptions
+  );
 
   const metaData = useAppSelecter((state) => state.WCLUrlInput.fightReport);
   const selectedFights = useAppSelecter(
@@ -48,9 +53,9 @@ const GetTopPumpers = () => {
     setIsFetching(true);
     setContent(
       <>
-        <img src={bearDancing} />
+        <big>Fetching data</big>
         <br />
-        Fetching data
+        <img src={bearDancing} />
       </>
     );
 
@@ -96,7 +101,7 @@ const GetTopPumpers = () => {
   }
 
   return (
-    <>
+    <div className="pumpers-container">
       <div className="pumpers-content">
         <button
           onClick={handleButtonClick}
@@ -105,7 +110,7 @@ const GetTopPumpers = () => {
           Get Pumpers
         </button>
         <button
-          onClick={() => setShowOptions(!showOptions)}
+          onClick={() => dispatch(setShowOptions(!showOptions))}
           disabled={isFetching || parameterError}
         >
           {showOptions
@@ -115,19 +120,9 @@ const GetTopPumpers = () => {
             : "Show options"}
         </button>
       </div>
-
-      <div
-        className={`pumpers-content ${
-          showOptions
-            ? "custom-fight-parameters"
-            : "custom-fight-parameters-hidden"
-        }`}
-      >
-        <CustomFightParameters />
-      </div>
-
-      <div className="pumpers-content">{content}</div>
-    </>
+      <CustomFightParameters />
+      {content}
+    </div>
   );
 };
 

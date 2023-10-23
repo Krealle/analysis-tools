@@ -24,7 +24,7 @@ export const FightBoxes = () => {
   }
 
   return (
-    <>
+    <div className="fights-container">
       {report.fights
         .filter((fight) => fight.difficulty)
         .map((fight) => (
@@ -50,6 +50,6 @@ export const FightBoxes = () => {
             </div>
           </div>
         ))}
-    </>
+    </div>
   );
 };

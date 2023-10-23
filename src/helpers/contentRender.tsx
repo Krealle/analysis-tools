@@ -3,7 +3,7 @@ import { Actor } from "../wcl/gql/types";
 import { getTop4Pumpers } from "./dataProcessing";
 import { TotInterval } from "./types";
 
-export function renderTableContent2(
+export function renderTableContent(
   avgTopPumpersData: TotInterval[],
   playerTracker: Map<number, Actor>
 ): JSX.Element {
@@ -48,7 +48,7 @@ export function renderTableContent2(
   }
 
   return (
-    <div>
+    <div className="pumpers-content">
       <table className="pumperTable">
         <tbody>
           {headerRow}

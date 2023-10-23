@@ -7,6 +7,7 @@ type initalState = {
   onlyBossDamage: boolean;
   parameterError: boolean;
   parameterErrorMsg: string;
+  showOptions: boolean;
 };
 
 const initialState: initalState = {
@@ -15,6 +16,7 @@ const initialState: initalState = {
   onlyBossDamage: false,
   parameterError: false,
   parameterErrorMsg: "",
+  showOptions: false,
 };
 
 const customFightParametersSlice = createSlice({
@@ -39,6 +41,9 @@ const customFightParametersSlice = createSlice({
     setParameterErrorMsg: (state, action: PayloadAction<string>) => {
       state.parameterErrorMsg = action.payload;
     },
+    setShowOptions: (state, action: PayloadAction<boolean>) => {
+      state.showOptions = action.payload;
+    },
   },
 });
 
@@ -48,5 +53,6 @@ export const {
   setOnlyBossDamage,
   setParameterError,
   setParameterErrorMsg,
+  setShowOptions,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;
