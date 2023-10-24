@@ -1,6 +1,6 @@
 import { formatDuration, formatNumber } from "../util/format";
 import { Actor } from "../wcl/gql/types";
-import { getTop4Pumpers } from "./dataProcessing";
+import { getMRTNote, getTop4Pumpers } from "./dataProcessing";
 import { TotInterval } from "./types";
 
 export function renderTableContent(
@@ -23,7 +23,6 @@ export function renderTableContent(
     </tr>
   );
 
-  // TODO: copy box for MRT note
   for (const interval of top4Pumpers) {
     const formattedEntriesTable: JSX.Element[][] = interval.intervalEntries.map(
       (entries) =>
@@ -47,14 +46,22 @@ export function renderTableContent(
     );
   }
 
+  const mrtNote = getMRTNote(avgTopPumpersData, playerTracker);
+  const noteTextbox = (
+    <textarea readOnly value={mrtNote} className="mrtNoteTextbox" />
+  );
+
   return (
-    <div className="pumpers-content">
-      <table className="pumperTable">
-        <tbody>
-          {headerRow}
-          {tableRows}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="pumpers-content">
+        <table className="pumperTable">
+          <tbody>
+            {headerRow}
+            {tableRows}
+          </tbody>
+        </table>
+      </div>
+      {noteTextbox}
+    </>
   );
 }

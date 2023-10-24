@@ -105,3 +105,19 @@ export const BOSS_ID_LIST: number[] = [
   201668, // Neltharion
   201754, // Sarkareth
 ];
+
+export const mrtColorMap: Map<string, string> = new Map([
+  ["Mage", "|cff3fc7eb"],
+  ["Paladin", "|cfff48cba"],
+  ["Warrior", "|cffc69b6d"],
+  ["Druid", "|cffff7c0a"],
+  ["DeathKnight", "|cffc41e3a"],
+  ["Hunter", "|cffaad372"],
+  ["Priest", "|cffffffff"],
+  ["Rogue", "|cfffff468"],
+  ["Shaman", "|cff0070dd"],
+  ["Warlock", "|cff8788ee"],
+  ["Monk", "|cff00ff98"],
+  ["DemonHunter", "|cffa330c9"],
+  ["Evoker", "|cff33937f"],
+]);
