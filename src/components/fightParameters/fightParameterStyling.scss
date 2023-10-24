@@ -1,0 +1,24 @@
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.encounter {
+  flex-direction: column;
+  margin: 10px;
+  background-color: #303030;
+  border-radius: 8px;
+  padding: 5px;
+  padding-top: 0px;
+}
+
+.enemies {
+  gap: 10px;
+}
+
+.enemy {
+  border: solid black 1px;
+  border-radius: 8px;
+  padding-right: 5px;
+  background-color: #0d0d0d;
+}

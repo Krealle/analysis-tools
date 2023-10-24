@@ -1,6 +1,6 @@
 import { useState } from "react";
 import bearDancing from "/static/bear/dance.gif";
-import CustomFightParameters from "./CustomFightParameters";
+import CustomFightParameters from "./fightParameters/CustomFightParameters";
 import {
   averageOutIntervals,
   handleFightData,
@@ -9,27 +9,22 @@ import {
 } from "../helpers/dataProcessing";
 import { renderTableContent as renderTableContent } from "../helpers/contentRender";
 import { FightTracker } from "../helpers/types";
-import { useAppDispatch, useAppSelecter } from "../redux/hooks";
-import { setShowOptions } from "../redux/slices/customFightParametersSlice";
+import { useAppSelecter } from "../redux/hooks";
+import FightButtons from "./FightButtons";
 
 /** Global since we want to semi-persist data */
 let fightTracker: FightTracker[] = [];
-
-// TODO: getDefaultTargets()
-// TODO: getMRTNote()
 
 const GetTopPumpers = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  const dispatch = useAppDispatch();
-  const showOptions = useAppSelecter(
-    (state) => state.customFightParameters.showOptions
-  );
-
   const metaData = useAppSelecter((state) => state.WCLUrlInput.fightReport);
   const selectedFights = useAppSelecter(
     (state) => state.fightBoxes.selectedIds
+  );
+  const enemyBlacklist = useAppSelecter(
+    (state) => state.customFightParameters.enemyBlacklist
   );
 
   const {
@@ -69,7 +64,8 @@ const GetTopPumpers = () => {
     if (!results) {
       return;
     }
-    const { fights, petToPlayerMap, playerTracker, bossIdList } = results;
+    const { fights, petToPlayerMap, playerTracker, bossIdList, enemyTracker } =
+      results;
     // TODO: make some sort of fallback
     if (!metaData) {
       console.log("GetTopPumpers - no fights found");
@@ -91,6 +87,8 @@ const GetTopPumpers = () => {
       bossIdList,
       timeSkipIntervals,
       petToPlayerMap,
+      enemyBlacklist,
+      enemyTracker,
       onlyBossDamage
     );
 
@@ -102,24 +100,10 @@ const GetTopPumpers = () => {
 
   return (
     <div className="pumpers-container">
-      <div className="pumpers-content">
-        <button
-          onClick={handleButtonClick}
-          disabled={isFetching || showOptions}
-        >
-          Get Pumpers
-        </button>
-        <button
-          onClick={() => dispatch(setShowOptions(!showOptions))}
-          disabled={isFetching || parameterError}
-        >
-          {showOptions
-            ? parameterError
-              ? " Invalid Parameters"
-              : "Hide options"
-            : "Show options"}
-        </button>
-      </div>
+      <FightButtons
+        isFetching={isFetching}
+        handleButtonClick={handleButtonClick}
+      />
       <CustomFightParameters />
       {content}
     </div>

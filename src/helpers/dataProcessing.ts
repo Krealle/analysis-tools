@@ -50,6 +50,8 @@ export function handleMetaData(report?: WCLReport) {
   }
   console.log("getMetaData - report found:", report);
   const playerTracker = new Map<number, Actor>();
+  /** id - gameId */
+  const enemyTracker = new Map<number, number>();
   const petToPlayerMap = new Map<number, number>();
   const bossIdList = new Set<number>();
 
@@ -66,6 +68,9 @@ export function handleMetaData(report?: WCLReport) {
       if (BOSS_ID_LIST.includes(actor.gameID ?? -1)) {
         bossIdList.add(actor.id);
       }
+      if (actor.type === "NPC") {
+        enemyTracker.set(actor.id, actor.gameID ?? -1);
+      }
     }
   }
 
@@ -74,6 +79,7 @@ export function handleMetaData(report?: WCLReport) {
     petToPlayerMap: petToPlayerMap,
     playerTracker: playerTracker,
     bossIdList: bossIdList,
+    enemyTracker: enemyTracker,
   };
 }
 
@@ -84,6 +90,8 @@ export function handleFightData(
   bossIdList: Set<number>,
   timeSkipIntervals: TimeSkipIntervals[],
   petToPlayerMap: Map<number, number>,
+  enemyBlacklist: number[],
+  enemyTracker: Map<number, number>,
   onlyBosses?: boolean
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
@@ -105,7 +113,10 @@ export function handleFightData(
     let latestTimestamp = 0;
 
     for (const event of fight.events) {
-      if (onlyBosses && !bossIdList.has(event.targetID)) {
+      if (
+        (onlyBosses && !bossIdList.has(event.targetID)) ||
+        enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)
+      ) {
         continue;
       }
 

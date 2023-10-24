@@ -8,6 +8,7 @@ type initalState = {
   parameterError: boolean;
   parameterErrorMsg: string;
   showOptions: boolean;
+  enemyBlacklist: number[];
 };
 
 const initialState: initalState = {
@@ -17,6 +18,7 @@ const initialState: initalState = {
   parameterError: false,
   parameterErrorMsg: "",
   showOptions: false,
+  enemyBlacklist: [],
 };
 
 const customFightParametersSlice = createSlice({
@@ -44,6 +46,19 @@ const customFightParametersSlice = createSlice({
     setShowOptions: (state, action: PayloadAction<boolean>) => {
       state.showOptions = action.payload;
     },
+    modifyEnemyBlacklist: (
+      state,
+      action: PayloadAction<{ value: number; add: boolean }>
+    ) => {
+      const { value, add } = action.payload;
+      if (add) {
+        state.enemyBlacklist.push(value);
+      } else {
+        state.enemyBlacklist = state.enemyBlacklist.filter(
+          (item) => item !== value
+        );
+      }
+    },
   },
 });
 
@@ -54,5 +69,6 @@ export const {
   setParameterError,
   setParameterErrorMsg,
   setShowOptions,
+  modifyEnemyBlacklist,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;

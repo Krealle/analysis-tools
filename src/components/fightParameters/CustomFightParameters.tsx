@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelecter } from "../redux/hooks";
+import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
 import {
   setTimeSkipIntervals,
   setCustomBlacklist,
   setOnlyBossDamage,
   setParameterErrorMsg,
   setParameterError,
-} from "../redux/slices/customFightParametersSlice";
-import { formatTime } from "../util/format";
-import { TimeSkipIntervals } from "../helpers/types";
+} from "../../redux/slices/customFightParametersSlice";
+import { formatTime } from "../../util/format";
+import { TimeSkipIntervals } from "../../helpers/types";
+import EnemyFilter from "./EnemyFilter";
 
 const CustomFightParameters = () => {
   const [timeIntervals, setTimeIntervals] = useState<
@@ -126,6 +127,7 @@ const CustomFightParameters = () => {
           <span>Only Boss Damage</span>
         </div>
       </div>
+      <EnemyFilter />
     </div>
   );
 };

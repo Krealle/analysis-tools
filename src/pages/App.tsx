@@ -1,5 +1,6 @@
 import { WCLUrlInput } from "../components/WCLUrlInput";
 import "../styles/App.scss";
+import "../styles/classColors.scss";
 import { FightBoxes } from "../components/FightBoxes";
 import GetTopPumpers from "../components/GetTopPumpers";
 import { useAppSelecter } from "../redux/hooks";
