@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
 import {
   setTimeSkipIntervals,
-  setCustomBlacklist,
-  setOnlyBossDamage,
   setParameterErrorMsg,
   setParameterError,
 } from "../../redux/slices/customFightParametersSlice";
 import { formatTime } from "../../util/format";
 import { TimeSkipIntervals } from "../../helpers/types";
 import EnemyFilter from "./EnemyFilter";
+import AbilityFilter from "./AbilityFilter";
 
 const CustomFightParameters = () => {
   const [timeIntervals, setTimeIntervals] = useState<
@@ -17,7 +16,7 @@ const CustomFightParameters = () => {
   >([]);
 
   const dispatch = useAppDispatch();
-  const { customBlacklist, onlyBossDamage, showOptions } = useAppSelecter(
+  const { showOptions } = useAppSelecter(
     (state) => state.customFightParameters
   );
 
@@ -40,6 +39,13 @@ const CustomFightParameters = () => {
     updatedIntervals[index][field] = value;
     setTimeIntervals(updatedIntervals);
   };
+
+  const {
+    abilityBlacklist,
+    abilityNoBoEScaling,
+    abilityNoEMScaling,
+    abilityNoScaling,
+  } = useAppSelecter((state) => state.customFightParameters);
 
   useEffect(() => {
     const formatedIntervals: TimeSkipIntervals[] = [];
@@ -66,16 +72,27 @@ const CustomFightParameters = () => {
      * it does is check if blacklist format is correct:
      * eg. "23,25,25" / "24, 255, 23478" */
     const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
-    const blackListValid = regex.test(customBlacklist);
-    if (!blackListValid && customBlacklist !== "") {
-      dispatch(setParameterErrorMsg("Invalid blacklist"));
+    const abilityFilterValid =
+      regex.test(abilityBlacklist) &&
+      regex.test(abilityNoBoEScaling) &&
+      regex.test(abilityNoEMScaling) &&
+      regex.test(abilityNoScaling);
+    if (!abilityFilterValid) {
+      dispatch(setParameterErrorMsg("Invalid ability filter"));
       dispatch(setParameterError(true));
       return;
     }
 
     dispatch(setParameterErrorMsg(""));
     dispatch(setParameterError(false));
-  }, [customBlacklist, timeIntervals, dispatch]);
+  }, [
+    abilityBlacklist,
+    abilityNoBoEScaling,
+    abilityNoEMScaling,
+    abilityNoScaling,
+    timeIntervals,
+    dispatch,
+  ]);
 
   return (
     <div
@@ -107,26 +124,7 @@ const CustomFightParameters = () => {
         ))}
         <button onClick={addTimeInterval}>Add period</button>
       </div>
-      <div className="blacklist-container">
-        <p>Abilities to blacklist</p>
-        <div className="blacklist-content">
-          <input
-            type="text"
-            placeholder="2975,1560,23"
-            value={customBlacklist}
-            onChange={(e) => dispatch(setCustomBlacklist(e.target.value))}
-          />
-        </div>
-      </div>
-      <div className="blacklist-container">
-        <p>Mob blacklist</p>
-        <div
-          className={`only-boss-damage ${onlyBossDamage ? "selected" : ""}`}
-          onClick={() => dispatch(setOnlyBossDamage(!onlyBossDamage))}
-        >
-          <span>Only Boss Damage</span>
-        </div>
-      </div>
+      <AbilityFilter />
       <EnemyFilter />
     </div>
   );

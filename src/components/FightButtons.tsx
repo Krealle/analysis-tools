@@ -14,7 +14,7 @@ const FightButtons: React.FC<FightButtonProps> = ({
   const showOptions = useAppSelecter(
     (state) => state.customFightParameters.showOptions
   );
-  const { parameterError } = useAppSelecter(
+  const { parameterError, parameterErrorMsg } = useAppSelecter(
     (state) => state.customFightParameters
   );
 
@@ -29,7 +29,7 @@ const FightButtons: React.FC<FightButtonProps> = ({
       >
         {showOptions
           ? parameterError
-            ? " Invalid Parameters"
+            ? parameterErrorMsg
             : "Hide options"
           : "Show options"}
       </button>

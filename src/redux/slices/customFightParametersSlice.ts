@@ -1,24 +1,34 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TimeSkipIntervals } from "../../helpers/types";
+import {
+  ABILITY_BLACKLIST,
+  ABILITY_NO_BOE_SCALING,
+  ABILITY_NO_EM_SCALING,
+  ABILITY_NO_SCALING,
+} from "../../util/constants";
 
 type initalState = {
   timeSkipIntervals: TimeSkipIntervals[];
-  customBlacklist: string;
-  onlyBossDamage: boolean;
   parameterError: boolean;
   parameterErrorMsg: string;
   showOptions: boolean;
   enemyBlacklist: number[];
+  abilityBlacklist: string;
+  abilityNoScaling: string;
+  abilityNoBoEScaling: string;
+  abilityNoEMScaling: string;
 };
 
 const initialState: initalState = {
   timeSkipIntervals: [],
-  customBlacklist: "",
-  onlyBossDamage: false,
   parameterError: false,
   parameterErrorMsg: "",
   showOptions: false,
   enemyBlacklist: [],
+  abilityBlacklist: ABILITY_BLACKLIST.toString(),
+  abilityNoScaling: ABILITY_NO_SCALING.toString(),
+  abilityNoBoEScaling: ABILITY_NO_BOE_SCALING.toString(),
+  abilityNoEMScaling: ABILITY_NO_EM_SCALING.toString(),
 };
 
 const customFightParametersSlice = createSlice({
@@ -30,12 +40,6 @@ const customFightParametersSlice = createSlice({
       action: PayloadAction<TimeSkipIntervals[]>
     ) => {
       state.timeSkipIntervals = action.payload;
-    },
-    setCustomBlacklist: (state, action: PayloadAction<string>) => {
-      state.customBlacklist = action.payload;
-    },
-    setOnlyBossDamage: (state, action: PayloadAction<boolean>) => {
-      state.onlyBossDamage = action.payload;
     },
     setParameterError: (state, action: PayloadAction<boolean>) => {
       state.parameterError = action.payload;
@@ -59,16 +63,30 @@ const customFightParametersSlice = createSlice({
         );
       }
     },
+    setAbilityBlacklist: (state, action: PayloadAction<string>) => {
+      state.abilityBlacklist = action.payload;
+    },
+    setAbilityNoScaling: (state, action: PayloadAction<string>) => {
+      state.abilityNoScaling = action.payload;
+    },
+    setAbilityNoBoEScaling: (state, action: PayloadAction<string>) => {
+      state.abilityNoBoEScaling = action.payload;
+    },
+    setAbilityNoEMScaling: (state, action: PayloadAction<string>) => {
+      state.abilityNoEMScaling = action.payload;
+    },
   },
 });
 
 export const {
   setTimeSkipIntervals,
-  setCustomBlacklist,
-  setOnlyBossDamage,
   setParameterError,
   setParameterErrorMsg,
   setShowOptions,
   modifyEnemyBlacklist,
+  setAbilityBlacklist,
+  setAbilityNoScaling,
+  setAbilityNoBoEScaling,
+  setAbilityNoEMScaling,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;

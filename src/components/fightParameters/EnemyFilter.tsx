@@ -12,7 +12,7 @@ const EnemyFilter: React.FC = () => {
 
   const content = Object.entries(AberrusEnemies).map(([encounter, enemies]) => {
     return (
-      <div key={encounter} className="flex encounter">
+      <div key={encounter} className="flex container">
         <div className="flex title">
           <big>{EncounterNames[encounter]}</big>
         </div>

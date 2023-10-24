@@ -29,10 +29,12 @@ const GetTopPumpers = () => {
 
   const {
     timeSkipIntervals,
-    customBlacklist,
-    onlyBossDamage,
     parameterError,
     parameterErrorMsg,
+    abilityNoEMScaling,
+    abilityNoBoEScaling,
+    abilityNoScaling,
+    abilityBlacklist,
   } = useAppSelecter((state) => state.customFightParameters);
 
   const handleButtonClick = async () => {
@@ -64,8 +66,7 @@ const GetTopPumpers = () => {
     if (!results) {
       return;
     }
-    const { fights, petToPlayerMap, playerTracker, bossIdList, enemyTracker } =
-      results;
+    const { fights, petToPlayerMap, playerTracker, enemyTracker } = results;
     // TODO: make some sort of fallback
     if (!metaData) {
       console.log("GetTopPumpers - no fights found");
@@ -77,19 +78,20 @@ const GetTopPumpers = () => {
       fights,
       selectedFights,
       fightTracker,
-      customBlacklist
+      abilityBlacklist
     );
 
     const topPumperData = handleFightData(
       selectedFights,
       metaData.code,
       fightTracker,
-      bossIdList,
       timeSkipIntervals,
       petToPlayerMap,
       enemyBlacklist,
       enemyTracker,
-      onlyBossDamage
+      abilityNoEMScaling.split(",").map(Number),
+      abilityNoBoEScaling.split(",").map(Number),
+      abilityNoScaling.split(",").map(Number)
     );
 
     const avgTopPumpersData = averageOutIntervals(topPumperData);

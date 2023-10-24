@@ -1,11 +1,4 @@
-import {
-  ABILITY_BLACKLIST,
-  ABILITY_NO_SCALING,
-  ABILITY_NO_EM_SCALING,
-  BOSS_ID_LIST,
-  ABILITY_NO_BOE_SCALING,
-  mrtColorMap,
-} from "../util/constants";
+import { mrtColorMap } from "../util/constants";
 import { formatDuration } from "../util/format";
 import { DamageEvent, EventType } from "../wcl/events/types";
 import { Actor, PlayerDetails, WCLReport, ReportFight } from "../wcl/gql/types";
@@ -22,16 +15,11 @@ import {
   TotInterval,
 } from "./types";
 
-function getFilter(playerDetails: PlayerDetails, customBlacklist: string) {
+function getFilter(playerDetails: PlayerDetails, abilityBlacklist: string) {
   const nameFilter = playerDetails.dps
     .map((player) => `"${player.name}"`)
     .join(`,`);
-  let abilityFilter = ABILITY_BLACKLIST.map((ability) => `${ability}`).join(
-    `,`
-  );
-  if (customBlacklist !== "") {
-    abilityFilter += `,${customBlacklist}`;
-  }
+  const abilityFilter = abilityBlacklist;
 
   const filter = `(source.name in (${nameFilter}) OR source.owner.name in (${nameFilter})) 
     AND (ability.id not in (${abilityFilter}))
@@ -53,7 +41,6 @@ export function handleMetaData(report?: WCLReport) {
   /** id - gameId */
   const enemyTracker = new Map<number, number>();
   const petToPlayerMap = new Map<number, number>();
-  const bossIdList = new Set<number>();
 
   /** Link pet to owner
    * and populate playerTracker for class informations */
@@ -65,9 +52,6 @@ export function handleMetaData(report?: WCLReport) {
       if (actor.type === "Player") {
         playerTracker.set(actor.id, actor);
       }
-      if (BOSS_ID_LIST.includes(actor.gameID ?? -1)) {
-        bossIdList.add(actor.id);
-      }
       if (actor.type === "NPC") {
         enemyTracker.set(actor.id, actor.gameID ?? -1);
       }
@@ -78,7 +62,6 @@ export function handleMetaData(report?: WCLReport) {
     fights: report.fights,
     petToPlayerMap: petToPlayerMap,
     playerTracker: playerTracker,
-    bossIdList: bossIdList,
     enemyTracker: enemyTracker,
   };
 }
@@ -87,12 +70,13 @@ export function handleFightData(
   selectedFights: number[],
   reportCode: string,
   fightTracker: FightTracker[],
-  bossIdList: Set<number>,
   timeSkipIntervals: TimeSkipIntervals[],
   petToPlayerMap: Map<number, number>,
   enemyBlacklist: number[],
   enemyTracker: Map<number, number>,
-  onlyBosses?: boolean
+  abilityNoEMScaling: number[],
+  abilityNoBoEScaling: number[],
+  abilityNoScaling: number[]
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
 
@@ -113,10 +97,7 @@ export function handleFightData(
     let latestTimestamp = 0;
 
     for (const event of fight.events) {
-      if (
-        (onlyBosses && !bossIdList.has(event.targetID)) ||
-        enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)
-      ) {
+      if (enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)) {
         continue;
       }
 
@@ -205,13 +186,11 @@ export function handleFightData(
          *   formula. Nevertheless, this approach should provide a more reliable result
          *   compared to a strict reliance on logs.
          */
-        const noScaling = ABILITY_NO_SCALING.includes(event.abilityGameID);
-        const noEMScaling = ABILITY_NO_EM_SCALING.includes(event.abilityGameID)
+        const noScaling = abilityNoScaling.includes(event.abilityGameID);
+        const noEMScaling = abilityNoEMScaling.includes(event.abilityGameID)
           ? 0.5
           : 0;
-        const noBOEScaling = ABILITY_NO_BOE_SCALING.includes(
-          event.abilityGameID
-        )
+        const noBOEScaling = abilityNoBoEScaling.includes(event.abilityGameID)
           ? 0.1
           : 0;
 
