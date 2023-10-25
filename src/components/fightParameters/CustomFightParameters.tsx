@@ -37,7 +37,7 @@ const CustomFightParameters = () => {
     /** In my eyes this is black magic but all
      * it does is check if blacklist format is correct:
      * eg. "23,25,25" / "24, 255, 23478" */
-    const regex = /^(\s*\d+\s*,\s*)*\s*\d+\s*$/;
+    const regex = /^(\s*\d+\s*,\s*)*\s*\d*\s*$/;
     const abilityFilterValid =
       regex.test(abilityBlacklist) &&
       regex.test(abilityNoBoEScaling) &&
