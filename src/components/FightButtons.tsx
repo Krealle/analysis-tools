@@ -1,5 +1,6 @@
-import { useAppDispatch, useAppSelecter } from "../redux/hooks";
-import { setShowOptions } from "../redux/slices/customFightParametersSlice";
+import { useAppSelecter } from "../redux/hooks";
+import { ReportParseError } from "../wcl/util/parseWCLUrl";
+import ErrorBear from "./ErrorBear";
 
 type FightButtonProps = {
   isFetching: boolean;
@@ -10,29 +11,26 @@ const FightButtons: React.FC<FightButtonProps> = ({
   isFetching,
   handleButtonClick,
 }) => {
-  const dispatch = useAppDispatch();
-  const showOptions = useAppSelecter(
-    (state) => state.customFightParameters.showOptions
-  );
   const { parameterError, parameterErrorMsg } = useAppSelecter(
     (state) => state.customFightParameters
   );
 
   return (
     <div className="pumpers-content">
-      <button onClick={handleButtonClick} disabled={isFetching || showOptions}>
-        Get Pumpers
-      </button>
       <button
-        onClick={() => dispatch(setShowOptions(!showOptions))}
+        onClick={handleButtonClick}
         disabled={isFetching || parameterError}
       >
-        {showOptions
-          ? parameterError
-            ? parameterErrorMsg
-            : "Hide options"
-          : "Show options"}
+        Get Pumpers
       </button>
+      <label>
+        {parameterError && (
+          <ErrorBear
+            error={ReportParseError.INVALID_FILTER}
+            customMsg={parameterErrorMsg}
+          />
+        )}
+      </label>
     </div>
   );
 };

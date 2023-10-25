@@ -12,7 +12,6 @@ import TimePeriodFilter from "./TimePeriodFilter";
 const CustomFightParameters = () => {
   const dispatch = useAppDispatch();
   const {
-    showOptions,
     abilityBlacklist,
     abilityNoBoEScaling,
     abilityNoEMScaling,
@@ -62,13 +61,7 @@ const CustomFightParameters = () => {
   ]);
 
   return (
-    <div
-      className={`pumpers-content ${
-        showOptions
-          ? "custom-fight-parameters"
-          : "custom-fight-parameters-hidden"
-      }`}
-    >
+    <div className={`pumpers-content`}>
       <TimePeriodFilter />
       <AbilityFilter />
       <EnemyFilter />
