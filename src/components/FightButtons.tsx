@@ -1,4 +1,4 @@
-import { useAppSelecter } from "../redux/hooks";
+import { useAppSelector } from "../redux/hooks";
 import { ReportParseError } from "../wcl/util/parseWCLUrl";
 import ErrorBear from "./ErrorBear";
 
@@ -11,7 +11,7 @@ const FightButtons: React.FC<FightButtonProps> = ({
   isFetching,
   handleButtonClick,
 }) => {
-  const { parameterError, parameterErrorMsg } = useAppSelecter(
+  const { parameterError, parameterErrorMsg } = useAppSelector(
     (state) => state.customFightParameters
   );
 

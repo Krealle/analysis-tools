@@ -3,11 +3,11 @@ import "../styles/App.scss";
 import "../styles/classColors.scss";
 import { FightBoxes } from "../components/FightBoxes";
 import GetTopPumpers from "../components/GetTopPumpers";
-import { useAppSelecter } from "../redux/hooks";
+import { useAppSelector } from "../redux/hooks";
 import { SelectFightButtons } from "../components/SelectFightButtons";
 
 function App() {
-  const fightReport = useAppSelecter((state) => state.WCLUrlInput.fightReport);
+  const fightReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
 
   return (
     <>

@@ -1,8 +1,8 @@
-import { useAppDispatch, useAppSelecter } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setSelectedIds } from "../redux/slices/FightBoxesSlice";
 
 export const SelectFightButtons = () => {
-  const fightReport = useAppSelecter((state) => state.WCLUrlInput.fightReport);
+  const fightReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
   const dispatch = useAppDispatch();
 
   const handleSelectFights = (selectKills?: boolean) => {

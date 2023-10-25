@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   setParameterErrorMsg,
   setParameterError,
@@ -17,16 +17,16 @@ const CustomFightParameters = () => {
     abilityNoEMScaling,
     abilityNoScaling,
     timeSkipIntervals,
-  } = useAppSelecter((state) => state.customFightParameters);
+  } = useAppSelector((state) => state.customFightParameters);
 
   useEffect(() => {
     for (const interval of timeSkipIntervals) {
-      const formatedStartTime = formatTime(interval.start);
-      const formatedEndTime = formatTime(interval.end);
+      const formattedStartTime = formatTime(interval.start);
+      const formattedEndTime = formatTime(interval.end);
       if (
-        !formatedStartTime ||
-        !formatedEndTime ||
-        formatedStartTime > formatedEndTime
+        !formattedStartTime ||
+        !formattedEndTime ||
+        formattedStartTime > formattedEndTime
       ) {
         dispatch(setParameterErrorMsg("Invalid time interval"));
         dispatch(setParameterError(true));

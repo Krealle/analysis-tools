@@ -16,7 +16,7 @@ export const WCL_CLIENT_SECRET = (() => {
 
 /** SpellIds to blacklist */
 export const ABILITY_BLACKLIST: number[] = [
-  409632, // Breath of Eons (Removed since technically they can feed eachother, but this is weak with 2x limit and just makes it more annoying to filter stuff properly later)
+  409632, // Breath of Eons (Removed since technically they can feed each other, but this is weak with 2x limit and just makes it more annoying to filter stuff properly later)
 ];
 
 /** SpellIds for abilities that scale off armor/HP but attribute to Breath of Eons */
@@ -87,23 +87,6 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   408469, // Call to Suffering (Self Harm)
   374087, // Glacial Fury
   184689, // Shield of Vengeance
-];
-
-/** Bosses */
-export const BOSS_ID_LIST: number[] = [
-  201261, // Kazzara
-  199659, // Warlord Kagni
-  200912, // Neldris
-  200913, // Thadrion
-  200918, // Rionthus
-  201774, // Essence of Shadow
-  201773, // Eternal Blaze
-  201934, // Shadowflame Amalgamation
-  201320, // Rashok
-  202637, // Zskarn
-  201579, // Magmorax
-  201668, // Neltharion
-  201754, // Sarkareth
 ];
 
 export const mrtColorMap: Map<string, string> = new Map([

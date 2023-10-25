@@ -43,7 +43,7 @@ export function handleMetaData(report?: WCLReport) {
   const petToPlayerMap = new Map<number, number>();
 
   /** Link pet to owner
-   * and populate playerTracker for class informations */
+   * and populate playerTracker for class information */
   if (report.masterData.actors) {
     for (const actor of report.masterData.actors) {
       if (actor.petOwner) {
@@ -210,7 +210,7 @@ export function handleFightData(
     }
   }
   /**
-   * potentially we want to look at events that in the end of a fight, but didnt happen within
+   * potentially we want to look at events that in the end of a fight, but didn't happen within
    * an entire interval, with averaging across many pulls this can kinda get skewed, data-wise
    * so for now we just ignore them.
    */

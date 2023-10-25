@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type initalState = {
+type initialState = {
   selectedIds: number[];
 };
 
-const initalState: initalState = {
+const initialState: initialState = {
   selectedIds: [],
 };
 
 const fightBoxesSlice = createSlice({
   name: "fightBoxes",
-  initialState: initalState,
+  initialState: initialState,
   reducers: {
     setSelectedIds: (state, action: PayloadAction<number[]>) => {
       state.selectedIds = action.payload;

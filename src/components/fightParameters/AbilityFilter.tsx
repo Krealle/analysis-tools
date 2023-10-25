@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   setAbilityBlacklist,
   setAbilityNoBoEScaling,
@@ -15,7 +15,7 @@ const AbilityFilter: React.FC = () => {
     abilityNoBoEScaling,
     abilityNoScaling,
     abilityBlacklist,
-  } = useAppSelecter((state) => state.customFightParameters);
+  } = useAppSelector((state) => state.customFightParameters);
 
   const content = (
     <div className="flex">
@@ -45,7 +45,7 @@ const AbilityFilter: React.FC = () => {
       </div>
       <div className="flex container">
         <div className="flex title">
-          <big>No Scaling</big>
+          <big>No Scaling (-90%)</big>
         </div>
         <div className="flex abilities">
           <textarea

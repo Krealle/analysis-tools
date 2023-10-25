@@ -65,7 +65,7 @@ export async function getEvents<T extends AnyEvent>(
   recurse?: boolean
 ) {
   /** Xeph should fix so I don't need to do this.
-   * Rare edgecase where you hit your limit and only get parsed some of the events on the endTime timestamp.
+   * Rare edge case where you hit your limit and only get parsed some of the events on the endTime timestamp.
    * If nextPageTimestamp then is equal to endTime, WCL will throw a hissy fit. */
   if (variables.startTime === variables.endTime) {
     variables.endTime += 1;

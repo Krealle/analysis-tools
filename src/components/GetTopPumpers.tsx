@@ -9,7 +9,7 @@ import {
 } from "../helpers/dataProcessing";
 import { renderTableContent as renderTableContent } from "../helpers/contentRender";
 import { FightTracker, FormattedTimeSkipIntervals } from "../helpers/types";
-import { useAppSelecter } from "../redux/hooks";
+import { useAppSelector as useAppSelector } from "../redux/hooks";
 import FightButtons from "./FightButtons";
 import { formatTime } from "../util/format";
 
@@ -20,11 +20,11 @@ const GetTopPumpers = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  const metaData = useAppSelecter((state) => state.WCLUrlInput.fightReport);
-  const selectedFights = useAppSelecter(
+  const metaData = useAppSelector((state) => state.WCLUrlInput.fightReport);
+  const selectedFights = useAppSelector(
     (state) => state.fightBoxes.selectedIds
   );
-  const enemyBlacklist = useAppSelecter(
+  const enemyBlacklist = useAppSelector(
     (state) => state.customFightParameters.enemyBlacklist
   );
 
@@ -36,7 +36,7 @@ const GetTopPumpers = () => {
     abilityNoBoEScaling,
     abilityNoScaling,
     abilityBlacklist,
-  } = useAppSelecter((state) => state.customFightParameters);
+  } = useAppSelector((state) => state.customFightParameters);
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -84,12 +84,12 @@ const GetTopPumpers = () => {
 
     const formattedTimeSkipIntervals: FormattedTimeSkipIntervals[] = [];
     for (const interval of timeSkipIntervals) {
-      const formatedStartTime = formatTime(interval.start);
-      const formatedEndTime = formatTime(interval.end);
-      if (formatedStartTime && formatedEndTime) {
+      const formattedStartTime = formatTime(interval.start);
+      const formattedEndTime = formatTime(interval.end);
+      if (formattedStartTime && formattedEndTime) {
         formattedTimeSkipIntervals.push({
-          start: formatedStartTime,
-          end: formatedEndTime,
+          start: formattedStartTime,
+          end: formattedEndTime,
         });
       }
     }

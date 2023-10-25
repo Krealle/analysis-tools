@@ -1,11 +1,11 @@
-import { useAppSelecter } from "../redux/hooks";
+import { useAppSelector } from "../redux/hooks";
 import { formatDuration } from "../util/format";
 import { useAppDispatch } from "../redux/hooks";
 import { setSelectedIds } from "../redux/slices/FightBoxesSlice";
 
 export const FightBoxes = () => {
-  const report = useAppSelecter((state) => state.WCLUrlInput.fightReport);
-  const selectedIds = useAppSelecter((state) => state.fightBoxes.selectedIds);
+  const report = useAppSelector((state) => state.WCLUrlInput.fightReport);
+  const selectedIds = useAppSelector((state) => state.fightBoxes.selectedIds);
   const dispatch = useAppDispatch();
 
   const handleDivClick = (id: number) => {

@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   addTimeSkipInterval,
   changeTimeSkipInterval,
@@ -7,7 +7,7 @@ import {
 import PopupContent from "../generic/PopupContent";
 
 const TimePeriodFilter: React.FC = () => {
-  const timeIntervals = useAppSelecter(
+  const timeIntervals = useAppSelector(
     (state) => state.customFightParameters.timeSkipIntervals
   );
   const dispatch = useAppDispatch();

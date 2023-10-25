@@ -43,7 +43,7 @@ export const parseWCLUrl = (maybeURL: string) => {
 
     const maybeReportID = pathname.replace("/reports/", "").replace("/", "");
 
-    // WCL url, but doesnt point to reports
+    // WCL url, but doesn't point to reports
     if (!isValidReportId(maybeReportID)) {
       return {
         reportCode: null,

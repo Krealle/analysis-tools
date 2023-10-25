@@ -60,7 +60,7 @@ export interface Spec {
   count: number;
 }
 
-/** The ReporMastertData object contains information about the log version of a report, as well as the actors and abilities used in the report. */
+/** The ReportMasterData object contains information about the log version of a report, as well as the actors and abilities used in the report. */
 export type ReportMasterData = {
   __typename?: "ReportMasterData";
   /** A list of every ability that occurs in the report. */

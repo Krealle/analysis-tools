@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { modifyEnemyBlacklist } from "../../redux/slices/customFightParametersSlice";
 import { AberrusEnemies, EncounterNames } from "../../util/EnemyTable";
 import PopupContent from "../generic/PopupContent";
@@ -6,7 +6,7 @@ import "./fightParameterStyling.scss";
 
 const EnemyFilter: React.FC = () => {
   const dispatch = useAppDispatch();
-  const enemyBlacklist = useAppSelecter(
+  const enemyBlacklist = useAppSelector(
     (state) => state.customFightParameters.enemyBlacklist
   );
 

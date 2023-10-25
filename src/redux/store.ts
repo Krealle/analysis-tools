@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import WCLUrlInputReducer from "./slices/WCLUrlInputSlice";
-import fightBoxesSliceReducer from "./slices/FightBoxesSlice";
+import fightBoxesSliceReducer from "./slices/fightBoxesSlice";
 import customFightParametersReducer from "./slices/customFightParametersSlice";
 
 const store = configureStore({

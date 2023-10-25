@@ -85,7 +85,7 @@ export const EncounterNames: Record<string, string> = {
   "Magmorax": "Magmorax",
   "EchoOfNeltharion": "Echo of Neltharion",
   "ScalecommanderSarkareth": "Scalecommander Sarkareth",
-  /** Amidrassil */
+  /** Amirdrassil */
   "Gnarlroot": "Gnarlroot",
   "IgiraTheCruel": "Igira the Cruel",
   "Volcoross": "Volcoross",
