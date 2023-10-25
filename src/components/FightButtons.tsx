@@ -1,9 +1,6 @@
 import { useAppSelecter } from "../redux/hooks";
 import { ReportParseError } from "../wcl/util/parseWCLUrl";
 import ErrorBear from "./ErrorBear";
-import { useAppSelecter } from "../redux/hooks";
-import { ReportParseError } from "../wcl/util/parseWCLUrl";
-import ErrorBear from "./ErrorBear";
 
 type FightButtonProps = {
   isFetching: boolean;
@@ -21,7 +18,6 @@ const FightButtons: React.FC<FightButtonProps> = ({
   return (
     <div className="pumpers-content">
       <button
-        onClick={handleButtonClick}
         onClick={handleButtonClick}
         disabled={isFetching || parameterError}
       >
