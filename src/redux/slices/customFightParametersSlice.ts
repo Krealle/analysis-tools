@@ -41,6 +41,27 @@ const customFightParametersSlice = createSlice({
     ) => {
       state.timeSkipIntervals = action.payload;
     },
+    addTimeSkipInterval: (state, action: PayloadAction<TimeSkipIntervals>) => {
+      state.timeSkipIntervals.push(action.payload);
+    },
+    removeTimeSkipInterval: (state, action: PayloadAction<number>) => {
+      state.timeSkipIntervals.splice(action.payload, 1);
+    },
+    changeTimeSkipInterval: (
+      state,
+      action: PayloadAction<{
+        index: number;
+        entry: "start" | "end";
+        value: string;
+      }>
+    ) => {
+      const { index, entry, value } = action.payload;
+      if (entry === "start") {
+        state.timeSkipIntervals[index].start = value;
+      } else {
+        state.timeSkipIntervals[index].end = value;
+      }
+    },
     setParameterError: (state, action: PayloadAction<boolean>) => {
       state.parameterError = action.payload;
     },
@@ -88,5 +109,8 @@ export const {
   setAbilityNoScaling,
   setAbilityNoBoEScaling,
   setAbilityNoEMScaling,
+  addTimeSkipInterval,
+  removeTimeSkipInterval,
+  changeTimeSkipInterval,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;

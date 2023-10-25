@@ -1,55 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelecter } from "../../redux/hooks";
 import {
-  setTimeSkipIntervals,
   setParameterErrorMsg,
   setParameterError,
 } from "../../redux/slices/customFightParametersSlice";
 import { formatTime } from "../../util/format";
-import { TimeSkipIntervals } from "../../helpers/types";
 import EnemyFilter from "./EnemyFilter";
 import AbilityFilter from "./AbilityFilter";
+import TimePeriodFilter from "./TimePeriodFilter";
 
 const CustomFightParameters = () => {
-  const [timeIntervals, setTimeIntervals] = useState<
-    { start: string; end: string }[]
-  >([]);
-
   const dispatch = useAppDispatch();
-  const { showOptions } = useAppSelecter(
-    (state) => state.customFightParameters
-  );
-
-  const addTimeInterval = () => {
-    setTimeIntervals([...timeIntervals, { start: "", end: "" }]);
-  };
-
-  const removeTimeInterval = (index: number) => {
-    const updatedIntervals = [...timeIntervals];
-    updatedIntervals.splice(index, 1);
-    setTimeIntervals(updatedIntervals);
-  };
-
-  const handleInputChange = (
-    index: number,
-    field: "start" | "end",
-    value: string
-  ) => {
-    const updatedIntervals = [...timeIntervals];
-    updatedIntervals[index][field] = value;
-    setTimeIntervals(updatedIntervals);
-  };
-
   const {
+    showOptions,
     abilityBlacklist,
     abilityNoBoEScaling,
     abilityNoEMScaling,
     abilityNoScaling,
+    timeSkipIntervals,
   } = useAppSelecter((state) => state.customFightParameters);
 
   useEffect(() => {
-    const formatedIntervals: TimeSkipIntervals[] = [];
-    for (const interval of timeIntervals) {
+    for (const interval of timeSkipIntervals) {
       const formatedStartTime = formatTime(interval.start);
       const formatedEndTime = formatTime(interval.end);
       if (
@@ -61,12 +33,7 @@ const CustomFightParameters = () => {
         dispatch(setParameterError(true));
         return;
       }
-      formatedIntervals.push({
-        start: formatedStartTime,
-        end: formatedEndTime,
-      });
     }
-    dispatch(setTimeSkipIntervals(formatedIntervals));
 
     /** In my eyes this is black magic but all
      * it does is check if blacklist format is correct:
@@ -90,7 +57,7 @@ const CustomFightParameters = () => {
     abilityNoBoEScaling,
     abilityNoEMScaling,
     abilityNoScaling,
-    timeIntervals,
+    timeSkipIntervals,
     dispatch,
   ]);
 
@@ -102,28 +69,7 @@ const CustomFightParameters = () => {
           : "custom-fight-parameters-hidden"
       }`}
     >
-      <div className="time-intervals-container">
-        <p>Time intervals to skip</p>
-        {timeIntervals.map((interval, index) => (
-          <div className="time-intervals-content" key={index}>
-            <button onClick={() => removeTimeInterval(index)}>X</button>
-            <input
-              placeholder="0:45"
-              value={interval.start}
-              onChange={(e) =>
-                handleInputChange(index, "start", e.target.value)
-              }
-            />{" "}
-            -{" "}
-            <input
-              placeholder="1:05"
-              value={interval.end}
-              onChange={(e) => handleInputChange(index, "end", e.target.value)}
-            />
-          </div>
-        ))}
-        <button onClick={addTimeInterval}>Add period</button>
-      </div>
+      <TimePeriodFilter />
       <AbilityFilter />
       <EnemyFilter />
     </div>

@@ -8,9 +8,10 @@ import {
   parseFights,
 } from "../helpers/dataProcessing";
 import { renderTableContent as renderTableContent } from "../helpers/contentRender";
-import { FightTracker } from "../helpers/types";
+import { FightTracker, FormattedTimeSkipIntervals } from "../helpers/types";
 import { useAppSelecter } from "../redux/hooks";
 import FightButtons from "./FightButtons";
+import { formatTime } from "../util/format";
 
 /** Global since we want to semi-persist data */
 let fightTracker: FightTracker[] = [];
@@ -81,11 +82,23 @@ const GetTopPumpers = () => {
       abilityBlacklist
     );
 
+    const formattedTimeSkipIntervals: FormattedTimeSkipIntervals[] = [];
+    for (const interval of timeSkipIntervals) {
+      const formatedStartTime = formatTime(interval.start);
+      const formatedEndTime = formatTime(interval.end);
+      if (formatedStartTime && formatedEndTime) {
+        formattedTimeSkipIntervals.push({
+          start: formatedStartTime,
+          end: formatedEndTime,
+        });
+      }
+    }
+
     const topPumperData = handleFightData(
       selectedFights,
       metaData.code,
       fightTracker,
-      timeSkipIntervals,
+      formattedTimeSkipIntervals,
       petToPlayerMap,
       enemyBlacklist,
       enemyTracker,

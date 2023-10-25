@@ -24,6 +24,11 @@ export type IntervalEntry = {
 };
 
 export type TimeSkipIntervals = {
+  start: string;
+  end: string;
+};
+
+export type FormattedTimeSkipIntervals = {
   start: number;
   end: number;
 };

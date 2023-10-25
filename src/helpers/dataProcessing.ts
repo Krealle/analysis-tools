@@ -9,9 +9,9 @@ import {
 } from "../wcl/util/queryWCL";
 import {
   FightTracker,
+  FormattedTimeSkipIntervals,
   IntervalEntry,
   IntervalSet,
-  TimeSkipIntervals,
   TotInterval,
 } from "./types";
 
@@ -70,7 +70,7 @@ export function handleFightData(
   selectedFights: number[],
   reportCode: string,
   fightTracker: FightTracker[],
-  timeSkipIntervals: TimeSkipIntervals[],
+  timeSkipIntervals: FormattedTimeSkipIntervals[],
   petToPlayerMap: Map<number, number>,
   enemyBlacklist: number[],
   enemyTracker: Map<number, number>,
