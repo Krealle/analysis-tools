@@ -1,7 +1,8 @@
 import { useAppSelector } from "../redux/hooks";
 import { formatDuration } from "../util/format";
 import { useAppDispatch } from "../redux/hooks";
-import { setSelectedIds } from "../redux/slices/FightBoxesSlice";
+import { setSelectedIds } from "../redux/slices/fightBoxesSlice";
+import ButtonCheckbox from "./generic/ButtonCheckbox";
 
 export const FightBoxes = () => {
   const report = useAppSelector((state) => state.WCLUrlInput.fightReport);
@@ -28,27 +29,22 @@ export const FightBoxes = () => {
       {report.fights
         .filter((fight) => fight.difficulty)
         .map((fight) => (
-          <div
+          <ButtonCheckbox
             key={fight.id}
-            className={`checkbox-fight ${
-              selectedIds.includes(fight.id) ? "selected" : ""
+            onClick={() => handleDivClick(fight.id)}
+            selected={selectedIds.includes(fight.id)}
+            title={fight.name}
+            flavorText={`${fight.id} - ${formatDuration(
+              fight.endTime - fight.startTime
+            )}${
+              fight.kill
+                ? " (kill)"
+                : ` (wipe ${fight.fightPercentage}%${
+                    fight.lastPhase ?? 0 > 0 ? ` P${fight.lastPhase}` : ""
+                  })`
             }`}
             id={fight.kill ? "fight-kill" : "fight-wipe"}
-            onClick={() => handleDivClick(fight.id)}
-          >
-            <div>
-              <span className="fight-name">{fight.name}</span>
-              <br />
-              <span className="flavor-text">
-                {fight.id} - {formatDuration(fight.endTime - fight.startTime)}
-                {fight.kill
-                  ? ` (kill)`
-                  : ` (wipe ${fight.fightPercentage}%${
-                      fight.lastPhase ?? 0 > 0 ? ` P${fight.lastPhase}` : ""
-                    })`}
-              </span>
-            </div>
-          </div>
+          />
         ))}
     </div>
   );

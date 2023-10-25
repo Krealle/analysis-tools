@@ -97,6 +97,20 @@ export const EncounterNames: Record<string, string> = {
   "FyrakkTheBlazing": "Fyrakk the Blazing",
 };
 
+// prettier-ignore
+export const EncounterImages: Record<string, string> = {
+  /** Aberrus */
+  "Kazzara": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-kazzara-the-hellforged.png",
+  "AssaultOfTheZaqali": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-assault-of-the-zaqali.png",
+  "RashokTheElder": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-rashok-the-elder.png",
+  "TheAmalgamationChamber": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-the-amalgamation-chamber.png",
+  "TheForgottenExperiments": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-the-forgotten-experiments.png",
+  "TheVigilantStewardZskarn": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-the-vigilant-steward-zskarn.png",
+  "Magmorax": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-magmorax.png",
+  "EchoOfNeltharion": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-echo-of-neltharion.png",
+  "ScalecommanderSarkareth": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-scalecommander-sarkareth.png",
+}
+
 for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
   console.log(`Encounter: ${encounter}`);
   console.log(EncounterNames[encounter]);

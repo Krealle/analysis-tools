@@ -23,3 +23,24 @@
   padding-right: 5px;
   background-color: #0d0d0d;
 }
+
+.title {
+  p {
+    font-size: 24px;
+    margin: 0;
+  }
+}
+
+.enemies {
+  .buttonCheckbox {
+    min-width: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0px;
+  }
+  .buttonCheckbox.selected {
+    border: 2px solid red;
+    transition: border-color 0.5s;
+  }
+  
+}

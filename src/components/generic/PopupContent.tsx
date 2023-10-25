@@ -13,7 +13,7 @@ const PopupContent: React.FC<PopupProps> = ({ content, name }) => {
     <>
       <button onClick={() => setPopupOpen(true)}>{name}</button>
       {isPopupOpen && (
-        <div className="popup-overlay">
+        <div className="popup-overlay flex">
           <div className="popup-content">
             <button
               onClick={() => setPopupOpen(false)}
