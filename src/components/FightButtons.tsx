@@ -21,7 +21,7 @@ const FightButtons: React.FC<FightButtonProps> = ({
         onClick={handleButtonClick}
         disabled={isFetching || parameterError}
       >
-        Get Pumpers Get Pumpers
+        Get Pumpers
       </button>
       {parameterError && (
         <ErrorBear
