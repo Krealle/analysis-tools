@@ -1,6 +1,18 @@
-import { mrtColorMap } from "../util/constants";
+import {
+  EBON_MIGHT_BUFF,
+  EBON_MIGHT_CORRECTION_VALUE,
+  MELEE_HIT,
+  SHIFTING_SANDS_BUFF,
+  SHIFTING_SANDS_CORRECTION_VALUE,
+  mrtColorMap,
+} from "../util/constants";
 import { formatDuration } from "../util/format";
-import { DamageEvent, EventType } from "../wcl/events/types";
+import {
+  ApplyBuffEvent,
+  DamageEvent,
+  EventType,
+  RemoveBuffEvent,
+} from "../wcl/events/types";
 import { Actor, PlayerDetails, WCLReport, ReportFight } from "../wcl/gql/types";
 import {
   EventVariables,
@@ -12,6 +24,7 @@ import {
   FormattedTimeSkipIntervals,
   IntervalEntry,
   IntervalSet,
+  PlayerBuffEvents,
   TotInterval,
 } from "./types";
 
@@ -28,6 +41,12 @@ function getFilter(playerDetails: PlayerDetails, abilityBlacklist: string) {
     AND not (target.id = source.owner.id)
     AND not (source.id = target.owner.id)`;
 
+  return filter;
+}
+
+function getBuffFilter(buffList: string) {
+  const filter = `(ability.id in (${buffList})) 
+  AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
   return filter;
 }
 
@@ -66,6 +85,81 @@ export function handleMetaData(report?: WCLReport) {
   };
 }
 
+function filterBuffEvents(
+  buffEvents: (ApplyBuffEvent | RemoveBuffEvent)[],
+  fightStart: number,
+  fightEnd: number
+): PlayerBuffEvents {
+  const results: PlayerBuffEvents = {};
+
+  for (const event of buffEvents) {
+    if (!results[event.targetID]) {
+      results[event.targetID] = {};
+    }
+
+    if (!results[event.targetID][event.abilityGameID]) {
+      results[event.targetID][event.abilityGameID] = [];
+    }
+
+    const buffWindow = results[event.targetID][event.abilityGameID];
+    const currentBuffWindow = buffWindow.find(
+      (buffWindow) =>
+        buffWindow.sourceId === event.sourceID && buffWindow.end === 0
+    );
+
+    if (event.type === EventType.ApplyBuffEvent) {
+      buffWindow.push({
+        sourceId: event.sourceID,
+        start: event.timestamp,
+        end: 0,
+      });
+    } else if (event.type === EventType.RemoveBuffEvent) {
+      if (!currentBuffWindow) {
+        buffWindow.push({
+          sourceId: event.sourceID,
+          start: fightStart,
+          end: event.timestamp,
+        });
+      } else {
+        currentBuffWindow.end = event.timestamp;
+      }
+    }
+  }
+
+  for (const [, targetBuffs] of Object.entries(results)) {
+    for (const [, abilityBuffs] of Object.entries(targetBuffs)) {
+      for (const buffWindow of abilityBuffs) {
+        if (buffWindow.end === 0) {
+          buffWindow.end = fightEnd;
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+function getBuffCount(
+  playerBuffEvents: PlayerBuffEvents,
+  playerId: number,
+  buffId: number,
+  timestamp: number
+): number {
+  let amountOfBuffs = 0;
+
+  const playerBuffs = playerBuffEvents[playerId];
+
+  if (playerBuffs && playerBuffs[buffId]) {
+    for (const buff of playerBuffs[buffId]) {
+      if (buff.start <= timestamp && buff.end >= timestamp) {
+        amountOfBuffs++;
+      }
+    }
+  }
+
+  return amountOfBuffs;
+}
+
 export function handleFightData(
   selectedFights: number[],
   reportCode: string,
@@ -76,7 +170,9 @@ export function handleFightData(
   enemyTracker: Map<number, number>,
   abilityNoEMScaling: number[],
   abilityNoBoEScaling: number[],
-  abilityNoScaling: number[]
+  abilityNoScaling: number[],
+  abilityBrokenAttribution: number[],
+  playerTracker: Map<number, Actor>
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
 
@@ -87,6 +183,11 @@ export function handleFightData(
     ) {
       continue;
     }
+    const playerBuffEvents: PlayerBuffEvents = filterBuffEvents(
+      fight.buffEvents,
+      fight.startTime,
+      fight.endTime
+    );
 
     let currentInterval = 1;
 
@@ -96,7 +197,7 @@ export function handleFightData(
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
 
-    for (const event of fight.events) {
+    for (const event of fight.damageEvents) {
       if (enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)) {
         continue;
       }
@@ -185,6 +286,10 @@ export function handleFightData(
          *   Therefore, the result will have some degree of inaccuracy no matter the
          *   formula. Nevertheless, this approach should provide a more reliable result
          *   compared to a strict reliance on logs.
+         *
+         * Here we also attempt to reduce the problem with broken attribution, such as Beast Cleave
+         * we figure out the amount of buffs a player have to reduce the damage manually.
+         * Not a perfect solution but should help us none the less.
          */
         const noScaling = abilityNoScaling.includes(event.abilityGameID);
         const noEMScaling = abilityNoEMScaling.includes(event.abilityGameID)
@@ -194,7 +299,41 @@ export function handleFightData(
           ? 0.1
           : 0;
 
-        const weight = noScaling ? 0.1 : 1 - noEMScaling - noBOEScaling;
+        const abilityHasBrokenAttribution = abilityBrokenAttribution.includes(
+          event.abilityGameID
+        );
+
+        const isBMHunterPet =
+          playerTracker.get(sourceID)?.subType === "Hunter" &&
+          petToPlayerMap.get(event.sourceID);
+
+        let ebonMightCount = 0;
+        let shiftingSandsCount = 0;
+
+        if (
+          abilityHasBrokenAttribution ||
+          (isBMHunterPet && event.abilityGameID !== MELEE_HIT)
+        ) {
+          ebonMightCount = getBuffCount(
+            playerBuffEvents,
+            sourceID,
+            EBON_MIGHT_BUFF,
+            event.timestamp
+          );
+          shiftingSandsCount = getBuffCount(
+            playerBuffEvents,
+            sourceID,
+            SHIFTING_SANDS_BUFF,
+            event.timestamp
+          );
+        }
+        const weight = noScaling
+          ? 0.1
+          : 1 -
+            noEMScaling -
+            noBOEScaling -
+            (ebonMightCount * EBON_MIGHT_CORRECTION_VALUE +
+              shiftingSandsCount * SHIFTING_SANDS_CORRECTION_VALUE);
 
         amount = (event.amount + (event.absorbed ?? 0)) * weight;
       }
@@ -214,6 +353,7 @@ export function handleFightData(
    * an entire interval, with averaging across many pulls this can kinda get skewed, data-wise
    * so for now we just ignore them.
    */
+  console.log(sortedIntervals);
   return sortedIntervals;
 }
 
@@ -308,22 +448,31 @@ export async function parseFights(
         variables.filterExpression = filter;
       }
 
-      const events = await getEvents<DamageEvent>(
+      const damageEvents = await getEvents<DamageEvent>(
         variables,
         EventType.DamageEvent
       );
-      return { fight: fight, events };
+
+      const buffFilter = getBuffFilter(
+        `${EBON_MIGHT_BUFF},${SHIFTING_SANDS_BUFF}`
+      );
+      variables.filterExpression = buffFilter;
+      const buffEvents = await getEvents<ApplyBuffEvent | RemoveBuffEvent>(
+        variables
+      );
+      return { fight: fight, damageEvents, buffEvents };
     });
 
   await Promise.all(eventPromises).then((results) => {
-    results.forEach(({ fight, events }) => {
+    results.forEach(({ fight, damageEvents, buffEvents }) => {
       fightTracker.push({
         fightId: fight.id,
         reportCode: reportCode,
         startTime: fight.startTime,
         endTime: fight.endTime,
         actors: fight.friendlyPlayers ?? [],
-        events: events,
+        damageEvents: damageEvents,
+        buffEvents: buffEvents,
       });
     });
   });

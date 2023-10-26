@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   setAbilityBlacklist,
+  setAbilityBrokenAttribution,
   setAbilityNoBoEScaling,
   setAbilityNoEMScaling,
   setAbilityNoScaling,
@@ -15,6 +16,7 @@ const AbilityFilter: React.FC = () => {
     abilityNoBoEScaling,
     abilityNoScaling,
     abilityBlacklist,
+    abilityBrokenAttribution,
   } = useAppSelector((state) => state.customFightParameters);
 
   const content = (
@@ -63,6 +65,20 @@ const AbilityFilter: React.FC = () => {
           <textarea
             onChange={(e) => dispatch(setAbilityBlacklist(e.target.value))}
             value={abilityBlacklist}
+            className="mrtNoteTextbox"
+          />
+        </div>
+      </div>
+      <div className="flex container">
+        <div className="flex title">
+          <big>Broken Attribution</big>
+        </div>
+        <div className="flex abilities">
+          <textarea
+            onChange={(e) =>
+              dispatch(setAbilityBrokenAttribution(e.target.value))
+            }
+            value={abilityBrokenAttribution}
             className="mrtNoteTextbox"
           />
         </div>

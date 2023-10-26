@@ -1,4 +1,8 @@
-import { DamageEvent } from "../wcl/events/types";
+import {
+  ApplyBuffEvent,
+  DamageEvent,
+  RemoveBuffEvent,
+} from "../wcl/events/types";
 
 export type FightTracker = {
   fightId: number;
@@ -6,7 +10,22 @@ export type FightTracker = {
   startTime: number;
   endTime: number;
   actors: number[];
-  events: DamageEvent[];
+  damageEvents: DamageEvent[];
+  buffEvents: (ApplyBuffEvent | RemoveBuffEvent)[];
+};
+
+export type WindowEvent = {
+  sourceId: number;
+  start: number;
+  end: number;
+};
+
+export type EventGroup = {
+  [abilityId: string]: WindowEvent[];
+};
+
+export type PlayerBuffEvents = {
+  [targetId: string]: EventGroup;
 };
 
 export type TotInterval = {

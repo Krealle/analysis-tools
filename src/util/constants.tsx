@@ -89,6 +89,11 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   184689, // Shield of Vengeance
 ];
 
+/** SpellsIds that don't re-attribute properly */
+export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
+  //406251, // Random id for testing - Roiling Shadowflame
+];
+
 export const mrtColorMap: Map<string, string> = new Map([
   ["Mage", "|cff3fc7eb"],
   ["Paladin", "|cfff48cba"],
@@ -104,3 +109,17 @@ export const mrtColorMap: Map<string, string> = new Map([
   ["DemonHunter", "|cffa330c9"],
   ["Evoker", "|cff33937f"],
 ]);
+
+export const MELEE_HIT = 1;
+export const EBON_MIGHT_BUFF = 395152;
+export const SHIFTING_SANDS_BUFF = 413984;
+/**
+ * These values represent an estimation of about how much
+ * these buffs provide to a players throughput
+ * we use these values to attempt to combat abilities with
+ * broken attribution, this is obviously not a perfect solution
+ * but will help us with getting a more accurate idea of actual
+ * throughput.
+ */
+export const EBON_MIGHT_CORRECTION_VALUE = 0.09;
+export const SHIFTING_SANDS_CORRECTION_VALUE = 0.11;

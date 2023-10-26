@@ -36,6 +36,7 @@ const GetTopPumpers = () => {
     abilityNoBoEScaling,
     abilityNoScaling,
     abilityBlacklist,
+    abilityBrokenAttribution,
   } = useAppSelector((state) => state.customFightParameters);
 
   const handleButtonClick = async () => {
@@ -104,7 +105,9 @@ const GetTopPumpers = () => {
       enemyTracker,
       abilityNoEMScaling.split(",").map(Number),
       abilityNoBoEScaling.split(",").map(Number),
-      abilityNoScaling.split(",").map(Number)
+      abilityNoScaling.split(",").map(Number),
+      abilityBrokenAttribution.split(",").map(Number),
+      playerTracker
     );
 
     const avgTopPumpersData = averageOutIntervals(topPumperData);

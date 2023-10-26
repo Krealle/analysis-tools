@@ -2,12 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TimeSkipIntervals } from "../../helpers/types";
 import {
   ABILITY_BLACKLIST,
+  ABILITY_BROKEN_ATTRIBUTION,
   ABILITY_NO_BOE_SCALING,
   ABILITY_NO_EM_SCALING,
   ABILITY_NO_SCALING,
 } from "../../util/constants";
 
-type initalState = {
+type initialState = {
   timeSkipIntervals: TimeSkipIntervals[];
   parameterError: boolean;
   parameterErrorMsg: string;
@@ -17,9 +18,10 @@ type initalState = {
   abilityNoScaling: string;
   abilityNoBoEScaling: string;
   abilityNoEMScaling: string;
+  abilityBrokenAttribution: string;
 };
 
-const initialState: initalState = {
+const initialState: initialState = {
   timeSkipIntervals: [],
   parameterError: false,
   parameterErrorMsg: "",
@@ -29,6 +31,7 @@ const initialState: initalState = {
   abilityNoScaling: ABILITY_NO_SCALING.toString(),
   abilityNoBoEScaling: ABILITY_NO_BOE_SCALING.toString(),
   abilityNoEMScaling: ABILITY_NO_EM_SCALING.toString(),
+  abilityBrokenAttribution: ABILITY_BROKEN_ATTRIBUTION.toString(),
 };
 
 const customFightParametersSlice = createSlice({
@@ -96,6 +99,9 @@ const customFightParametersSlice = createSlice({
     setAbilityNoEMScaling: (state, action: PayloadAction<string>) => {
       state.abilityNoEMScaling = action.payload;
     },
+    setAbilityBrokenAttribution: (state, action: PayloadAction<string>) => {
+      state.abilityBrokenAttribution = action.payload;
+    },
   },
 });
 
@@ -109,6 +115,7 @@ export const {
   setAbilityNoScaling,
   setAbilityNoBoEScaling,
   setAbilityNoEMScaling,
+  setAbilityBrokenAttribution,
   addTimeSkipInterval,
   removeTimeSkipInterval,
   changeTimeSkipInterval,
