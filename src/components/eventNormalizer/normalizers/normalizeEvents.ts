@@ -349,16 +349,16 @@ function createSupportEvents(
     newEventMap.push(supportEvent);
   }
 
-  sourceEvent.normalizedAmount =
-    sourceEvent.amount + (sourceEvent.absorbed ?? 0) - supportDamage;
+  sourceEvent.normalizedAmount -= supportDamage;
 
   if (sourceEvent.normalizedAmount < 0) {
-    console.error("normalized damage was less than 0", sourceEvent);
     console.error(
-      "normalizedEvent.normalizedAmount",
+      "normalized damage was less than 0",
       sourceEvent.normalizedAmount,
       "supportDamage",
-      supportDamage
+      supportDamage,
+      "eventMap",
+      eventMap
     );
   }
 
