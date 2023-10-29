@@ -148,7 +148,9 @@ export function damageEventsNormalizer(
 
     if (
       normalizedEvent.activeBuffs.length > 0 ||
-      event.abilityGameID === 360828 // Blistering scales SMILERS
+      event.abilityGameID === 360828 || // Blistering scales SMILERS
+      event.abilityGameID === 410265 || // infernos blessing
+      event.abilityGameID === 404908 // Fate Mirror
     ) {
       // target is buffed and we need to catch buff events before we push it
       supportEventsRecord[key] = [normalizedEvent];
