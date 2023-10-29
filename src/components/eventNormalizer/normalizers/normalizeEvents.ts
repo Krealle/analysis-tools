@@ -187,15 +187,18 @@ export function damageEventsNormalizer(
 }
 
 function getKey(event: DamageEvent): string {
+  let key = `${event.targetID}`;
+  if (event.targetInstance) key += `_${event.targetInstance}`;
+
   if (event.subtractsFromSupportedActor) {
-    return event.supportInstance
-      ? `${event.targetID}_${event.supportID}_${event.supportInstance}`
-      : `${event.targetID}_${event.supportID}`;
+    key += `_${event.supportID}`;
+    if (event.supportInstance) key += `_${event.supportInstance}`;
   } else {
-    return event.sourceInstance
-      ? `${event.targetID}_${event.sourceID}_${event.sourceInstance}`
-      : `${event.targetID}_${event.sourceID}`;
+    key += `_${event.sourceID}`;
+    if (event.sourceInstance) key += `_${event.sourceInstance}`;
   }
+
+  return key;
 }
 
 /**
