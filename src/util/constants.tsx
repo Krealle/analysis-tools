@@ -16,7 +16,7 @@ export const WCL_CLIENT_SECRET = (() => {
 
 /** SpellIds to blacklist */
 export const ABILITY_BLACKLIST: number[] = [
-  409632, // Breath of Eons (Removed since technically they can feed each other, but this is weak with 2x limit and just makes it more annoying to filter stuff properly later)
+  98021, // Spirit link totem
 ];
 
 /** SpellIds for abilities that scale off armor/HP but attribute to Breath of Eons */

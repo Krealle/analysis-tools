@@ -1,4 +1,5 @@
 import {
+  ABILITY_BLACKLIST,
   EBON_MIGHT_BUFF,
   PRESCIENCE_BUFF,
   SHIFTING_SANDS_BUFF,
@@ -107,7 +108,8 @@ export async function generateFights(
         if (e.subtractsFromSupportedActor) {
           return acc;
         }
-        const amount: number = e.originalEvent.amount;
+        const amount: number =
+          e.originalEvent.amount + (e.originalEvent.absorbed ?? 0);
         return acc + amount;
       }, 0);
 
@@ -182,6 +184,7 @@ async function getFightDataSets(
 
   return result;
 }
+
 /**
  * Filter does the following(in order of occurrence):
  *
@@ -195,14 +198,21 @@ async function getFightDataSets(
  *
  * Removes selfharm to pets
  *
+ * Blacklist certain abilities
+ *
+ * Only collect friendly damage
+ *
  * @returns WCL filter expression
  */
 function getDamageFilter(): string {
+  const abilityFilter = ABILITY_BLACKLIST.map((ability) => ability).join(`,`);
   const filter = `(target.id != source.id)
     AND target.id not in(169428, 169430, 169429, 169426, 169421, 169425, 168932)
     AND not (target.id = source.owner.id)
     AND not (supportedActor.id = target.id)
-    AND not (source.id = target.owner.id)`;
+    AND not (source.id = target.owner.id)
+    AND not ability.id in (${abilityFilter})
+    AND source.disposition = "friendly"`;
   return filter;
 }
 

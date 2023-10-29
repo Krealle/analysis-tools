@@ -8,7 +8,7 @@ export function generateBuffHistories(
   fightEnd: number
 ): Buff[] {
   if (!events || events.length === 0 || fightEnd <= fightStart) {
-    throw new Error("Invalid input data or fight duration");
+    console.error("Invalid input data or fight duration");
   }
 
   const buffHistory: Buff[] = [];

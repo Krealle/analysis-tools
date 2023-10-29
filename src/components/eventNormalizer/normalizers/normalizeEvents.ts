@@ -58,7 +58,6 @@ export function damageEventsNormalizer(
   let lastEvent: DamageEvent | undefined;
 
   const pets: Pet[] = combatants.flatMap((player) => player.pets);
-  const bossEvents: DamageEvent[] = [];
 
   for (const event of events) {
     const petOwner = pets.find((pet) => pet.id === event.sourceID);
@@ -84,11 +83,6 @@ export function damageEventsNormalizer(
       originalEvent: event,
       normalizedAmount: event.amount + (event.absorbed ?? 0),
     };
-
-    if (normalizedEvent.source.id === -1) {
-      bossEvents.push(event);
-      continue;
-    }
 
     if (event.subtractsFromSupportedActor) {
       const supportKey = getKey(event);
@@ -169,14 +163,14 @@ export function damageEventsNormalizer(
     normalizedEvents.push(...newNormalizedEvent);
   });
 
-  if (normalizedEvents.length + bossEvents.length - events.length !== 0) {
+  if (normalizedEvents.length - events.length !== 0) {
     console.warn(
       "expected events:",
       events.length,
       "events gotten:",
       normalizedEvents.length,
       "difference:",
-      normalizedEvents.length + bossEvents.length - events.length
+      normalizedEvents.length - events.length
     );
   }
 
