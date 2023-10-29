@@ -5,6 +5,7 @@ import {
   getEventsQuery,
   getFightsQuery,
   getPlayerDetailsQuery,
+  getSummaryTableQuery,
 } from "../gql/queries";
 import { AnyEvent, EventType } from "../events/types";
 
@@ -32,26 +33,33 @@ export async function fetchReportData(
     const data = (await client.request(requestType, variables)) as RootReport;
 
     const report = data.reportData.report;
-    //console.log("root report:", data);
     return report;
   } catch (error) {
     console.error("GraphQL request error:", error);
+    throw new Error("GraphQL request error");
   }
 }
 
-export async function getFights(variables: Variables) {
-  try {
-    const response = await fetchReportData(getFightsQuery, variables);
-
-    return response;
-  } catch (error) {
-    console.error("Error getting fights:", error);
+export async function getSummaryTable(variables: Variables) {
+  const response = await fetchReportData(getSummaryTableQuery, variables);
+  if (!response.table) {
+    throw new Error("No summary table found");
   }
+
+  return response.table.data;
+}
+
+export async function getFights(variables: Variables) {
+  const response = await fetchReportData(getFightsQuery, variables);
+  if (!response) {
+    return;
+  }
+  return response;
 }
 
 export async function getPlayerDetails(variables: Variables) {
   const response = await fetchReportData(getPlayerDetailsQuery, variables);
-  if (!response || !response.playerDetails) {
+  if (!response.playerDetails) {
     return;
   }
 

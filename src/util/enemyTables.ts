@@ -111,7 +111,7 @@ export const EncounterImages: Record<string, string> = {
   "ScalecommanderSarkareth": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-scalecommander-sarkareth.png",
 }
 
-for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
+/* for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
   console.log(`Encounter: ${encounter}`);
   console.log(EncounterNames[encounter]);
   for (const enemy of enemies) {
@@ -120,3 +120,4 @@ for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
     console.log(`  Enemy ID: ${enemy.id}`);
   }
 }
+ */

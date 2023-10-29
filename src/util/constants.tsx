@@ -57,7 +57,7 @@ export const ABILITY_NO_BOE_SCALING: number[] = [
   374087, // Glacial Fury
 ];
 
-/** SpellsIds to softlist, ie. abilities that doesn't scale off mainstat but vers/crit, and don't contribute to Breath of Eons */
+/** SpellsIds to softlist, ie. abilities that doesn't scale off mainstat but vers/crit */
 export const ABILITY_NO_EM_SCALING: number[] = [
   402583, // Beacon
   408682, // Dragonfire Bomb Dispenser
@@ -91,7 +91,7 @@ export const ABILITY_NO_EM_SCALING: number[] = [
 
 /** SpellsIds that don't re-attribute properly */
 export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
-  //406251, // Random id for testing - Roiling Shadowflame
+  394021, // Mutilated Flesh
 ];
 
 export const mrtColorMap: Map<string, string> = new Map([
@@ -113,6 +113,11 @@ export const mrtColorMap: Map<string, string> = new Map([
 export const MELEE_HIT = 1;
 export const EBON_MIGHT_BUFF = 395152;
 export const SHIFTING_SANDS_BUFF = 413984;
+export const PRESCIENCE_BUFF = 410089;
+
+export const EBON_MIGHT_DAMAGE = 395152;
+export const SHIFTING_SANDS_DAMAGE = 413984;
+export const PRESCIENCE_DAMAGE = 410089;
 /**
  * These values represent an estimation of about how much
  * these buffs provide to a players throughput

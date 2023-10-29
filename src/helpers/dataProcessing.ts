@@ -1,3 +1,4 @@
+import { getBuffHistory } from "../components/findAttributionProblems/problemFinder";
 import {
   EBON_MIGHT_BUFF,
   EBON_MIGHT_CORRECTION_VALUE,
@@ -85,61 +86,7 @@ export function handleMetaData(report?: WCLReport) {
   };
 }
 
-function filterBuffEvents(
-  buffEvents: (ApplyBuffEvent | RemoveBuffEvent)[],
-  fightStart: number,
-  fightEnd: number
-): PlayerBuffEvents {
-  const results: PlayerBuffEvents = {};
-
-  for (const event of buffEvents) {
-    if (!results[event.targetID]) {
-      results[event.targetID] = {};
-    }
-
-    if (!results[event.targetID][event.abilityGameID]) {
-      results[event.targetID][event.abilityGameID] = [];
-    }
-
-    const buffWindow = results[event.targetID][event.abilityGameID];
-    const currentBuffWindow = buffWindow.find(
-      (buffWindow) =>
-        buffWindow.sourceId === event.sourceID && buffWindow.end === 0
-    );
-
-    if (event.type === EventType.ApplyBuffEvent) {
-      buffWindow.push({
-        sourceId: event.sourceID,
-        start: event.timestamp,
-        end: 0,
-      });
-    } else if (event.type === EventType.RemoveBuffEvent) {
-      if (!currentBuffWindow) {
-        buffWindow.push({
-          sourceId: event.sourceID,
-          start: fightStart,
-          end: event.timestamp,
-        });
-      } else {
-        currentBuffWindow.end = event.timestamp;
-      }
-    }
-  }
-
-  for (const [, targetBuffs] of Object.entries(results)) {
-    for (const [, abilityBuffs] of Object.entries(targetBuffs)) {
-      for (const buffWindow of abilityBuffs) {
-        if (buffWindow.end === 0) {
-          buffWindow.end = fightEnd;
-        }
-      }
-    }
-  }
-
-  return results;
-}
-
-function getBuffCount(
+export function getBuffCount(
   playerBuffEvents: PlayerBuffEvents,
   playerId: number,
   buffId: number,
@@ -183,11 +130,7 @@ export function handleFightData(
     ) {
       continue;
     }
-    const playerBuffEvents: PlayerBuffEvents = filterBuffEvents(
-      fight.buffEvents,
-      fight.startTime,
-      fight.endTime
-    );
+    const playerBuffEvents: PlayerBuffEvents = getBuffHistory(fight);
 
     let currentInterval = 1;
 
@@ -197,11 +140,17 @@ export function handleFightData(
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
 
+    findBorkedEvents(
+      petToPlayerMap,
+      fight,
+      playerBuffEvents,
+      abilityNoEMScaling
+    );
+
     for (const event of fight.damageEvents) {
       if (enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)) {
         continue;
       }
-
       const overlapsWithTimeSkip = timeSkipIntervals.some((skipInterval) => {
         return (
           event.timestamp >= skipInterval.start + fight.startTime &&
@@ -353,8 +302,98 @@ export function handleFightData(
    * an entire interval, with averaging across many pulls this can kinda get skewed, data-wise
    * so for now we just ignore them.
    */
-  console.log(sortedIntervals);
+  console.log("sortedIntervals", sortedIntervals);
   return sortedIntervals;
+}
+
+type BorkedEvents = {
+  event: DamageEvent;
+  supportEvent: DamageEvent | undefined;
+  delay: number;
+  url: string;
+};
+
+function findBorkedEvents(
+  petToPlayerMap: Map<number, number>,
+  fight: FightTracker,
+  playerBuffEvents: PlayerBuffEvents,
+  abilityNoEMScaling: number[]
+) {
+  const bufferMS = 30;
+
+  const pin = `&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability`;
+
+  const borkedEvents = new Map<number, BorkedEvents[]>();
+  const nattyEvents = fight.damageEvents.filter(
+    (event) => !event.subtractsFromSupportedActor
+  );
+  const supportEvents = fight.damageEvents.filter(
+    (event) => event.subtractsFromSupportedActor
+  );
+
+  for (const event of nattyEvents) {
+    const actualSource = petToPlayerMap.get(event.sourceID) || event.sourceID;
+    const isBuffed =
+      getBuffCount(
+        playerBuffEvents,
+        actualSource,
+        EBON_MIGHT_BUFF,
+        event.timestamp
+      ) > 0;
+
+    if (!isBuffed || abilityNoEMScaling.includes(event.abilityGameID)) {
+      continue;
+    }
+
+    const foundSupportEvent = supportEvents.find(
+      (supEvent) =>
+        event.sourceID === supEvent.supportID &&
+        event.timestamp >= supEvent.timestamp &&
+        event.timestamp <= supEvent.timestamp + bufferMS
+    );
+
+    if (
+      foundSupportEvent &&
+      ((foundSupportEvent.amount || 0) + (foundSupportEvent.absorbed || 0)) /
+        (event.amount + (event.absorbed || 0)) >
+        0.3
+    ) {
+      continue;
+    }
+
+    const timeDifference = foundSupportEvent
+      ? (foundSupportEvent.timestamp || event.timestamp) - event.timestamp
+      : -1;
+
+    if (
+      !foundSupportEvent ||
+      (timeDifference > 0 && timeDifference <= bufferMS)
+    ) {
+      const wclUrl = `https://www.warcraftlogs.com/reports/${
+        fight.reportCode
+      }#fight=${fight.fightId}&type=damage-done&start=${
+        event.timestamp - 50
+      }&end=${
+        event.timestamp + 50
+      }&source=${actualSource}&view=events&ability=${
+        event.abilityGameID
+      }${pin}`;
+      const newBorkedEvent = {
+        event,
+        supportEvent: foundSupportEvent,
+        delay: timeDifference,
+        url: wclUrl,
+      };
+
+      if (!borkedEvents.has(event.abilityGameID)) {
+        borkedEvents.set(event.abilityGameID, [newBorkedEvent]);
+      } else {
+        borkedEvents.get(event.abilityGameID)?.push(newBorkedEvent);
+      }
+    }
+  }
+
+  console.log(borkedEvents);
 }
 
 export function averageOutIntervals(
@@ -423,11 +462,13 @@ export async function parseFights(
     endTime: 0,
   };
 
+  const newFightTracker = [...fightTracker];
+
   const eventPromises = fights
     .filter((fight) => fight.difficulty && selectedFights.includes(fight.id))
     .filter(
       (fight) =>
-        !fightTracker.some(
+        !newFightTracker.some(
           (entry) =>
             entry.fightId === fight.id && entry.reportCode === reportCode
         )
@@ -442,7 +483,7 @@ export async function parseFights(
       };
 
       const playerDetails = await getPlayerDetails(variables);
-
+      console.log(playerDetails);
       if (playerDetails) {
         const filter = getFilter(playerDetails, customBlacklist);
         variables.filterExpression = filter;
@@ -465,7 +506,7 @@ export async function parseFights(
 
   await Promise.all(eventPromises).then((results) => {
     results.forEach(({ fight, damageEvents, buffEvents }) => {
-      fightTracker.push({
+      newFightTracker.push({
         fightId: fight.id,
         reportCode: reportCode,
         startTime: fight.startTime,
@@ -477,7 +518,7 @@ export async function parseFights(
     });
   });
 
-  return fightTracker;
+  return newFightTracker;
 }
 
 export function getMRTNote(
@@ -565,3 +606,39 @@ function getDefaultTargets(avgTopPumpersData: TotInterval[]) {
 
   return defaultTargets;
 }
+/* 
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1133171&end=1134171&source=55&view=events&ability=1&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+1 weird melee borked
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1133401&end=1134401&source=3&view=events&ability=201754&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+201754 (stmop bm) borked
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1133401&end=1134401&source=55&view=events&ability=10444&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+10444 flametongue attack borked
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1133579&end=1134579&source=3&view=events&ability=16827&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+16827 claw(bm) borked
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1134195&end=1135195&source=51&view=events&ability=204598&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+204598 sigil of flame
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1134468&end=1135468&source=55&view=events&ability=25504&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+25504 windfury attack, semi sus
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1136808&end=1137808&source=3&view=events&ability=83381&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+83381 kill command(bm) borked
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1137129&end=1138129&source=51&view=events&ability=419737&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+419737 timestrike borked
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1140069&end=1141069&source=3&view=events&ability=321538&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+321538 bloodshed(bm) borked
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1145191&end=1146191&source=41&view=events&ability=589&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+589 shadow word pain semi sus
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1148175&end=1149175&source=36&view=events&ability=383346&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+383346 expurgation semi sus
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1164307&end=1165307&source=23&view=events&ability=59638&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+59638 mirror image frostbolt
+
+https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1171439&end=1172439&source=3&view=events&ability=386301&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability dataProcessing.ts:293:22
+completely safe rocket blast (bm) 
+*/

@@ -100,15 +100,13 @@ export const getEventsQuery = `
     }
   }`;
 
-export const getTableQuery = ` query getTable(
+export const getSummaryTableQuery = ` query getTable(
     $reportID: String!
     $fightIDs: [Int]!
-    $startTime: Float!
-    $endTime: Float!
   ) {
     reportData {
       report(code: $reportID) {
-        table(startTime: $startTime, endTime: $endTime, fightIDs: $fightIDs)
+        table(dataType: Summary, fightIDs: $fightIDs)
       }
     }
   }`;

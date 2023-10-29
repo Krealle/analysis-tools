@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { getFights } from "../wcl/util/queryWCL";
 import { ReportParseError, parseWCLUrl } from "../wcl/util/parseWCLUrl";
-import ErrorBear from "./ErrorBear";
+import ErrorBear from "./generic/ErrorBear";
 import { useAppDispatch } from "../redux/hooks";
 import { setFightReport } from "../redux/slices/WCLUrlInputSlice";
 

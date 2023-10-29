@@ -1,3 +1,6 @@
+import { Pet } from "../../components/eventNormalizer/normalizers/combatants";
+import { Buff } from "../../components/eventNormalizer/normalizers/generateFights";
+
 export type BaseEvent<T extends Record<string, unknown>> = T & {
   timestamp: number;
   sourceID: number;
@@ -148,7 +151,7 @@ type SummonEvent = BaseEvent<{
   type: "summon";
 }>;
 
-type PhaseStartEvent = Omit<
+export type PhaseStartEvent = Omit<
   BaseEvent<{
     type: "phasestart";
     encounterID: number;
@@ -236,6 +239,52 @@ export type DamageEvent = BaseEvent<{
   overkill?: number;
 }>;
 
+export type NormalizedDamageEvent = DamageEvent & {
+  source: EventSource;
+  originalEvent: DamageEvent;
+  normalizedAmount: number;
+  activeBuffs: Buff[];
+  supportEvents?: SupportEvent[];
+  fabricated?: boolean;
+};
+export type SupportEvent = {
+  event: DamageEvent;
+  delay: number;
+  hookType: AttributionHook;
+};
+
+export type EventSource = {
+  name: string;
+  id: number;
+  class: string;
+  spec: string;
+  petOwner?: Pet;
+};
+
+export enum AttributionStatus {
+  NO_HOOK = "NO_HOOK",
+  INCORRECT_HOOK_AMOUNT = "INCORRECT_HOOK_AMOUNT",
+  HOOK_FOUND = "HOOK_FOUND",
+}
+
+export enum AttributionHook {
+  GOOD_HOOK = "GOOD_HOOK",
+  DELAYED_HOOK = "DELAYED_HOOK",
+  UNEXPECTED_DAMAGE_RATIO = "UNEXPECTED_DAMAGE_RATIO",
+}
+
+export type AttributionTable = {
+  events: AttributionEvent[];
+};
+
+export type AttributionEvent = {
+  event: DamageEvent;
+  supportEvent: SupportEvent[];
+  attributionStatus: AttributionStatus;
+  expectedHooks: number;
+  url: string;
+};
+
 export type AnyEvent =
   | DeathEvent
   | DispelEvent
@@ -272,6 +321,7 @@ export type AllTrackedEventTypes =
   | InterruptEvent
   | DeathEvent
   | RemoveDebuffEvent;
+export type AnyBuffEvent = ApplyBuffEvent | RemoveBuffEvent;
 
 export enum EventType {
   DeathEvent = "death",
@@ -296,4 +346,8 @@ export enum EventType {
   EncounterStartEvent = "encounterstart",
   DungeonEncounterEnd = "dungeonencounterend",
   DungeonEnd = "dungeonend",
+}
+
+export enum HitType {
+  Crit = 2,
 }

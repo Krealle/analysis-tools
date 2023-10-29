@@ -1,6 +1,6 @@
 import { useAppSelector } from "../redux/hooks";
 import { ReportParseError } from "../wcl/util/parseWCLUrl";
-import ErrorBear from "./ErrorBear";
+import ErrorBear from "./generic/ErrorBear";
 
 type FightButtonProps = {
   isFetching: boolean;

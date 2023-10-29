@@ -1,3 +1,5 @@
+import { DeathEvent } from "../events/types";
+
 export type RootReport = {
   reportData: ReportData;
 };
@@ -24,7 +26,7 @@ export type WCLReport = {
   //region?: Region;
   revision: number;
   segments: number;
-  table?: JSON;
+  table?: { data: SummaryTable };
   visibility: string;
   exportedSegments: number;
   zone?: GameZone;
@@ -45,15 +47,111 @@ export interface Player {
   id: number;
   guid: number;
   type: string;
-  server: string;
+  server?: string;
   icon: string;
-  specs: Spec[];
+  specs: string[];
   minItemLevel: number;
   maxItemLevel: number;
   potionUse: number;
   healthstoneUse: number;
-  combatantInfo: any[];
+  /**
+   * in report K9Mfcb2CtjZ7pX6q fight 45, combatantInfo is an empty array
+   * for a single player
+   */
+  combatantInfo: CombatantInfo | never[];
 }
+
+export type CombatantInfo = {
+  stats: Stats;
+  talents: Talent[];
+  gear: Item[];
+  customPowerSet: CustomPowerSet[];
+  secondaryCustomPowerSet: SecondaryCustomPowerSet[];
+  tertiaryCustomPowerSet: unknown[];
+  specIDs: number[];
+  factionID: number;
+  covenantID?: number;
+  soulbindID?: number;
+};
+
+type Stats = {
+  Speed: Stat;
+  Dodge: Stat;
+  Mastery: Stat;
+  Stamina: Stat;
+  Haste: Stat;
+  Leech: Stat;
+  Armor: Stat;
+  Agility: Stat;
+  Crit: Stat;
+  "Item Level": Stat;
+  Parry: Stat;
+  Avoidance: Stat;
+  Versatility: Stat;
+  Intellect: Stat;
+};
+
+type Stat = {
+  min: number;
+  max: number;
+};
+
+export type Talent = {
+  name: string;
+  guid: number;
+  type: number;
+  abilityIcon: string;
+};
+
+type CustomPowerSet = {
+  name: string;
+  guid: number;
+  type: number;
+  abilityIcon: string;
+  total: number;
+};
+
+export enum ItemQuality {
+  POOR = 1,
+  COMMON = 2,
+  RARE = 3,
+  SUPERIOR = 4,
+  LEGENDARY = 5,
+}
+
+export type Item = {
+  id: number;
+  slot: number;
+  quality: ItemQuality;
+  icon: string;
+  name?: string;
+  itemLevel: number;
+  bonusIDs?: number[];
+  gems?: Gem[];
+  permanentEnchant?: number;
+  permanentEnchantName?: string;
+  onUseEnchant?: number;
+  onUseEnchantName?: string;
+  effectID?: number;
+  effectIcon?: string;
+  effectName?: string;
+  temporaryEnchant?: number;
+  temporaryEnchantName?: string;
+};
+
+type Gem = {
+  id: number;
+  itemLevel: number;
+  icon: string;
+};
+
+type SecondaryCustomPowerSet = {
+  name: string;
+  guid: number;
+  type: number;
+  abilityIcon: string;
+  total: number;
+};
 
 export interface Spec {
   spec: string;
@@ -184,4 +282,52 @@ export type Character = {
   //server: Server;
   /** Rankings information for a character, filterable to specific zones, bosses, metrics, etc. This data is not considered frozen, and it can change without notice. Use at your own risk. */
   zoneRankings?: JSON;
+};
+
+export type SummaryTable = {
+  totalTime: number;
+  itemLevel: number;
+  composition: Composition[];
+  damageDone: DamageDone[];
+  healingDone: HealingDone[];
+  damageTaken: DamageTaken[];
+  deathEvents: DeathEvent[];
+  playerDetails: PlayerDetails;
+  logVersion: number;
+  gameVersion: number;
+};
+
+export type Composition = {
+  name: string;
+  id: number;
+  guid: number;
+  type: string;
+  specs: Spec[];
+};
+
+export type DamageDone = {
+  name: string;
+  id: number;
+  guid: number;
+  type: string;
+  icon: string;
+  total: number;
+};
+
+export type HealingDone = {
+  name: string;
+  id: number;
+  guid: number;
+  type: string;
+  icon: string;
+  total: number;
+};
+
+export type DamageTaken = {
+  name: string;
+  guid: number;
+  type: number;
+  abilityIcon: string;
+  total: number;
+  composite?: boolean;
 };

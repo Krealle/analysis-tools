@@ -3,7 +3,7 @@ import {
   ReportParseError,
   reportParseErrorIconMap,
   reportParseErrorMap,
-} from "../wcl/util/parseWCLUrl";
+} from "../../wcl/util/parseWCLUrl";
 
 interface ErrorBearProps {
   error: ReportParseError;
