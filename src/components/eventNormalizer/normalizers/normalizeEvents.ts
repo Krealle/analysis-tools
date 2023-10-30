@@ -37,16 +37,6 @@ import { Buff } from "./generateFights";
  * One issue is that if a player starts the fight with a certain buff, ie. popped a buff pre-pull, they will initialize with
  * a non-base stat value.
  *
- * TODO: We need to link dot events together, since dot attribution is based on application rather than tick.
- * eg. Warlock casts a dot with 2 EM up. Now it starts ticking, for tick 1,2,3,4 he might still have 2x EM up and all is gucci.
- * Now 1 EM drops and for tick 5,6,7,8 we only have 1xEM up. This makes normalizing dots a mess until they are linked.
- *
- * If a player dies his dots keep ticking with attribution happening, further increasing the need
- * for dot linking
- * https://www.warcraftlogs.com/reports/GJAgTzhHRf6pVcbk#fight=10&type=damage-done&view=events&source=19&start=1202982&end=1214674
- *
- * So Hunter's Master Marksman is a spell that is gonna be a giant PITA to deal with, whenever a hunter crits
- *
  * @param events
  * @param combatants
  * @returns
