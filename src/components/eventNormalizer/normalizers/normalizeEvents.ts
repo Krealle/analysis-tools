@@ -92,16 +92,9 @@ export function damageEventsNormalizer(
       const supportKey = getKey(event);
 
       if (!supportEventsRecord[supportKey]) {
-        /* console.group("support event");
-        console.warn("supportEventsMap[key] not defined");
-        console.log("key", supportKey);
-        console.log("supportEventsMap", supportEventsRecord);
-        console.log("event", normalizedEvent);
-        console.log("lastEvent", lastEvent);
-        console.groupEnd(); */
         supportEventsRecord[supportKey] = [];
-        //throw new Error("support event not defined"); // shouldn't happen any more but if it does need to be fixed asap basically
       }
+
       if (supportEventsRecord[supportKey].length === 0) {
         if (
           lastEvent?.sourceID === event.supportID &&
@@ -120,17 +113,21 @@ export function damageEventsNormalizer(
 
             supportEventsRecord[key] = [];
             normalizedEvents.push(...newNormalizedEvents);
-            console.warn(
+            /* console.warn(
               "Support event without parent found but we were able to correct the issue.",
               "event",
               normalizedEvent,
               "lastEvent",
               lastEvent
-            );
+            ); */
             lastEvent = normalizedEvent;
             continue;
           }
         }
+        console.log("dumb shit happening");
+        console.log("event", event, "lastevent", lastEvent);
+        lastEvent = normalizedEvent;
+        continue;
       }
 
       supportEventsRecord[supportKey].push(normalizedEvent);

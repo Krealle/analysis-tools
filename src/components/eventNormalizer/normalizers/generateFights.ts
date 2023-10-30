@@ -82,8 +82,7 @@ export async function generateFights(
   for (const fightDataSet of newFightDataSets) {
     console.log("event amount:", fightDataSet.events.length);
     const buffEvents: AnyBuffEvent[] = [];
-    const dotEvents: (DamageEvent | AnyDebuffEvent)[] = [];
-    const normalDamageEvents: DamageEvent[] = [];
+    const eventsToLink: (DamageEvent | AnyDebuffEvent)[] = [];
     const unexpectedEvents: AnyEvent[] = [];
 
     for (const event of fightDataSet.events) {
@@ -95,16 +94,12 @@ export async function generateFights(
         continue;
       }
       if (
-        (event.type === EventType.DamageEvent && event.tick) ||
+        event.type === EventType.DamageEvent ||
         event.type === EventType.RefreshDebuffEvent ||
         event.type === EventType.ApplyDebuffEvent ||
         event.type === EventType.RemoveDebuffEvent
       ) {
-        dotEvents.push(event);
-        continue;
-      }
-      if (event.type === EventType.DamageEvent && !event.tick) {
-        normalDamageEvents.push(event);
+        eventsToLink.push(event);
         continue;
       }
       unexpectedEvents.push(event);
@@ -114,8 +109,7 @@ export async function generateFights(
       console.error("Unexpected events!", unexpectedEvents);
     }
     console.log("buff events:", buffEvents);
-    console.log("dot events:", dotEvents);
-    console.log("normal damage events:", normalDamageEvents);
+    console.log("dot events:", eventsToLink);
 
     const buffHistories: Buff[] = generateBuffHistories(
       buffEvents,
@@ -132,28 +126,10 @@ export async function generateFights(
     console.log("combatants:", combatants);
 
     try {
-      const normalizedDotEvents = normalizeDots(dotEvents);
-
-      console.log("normalized dots here");
-
-      const damageEvents: DamageEvent[] = [
-        ...normalDamageEvents,
-        ...normalizedDotEvents,
-      ].sort((a, b) => {
-        const timestampIdentical = a.timestamp === b.timestamp;
-
-        if (timestampIdentical) {
-          /** Need to make sure that the support event always comes after main event */
-          if (a.subtractsFromSupportedActor) {
-            return +1;
-          }
-        }
-
-        return a.timestamp - b.timestamp;
-      });
+      const linkedEvents = normalizeDots(eventsToLink);
 
       const normalizedDamageEvents = damageEventsNormalizer(
-        damageEvents,
+        linkedEvents,
         combatants
       );
 

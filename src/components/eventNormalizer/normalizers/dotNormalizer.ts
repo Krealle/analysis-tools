@@ -49,6 +49,10 @@ export function normalizeDots(
       parentEventRecord[key] = event;
     }
     if (event.type === EventType.DamageEvent) {
+      if (!event.tick) {
+        linkedEvents.push(event);
+        continue;
+      }
       const newEvent = { ...event, parentEvent: parentEventRecord[key] };
       const lastRecord = parentEventRemovedRecord[key];
 
