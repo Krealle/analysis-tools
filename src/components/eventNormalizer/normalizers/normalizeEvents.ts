@@ -9,10 +9,14 @@ import {
   SHIFTING_SANDS_DAMAGE,
 } from "../../../util/constants";
 import {
+  ApplyDebuffEvent,
   AttributionHook,
   DamageEvent,
+  EventType,
   HitType,
   NormalizedDamageEvent,
+  RefreshDebuffEvent,
+  RemoveDebuffEvent,
   SupportEvent,
 } from "../../../wcl/events/types";
 import { getBuffCount, getBuffs } from "./buffs";
@@ -186,11 +190,13 @@ export function damageEventsNormalizer(
   return sortedNormalizedEvents;
 }
 
-function getKey(event: DamageEvent): string {
+export function getKey(
+  event: DamageEvent | ApplyDebuffEvent | RefreshDebuffEvent | RemoveDebuffEvent
+): string {
   let key = `${event.targetID}`;
   if (event.targetInstance) key += `_${event.targetInstance}`;
 
-  if (event.subtractsFromSupportedActor) {
+  if ("subtractsFromSupportedActor" in event) {
     key += `_${event.supportID}`;
     if (event.supportInstance) key += `_${event.supportInstance}`;
   } else {

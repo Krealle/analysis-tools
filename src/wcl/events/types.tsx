@@ -324,6 +324,10 @@ export type AllTrackedEventTypes =
   | DeathEvent
   | RemoveDebuffEvent;
 export type AnyBuffEvent = ApplyBuffEvent | RemoveBuffEvent;
+export type AnyDebuffEvent =
+  | ApplyDebuffEvent
+  | RemoveDebuffEvent
+  | RefreshDebuffEvent;
 
 export enum EventType {
   DeathEvent = "death",

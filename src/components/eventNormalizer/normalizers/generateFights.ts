@@ -6,6 +6,7 @@ import {
 } from "../../../util/constants";
 import {
   AnyBuffEvent,
+  AnyDebuffEvent,
   DamageEvent,
   EventType,
   NormalizedDamageEvent,
@@ -19,6 +20,7 @@ import {
 } from "../../../wcl/util/queryWCL";
 import { generateBuffHistories } from "./buffs";
 import { Combatant, generateCombatants } from "./combatants";
+import { normalizeDots } from "./dotNormalizer";
 import { damageEventsNormalizer } from "./normalizeEvents";
 
 export type Buff = {
@@ -172,6 +174,9 @@ async function getFightDataSets(
     );
     const buffEvents = await getEvents<AnyBuffEvent>(variables);
 
+    variables.filterExpression = getDebuffFilter();
+    const debuffEvents = await getEvents<AnyDebuffEvent>(variables);
+
     return {
       fight: fight,
       summaryTable: summaryTable,
@@ -224,5 +229,12 @@ function getDamageFilter(): string {
 function getBuffFilter(buffList: string): string {
   const filter = `(ability.id in (${buffList})) 
     AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
+  return filter;
+}
+
+function getDebuffFilter(): string {
+  const filter = `(type in ("${EventType.ApplyDebuffEvent}",${EventType.RemoveDebuffEvent} , "${EventType.RemoveDebuffEvent}") 
+  AND source.disposition = "friendly"`;
+
   return filter;
 }
