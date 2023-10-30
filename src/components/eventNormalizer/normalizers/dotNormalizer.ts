@@ -58,7 +58,7 @@ export function normalizeDots(
           console.log("parent event not found but we corrected it", newEvent);
         } else {
           console.error(
-            "parent event not found and we werent able to correct it"
+            "parent event not found and we weren't able to correct it"
           );
           console.warn(
             "newEvent",
@@ -79,11 +79,6 @@ export function normalizeDots(
       linkedEvents.push(newEvent);
     }
   }
-
-  console.log(
-    "dot events",
-    linkedEvents.filter((event) => event.parentEvent)
-  );
 
   return linkedEvents;
 }

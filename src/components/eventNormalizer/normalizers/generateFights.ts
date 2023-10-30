@@ -286,7 +286,7 @@ function getBuffFilter(): string {
 }
 
 function getDebuffFilter(): string {
-  const filter = `type in ("${EventType.ApplyDebuffEvent}","${EventType.RemoveDebuffEvent}","${EventType.RemoveDebuffEvent}") 
+  const filter = `type in ("${EventType.ApplyDebuffEvent}","${EventType.RefreshDebuffEvent}","${EventType.RemoveDebuffEvent}") 
   AND source.disposition = "friendly"`;
 
   return filter;

@@ -12,7 +12,6 @@ import {
   ApplyDebuffEvent,
   AttributionHook,
   DamageEvent,
-  EventType,
   HitType,
   NormalizedDamageEvent,
   RefreshDebuffEvent,
@@ -76,7 +75,12 @@ export function damageEventsNormalizer(
       (player) => player.id === (petOwner ? petOwner.petOwner : event.sourceID)
     );
 
-    const activeBuffs = getBuffs(event.timestamp, player);
+    let activeBuffs = getBuffs(event.timestamp, player);
+
+    if (event.parentEvent) {
+      activeBuffs = getBuffs(event.parentEvent.timestamp, player);
+      //console.log("got buffs from parent event", event, "buffs", activeBuffs);
+    }
 
     const key = getKey(event);
 
@@ -98,16 +102,16 @@ export function damageEventsNormalizer(
       const supportKey = getKey(event);
 
       if (!supportEventsRecord[supportKey]) {
-        console.group("support event");
+        /* console.group("support event");
         console.warn("supportEventsMap[key] not defined");
         console.log("key", supportKey);
         console.log("supportEventsMap", supportEventsRecord);
         console.log("event", normalizedEvent);
         console.log("lastEvent", lastEvent);
-        console.groupEnd();
-        throw new Error("support event not defined"); // shouldn't happen any more but if it does need to be fixed asap basically
+        console.groupEnd(); */
+        supportEventsRecord[supportKey] = [];
+        //throw new Error("support event not defined"); // shouldn't happen any more but if it does need to be fixed asap basically
       }
-
       if (supportEventsRecord[supportKey].length === 0) {
         if (
           lastEvent?.sourceID === event.supportID &&
@@ -138,6 +142,7 @@ export function damageEventsNormalizer(
           }
         }
       }
+
       supportEventsRecord[supportKey].push(normalizedEvent);
       lastEvent = normalizedEvent;
       continue;
@@ -230,7 +235,7 @@ function createSupportEvents(
 
   const newEventMap: NormalizedDamageEvent[] = [];
 
-  /** litterly impossible with guard clause in above code, but I wrote it so you never know SMILERS */
+  /** literally impossible with guard clause in above code, but I wrote it so you never know SMILERS */
   if (sourceEvent.subtractsFromSupportedActor) {
     console.error(
       "unexpected support event when trying to create support event",
@@ -283,7 +288,7 @@ function createSupportEvents(
     shiftingSandsCount !== shiftingSandsEvents ||
     prescienceCount !== prescienceEvents
   ) {
-    console.group(
+    /* console.group(
       "Found following problems for sourceEvent:",
       eventMap,
       "was dot tick:",
@@ -312,7 +317,7 @@ function createSupportEvents(
         "got",
         prescienceEvents
       );
-    console.groupEnd();
+    console.groupEnd(); */
   }
 
   if (eventMap.length === 1) {
