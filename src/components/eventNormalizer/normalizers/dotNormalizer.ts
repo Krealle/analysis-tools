@@ -6,7 +6,6 @@ import {
   RefreshDebuffEvent,
   RemoveDebuffEvent,
 } from "../../../wcl/events/types";
-import { getKey } from "./normalizeEvents";
 
 /**
  * The goal of this normalizer is to link dot ticks up with their application
@@ -18,47 +17,85 @@ import { getKey } from "./normalizeEvents";
  * This way we can reference the parent event and grab our buff count from that event!
  */
 export function normalizeDots(
-  damageEvents: DamageEvent[],
-  debuffEvents: AnyDebuffEvent[]
+  events: (AnyDebuffEvent | DamageEvent)[]
 ): DamageEvent[] {
-  const dotEvents = damageEvents.filter((event) => event.tick);
-
-  const combinedEvents: (DamageEvent | AnyDebuffEvent)[] = [
-    ...dotEvents,
-    ...debuffEvents,
-  ];
-
   const linkedEvents: DamageEvent[] = [];
 
-  const parentEventMap: Map<string, ApplyDebuffEvent | RefreshDebuffEvent> =
-    new Map();
+  const parentEventRecord: Record<
+    string,
+    ApplyDebuffEvent | RefreshDebuffEvent | undefined
+  > = {};
 
-  for (const event of combinedEvents) {
+  let lastDebuffRemoveTimestamp = 0;
+
+  const parentEventRemovedRecord: Record<
+    string,
+    ApplyDebuffEvent | RefreshDebuffEvent | undefined
+  > = {};
+
+  for (const event of events) {
     const key = getKey(event);
 
     if (event.type === EventType.RemoveDebuffEvent) {
-      event;
-      parentEventMap.delete(key);
-    }
-
-    if (event.type === EventType.DamageEvent) {
-      const newEvent = { ...event, parentEvent: parentEventMap.get(key) };
-
-      if (!newEvent.parentEvent) {
-        console.warn("parent event not found", newEvent, parentEventMap);
-      }
-
-      linkedEvents.push(newEvent);
-      continue;
+      parentEventRemovedRecord[key] = parentEventRecord[key];
+      parentEventRecord[key] = undefined;
+      lastDebuffRemoveTimestamp = event.timestamp;
     }
 
     if (
       event.type === EventType.ApplyDebuffEvent ||
       event.type === EventType.RefreshDebuffEvent
     ) {
-      parentEventMap.set(key, event);
+      parentEventRecord[key] = event;
+    }
+    if (event.type === EventType.DamageEvent) {
+      const newEvent = { ...event, parentEvent: parentEventRecord[key] };
+      const lastRecord = parentEventRemovedRecord[key];
+
+      if (!newEvent.parentEvent) {
+        if (lastDebuffRemoveTimestamp === event.timestamp) {
+          newEvent.parentEvent = lastRecord;
+          console.log("parent event not found but we corrected it", newEvent);
+        } else {
+          console.error(
+            "parent event not found and we werent able to correct it"
+          );
+          console.warn(
+            "newEvent",
+            newEvent,
+            "key",
+            key,
+            "parentEventRecord event",
+            parentEventRecord[key],
+            "parentEventRecord",
+            parentEventRecord,
+            "lastRecord",
+            lastRecord
+          );
+          throw new Error(`parent event not found`);
+        }
+      }
+
+      linkedEvents.push(newEvent);
     }
   }
 
+  console.log(
+    "dot events",
+    linkedEvents.filter((event) => event.parentEvent)
+  );
+
   return linkedEvents;
+}
+
+function getKey(
+  event: DamageEvent | ApplyDebuffEvent | RefreshDebuffEvent | RemoveDebuffEvent
+): string {
+  let key = `${event.targetID}_${event.abilityGameID}`;
+  if (event.targetInstance) key += `_${event.targetInstance}`;
+
+  key += `_${event.sourceID}`;
+  if (event.sourceInstance) key += `_${event.sourceInstance}`;
+
+  return key;
 }

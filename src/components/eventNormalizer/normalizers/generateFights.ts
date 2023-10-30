@@ -7,6 +7,7 @@ import {
 import {
   AnyBuffEvent,
   AnyDebuffEvent,
+  AnyEvent,
   DamageEvent,
   EventType,
   NormalizedDamageEvent,
@@ -79,8 +80,45 @@ export async function generateFights(
   );
 
   for (const fightDataSet of newFightDataSets) {
+    console.log("event amount:", fightDataSet.events.length);
+    const buffEvents: AnyBuffEvent[] = [];
+    const dotEvents: (DamageEvent | AnyDebuffEvent)[] = [];
+    const normalDamageEvents: DamageEvent[] = [];
+    const unexpectedEvents: AnyEvent[] = [];
+
+    for (const event of fightDataSet.events) {
+      if (
+        event.type === EventType.ApplyBuffEvent ||
+        event.type === EventType.RemoveBuffEvent
+      ) {
+        buffEvents.push(event);
+        continue;
+      }
+      if (
+        (event.type === EventType.DamageEvent && event.tick) ||
+        event.type === EventType.RefreshDebuffEvent ||
+        event.type === EventType.ApplyDebuffEvent ||
+        event.type === EventType.RemoveDebuffEvent
+      ) {
+        dotEvents.push(event);
+        continue;
+      }
+      if (event.type === EventType.DamageEvent && !event.tick) {
+        normalDamageEvents.push(event);
+        continue;
+      }
+      unexpectedEvents.push(event);
+    }
+
+    if (unexpectedEvents.length > 0) {
+      console.error("Unexpected events!", unexpectedEvents);
+    }
+    console.log("buff events:", buffEvents);
+    console.log("dot events:", dotEvents);
+    console.log("normal damage events:", normalDamageEvents);
+
     const buffHistories: Buff[] = generateBuffHistories(
-      fightDataSet.buffEvents,
+      buffEvents,
       fightDataSet.fight.startTime,
       fightDataSet.fight.endTime
     );
@@ -94,8 +132,28 @@ export async function generateFights(
     console.log("combatants:", combatants);
 
     try {
+      const normalizedDotEvents = normalizeDots(dotEvents);
+
+      console.log("normalized dots here");
+
+      const damageEvents: DamageEvent[] = [
+        ...normalDamageEvents,
+        ...normalizedDotEvents,
+      ].sort((a, b) => {
+        const timestampIdentical = a.timestamp === b.timestamp;
+
+        if (timestampIdentical) {
+          /** Need to make sure that the support event always comes after main event */
+          if (a.subtractsFromSupportedActor) {
+            return +1;
+          }
+        }
+
+        return a.timestamp - b.timestamp;
+      });
+
       const normalizedDamageEvents = damageEventsNormalizer(
-        fightDataSet.damageEvents,
+        damageEvents,
         combatants
       );
 
@@ -163,25 +221,13 @@ async function getFightDataSets(
     };
     const summaryTable = await getSummaryTable(variables);
 
-    variables.filterExpression = getDamageFilter();
-    const damageEvents = await getEvents<DamageEvent>(
-      variables,
-      EventType.DamageEvent
-    );
-
-    variables.filterExpression = getBuffFilter(
-      `${EBON_MIGHT_BUFF},${SHIFTING_SANDS_BUFF},${PRESCIENCE_BUFF}`
-    );
-    const buffEvents = await getEvents<AnyBuffEvent>(variables);
-
-    variables.filterExpression = getDebuffFilter();
-    const debuffEvents = await getEvents<AnyDebuffEvent>(variables);
+    variables.filterExpression = getFilter();
+    const events = await getEvents(variables);
 
     return {
       fight: fight,
       summaryTable: summaryTable,
-      damageEvents: damageEvents,
-      buffEvents: buffEvents,
+      events: events,
     };
   });
 
@@ -211,13 +257,20 @@ async function getFightDataSets(
  */
 function getDamageFilter(): string {
   const abilityFilter = ABILITY_BLACKLIST.map((ability) => ability).join(`,`);
-  const filter = `(target.id != source.id)
+  const filter = `type = "damage" 
+    AND (target.id != source.id)
     AND target.id not in(169428, 169430, 169429, 169426, 169421, 169425, 168932)
     AND not (target.id = source.owner.id)
     AND not (supportedActor.id = target.id)
     AND not (source.id = target.owner.id)
     AND not ability.id in (${abilityFilter})
-    AND source.disposition = "friendly"`;
+    AND source.disposition = "friendly"
+    AND (source.id > 0)`;
+  return filter;
+}
+
+function getFilter(): string {
+  const filter = `(${getBuffFilter()}) OR (${getDebuffFilter()}) OR (${getDamageFilter()})`;
   return filter;
 }
 
@@ -226,14 +279,14 @@ function getDamageFilter(): string {
  * @param buffList - WCL filter expression for buff IDs to collect
  * @returns WCL filter expression
  */
-function getBuffFilter(buffList: string): string {
-  const filter = `(ability.id in (${buffList})) 
+function getBuffFilter(): string {
+  const filter = `(ability.id in (${EBON_MIGHT_BUFF},${SHIFTING_SANDS_BUFF},${PRESCIENCE_BUFF})) 
     AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
   return filter;
 }
 
 function getDebuffFilter(): string {
-  const filter = `(type in ("${EventType.ApplyDebuffEvent}",${EventType.RemoveDebuffEvent} , "${EventType.RemoveDebuffEvent}") 
+  const filter = `type in ("${EventType.ApplyDebuffEvent}","${EventType.RemoveDebuffEvent}","${EventType.RemoveDebuffEvent}") 
   AND source.disposition = "friendly"`;
 
   return filter;

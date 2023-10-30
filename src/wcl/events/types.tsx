@@ -220,7 +220,7 @@ export type DeathEvent = BaseEvent<{
 
 export type DamageEvent = BaseEvent<{
   timestamp: number;
-  type: string;
+  type: "damage";
   sourceID: number;
   targetID: number;
   abilityGameID: number;

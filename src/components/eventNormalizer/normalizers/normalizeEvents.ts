@@ -190,7 +190,7 @@ export function damageEventsNormalizer(
   return sortedNormalizedEvents;
 }
 
-export function getKey(
+function getKey(
   event: DamageEvent | ApplyDebuffEvent | RefreshDebuffEvent | RemoveDebuffEvent
 ): string {
   let key = `${event.targetID}`;
