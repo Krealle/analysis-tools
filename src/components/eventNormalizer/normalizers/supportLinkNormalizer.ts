@@ -1,27 +1,15 @@
-import {
-  ABILITY_NO_EM_SCALING,
-  ABILITY_NO_SCALING,
-  EBON_MIGHT_BUFF,
-  EBON_MIGHT_DAMAGE,
-  PRESCIENCE_BUFF,
-  PRESCIENCE_DAMAGE,
-  SHIFTING_SANDS_BUFF,
-  SHIFTING_SANDS_DAMAGE,
-  SNAPSHOTTED_DOTS,
-} from "../../../util/constants";
+import { SNAPSHOTTED_DOTS } from "../../../util/constants";
 import {
   ApplyDebuffEvent,
   AttributionHook,
   DamageEvent,
-  HitType,
   NormalizedDamageEvent,
   RefreshDebuffEvent,
   RemoveDebuffEvent,
   SupportEvent,
 } from "../../../wcl/events/types";
-import { getBuffCount, getBuffs } from "./buffs";
+import { getBuffs } from "./buffs";
 import { Combatant, Pet } from "./combatants";
-import { Buff } from "./generateFights";
 
 /**
  * So in essence what needs to happen here is that we go through all the events that happened
@@ -106,7 +94,7 @@ export function damageEventsNormalizer(
             supportEventsRecord[supportKey] = [lastNormalizedEvent];
             supportEventsRecord[supportKey].push(normalizedEvent);
 
-            const newNormalizedEvents = createSupportEvents(
+            const newNormalizedEvents = createEventLinks(
               supportEventsRecord[key]
             );
 
@@ -136,7 +124,7 @@ export function damageEventsNormalizer(
 
     // new damage event need to sort out old one
     if (supportEventsRecord[key] && supportEventsRecord[key].length > 0) {
-      const newNormalizedEvent = createSupportEvents(supportEventsRecord[key]);
+      const newNormalizedEvent = createEventLinks(supportEventsRecord[key]);
       supportEventsRecord[key] = [];
       normalizedEvents.push(...newNormalizedEvent);
     }
@@ -159,7 +147,7 @@ export function damageEventsNormalizer(
     if (supportEventsRecord[events].length === 0) {
       return;
     }
-    const newNormalizedEvent = createSupportEvents(supportEventsRecord[events]);
+    const newNormalizedEvent = createEventLinks(supportEventsRecord[events]);
     supportEventsRecord[events] = [];
     normalizedEvents.push(...newNormalizedEvent);
   });
@@ -210,14 +198,12 @@ function getKey(
  * @param eventMap
  * @returns A new array with the normalized events along with any potentially fabricated ones.
  */
-function createSupportEvents(
+function createEventLinks(
   eventMap: NormalizedDamageEvent[]
 ): NormalizedDamageEvent[] {
   const sourceEvent = eventMap[0];
   /** Welcome to blizzard combat logs, things don't always happen when they are supposed to */
   const bufferMS = 30;
-
-  let playerBuffs: Buff[] = sourceEvent.activeBuffs;
 
   const newEventMap: NormalizedDamageEvent[] = [];
 
@@ -234,86 +220,10 @@ function createSupportEvents(
     return eventMap;
   }
 
-  if (sourceEvent.hitType !== HitType.Crit) {
-    playerBuffs = playerBuffs.filter(
-      (buff) => buff.abilityGameID !== PRESCIENCE_BUFF
-    );
-  }
-
-  if (ABILITY_NO_EM_SCALING.includes(sourceEvent.abilityGameID)) {
-    playerBuffs = playerBuffs.filter(
-      (buff) => buff.abilityGameID !== EBON_MIGHT_BUFF
-    );
-  }
-
-  if (ABILITY_NO_SCALING.includes(sourceEvent.abilityGameID)) {
-    playerBuffs = playerBuffs.filter(
-      (buff) => buff.abilityGameID !== SHIFTING_SANDS_BUFF
-    );
-  }
-
-  /** Find the players buffs
-   * we need this information to figure out
-   * if we have gotten the correct amount of support events */
-  const ebonMightCount = getBuffCount(playerBuffs, EBON_MIGHT_BUFF);
-  const shiftingSandsCount = getBuffCount(playerBuffs, SHIFTING_SANDS_BUFF);
-  const prescienceCount = getBuffCount(playerBuffs, PRESCIENCE_BUFF);
-
-  /** check to see if this is correct or if we need to fabricate one
-   * ability might not scale with the buffs on the player
-   * eg. they have Ebon Might active only, and it's trinket damage */
-  const ebonMightSupportEvents = eventMap.filter(
-    (event) => event.abilityGameID === EBON_MIGHT_DAMAGE
-  ).length;
-  const shiftingSandsEvents = eventMap.filter(
-    (event) => event.abilityGameID === SHIFTING_SANDS_DAMAGE
-  ).length;
-  const prescienceEvents = eventMap.filter(
-    (event) => event.abilityGameID === PRESCIENCE_DAMAGE
-  ).length;
-  if (
-    ebonMightCount !== ebonMightSupportEvents ||
-    shiftingSandsCount !== shiftingSandsEvents ||
-    prescienceCount !== prescienceEvents
-  ) {
-    console.group(
-      "Found following problems for sourceEvent:",
-      eventMap,
-      "was dot tick:",
-      sourceEvent.tick ? true : false,
-      "was pet:",
-      sourceEvent.source.petOwner ? true : false
-    );
-    if (ebonMightCount !== ebonMightSupportEvents)
-      console.log(
-        "unexpected EM events. expected:",
-        ebonMightCount,
-        "got",
-        ebonMightSupportEvents
-      );
-    if (shiftingSandsCount !== shiftingSandsEvents)
-      console.log(
-        "unexpected SS events. expected:",
-        shiftingSandsCount,
-        "got",
-        shiftingSandsEvents
-      );
-    if (prescienceCount !== prescienceEvents) {
-      console.log(
-        "unexpected PR events. expected:",
-        prescienceCount,
-        "got",
-        prescienceEvents
-      );
-    }
-    console.groupEnd();
-  }
-
   if (eventMap.length === 1) {
     return eventMap;
   }
 
-  let supportDamage = 0;
   for (let i = 1; eventMap.length > i; i++) {
     const supportEvent = eventMap[i];
     const delay = supportEvent.timestamp - sourceEvent.timestamp;
@@ -341,25 +251,10 @@ function createSupportEvents(
       hookType: hookType,
     };
 
-    supportDamage += supportEvent.amount + (supportEvent.absorbed ?? 0);
-
     sourceEvent.supportEvents
       ? sourceEvent.supportEvents.push(newSupportEvent)
       : (sourceEvent.supportEvents = [newSupportEvent]);
     newEventMap.push(supportEvent);
-  }
-
-  sourceEvent.normalizedAmount -= supportDamage;
-
-  if (sourceEvent.normalizedAmount < 0) {
-    console.error(
-      "normalized damage was less than 0",
-      sourceEvent.normalizedAmount,
-      "supportDamage",
-      supportDamage,
-      "eventMap",
-      eventMap
-    );
   }
 
   newEventMap.push(sourceEvent);

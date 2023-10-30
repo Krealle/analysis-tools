@@ -21,8 +21,8 @@ import {
 } from "../../../wcl/util/queryWCL";
 import { generateBuffHistories } from "./buffs";
 import { Combatant, generateCombatants } from "./combatants";
-import { normalizeDots } from "./dotNormalizer";
-import { damageEventsNormalizer } from "./normalizeEvents";
+import { normalizeDots } from "./debuffLinkNormalizer";
+import { damageEventsNormalizer } from "./supportLinkNormalizer";
 
 export type Buff = {
   abilityGameID: number;
