@@ -94,6 +94,10 @@ export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
   394021, // Mutilated Flesh
 ];
 
+export const SNAPSHOTTED_DOTS: number[] = [
+  269576, // Master Marksman (BM)
+];
+
 export const mrtColorMap: Map<string, string> = new Map([
   ["Mage", "|cff3fc7eb"],
   ["Paladin", "|cfff48cba"],

@@ -15,6 +15,14 @@ import {
  * aka. the event that applied/refreshed the dot.
  *
  * This way we can reference the parent event and grab our buff count from that event!
+ *
+ * This is mainly only needed for the very few dots left in the game that snapshot.
+ * Where the attribution part is always calculated on Debuff Apply or Debuff Refresh.
+ *
+ * An example of this is BM hunters - Master Marksman
+ * https://www.wowhead.com/spell=260309/master-marksman
+ * https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done&start=1285631&end=1285631&view=events
+ *
  */
 export function normalizeDots(
   events: (AnyDebuffEvent | DamageEvent)[]
@@ -59,7 +67,7 @@ export function normalizeDots(
       if (!newEvent.parentEvent) {
         if (lastDebuffRemoveTimestamp === event.timestamp) {
           newEvent.parentEvent = lastRecord;
-          console.log("parent event not found but we corrected it", newEvent);
+          /* console.log("parent event not found but we corrected it", newEvent); */
         } else {
           console.error(
             "parent event not found and we weren't able to correct it"

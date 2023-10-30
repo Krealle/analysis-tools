@@ -7,6 +7,7 @@ import {
   PRESCIENCE_DAMAGE,
   SHIFTING_SANDS_BUFF,
   SHIFTING_SANDS_DAMAGE,
+  SNAPSHOTTED_DOTS,
 } from "../../../util/constants";
 import {
   ApplyDebuffEvent,
@@ -65,12 +66,10 @@ export function damageEventsNormalizer(
       (player) => player.id === (petOwner ? petOwner.petOwner : event.sourceID)
     );
 
-    let activeBuffs = getBuffs(event.timestamp, player);
-
-    if (event.parentEvent) {
-      activeBuffs = getBuffs(event.parentEvent.timestamp, player);
-      //console.log("got buffs from parent event", event, "buffs", activeBuffs);
-    }
+    const activeBuffs =
+      SNAPSHOTTED_DOTS.includes(event.abilityGameID) && event.parentEvent
+        ? getBuffs(event.parentEvent.timestamp, player)
+        : getBuffs(event.timestamp, player);
 
     const key = getKey(event);
 
@@ -125,7 +124,7 @@ export function damageEventsNormalizer(
           }
         }
         console.log("dumb shit happening");
-        console.log("event", event, "lastevent", lastEvent);
+        console.log("event", event, "lastEvent", lastEvent);
         lastEvent = normalizedEvent;
         continue;
       }
@@ -222,13 +221,15 @@ function createSupportEvents(
 
   const newEventMap: NormalizedDamageEvent[] = [];
 
-  /** literally impossible with guard clause in above code, but I wrote it so you never know SMILERS */
   if (sourceEvent.subtractsFromSupportedActor) {
     console.error(
       "unexpected support event when trying to create support event",
       sourceEvent,
       "eventMap",
       eventMap
+    );
+    throw new Error(
+      "Unexpected source event when trying to create support event"
     );
     return eventMap;
   }
@@ -275,7 +276,7 @@ function createSupportEvents(
     shiftingSandsCount !== shiftingSandsEvents ||
     prescienceCount !== prescienceEvents
   ) {
-    /* console.group(
+    console.group(
       "Found following problems for sourceEvent:",
       eventMap,
       "was dot tick:",
@@ -297,14 +298,15 @@ function createSupportEvents(
         "got",
         shiftingSandsEvents
       );
-    if (prescienceCount !== prescienceEvents)
+    if (prescienceCount !== prescienceEvents) {
       console.log(
         "unexpected PR events. expected:",
         prescienceCount,
         "got",
         prescienceEvents
       );
-    console.groupEnd(); */
+    }
+    console.groupEnd();
   }
 
   if (eventMap.length === 1) {
