@@ -273,6 +273,7 @@ export enum AttributionHook {
   GOOD_HOOK = "GOOD_HOOK",
   DELAYED_HOOK = "DELAYED_HOOK",
   UNEXPECTED_DAMAGE_RATIO = "UNEXPECTED_DAMAGE_RATIO",
+  FABRICATED_HOOK = "FABRICATED_HOOK",
 }
 
 export type AttributionTable = {

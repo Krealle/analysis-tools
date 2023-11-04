@@ -22,7 +22,8 @@ import {
 import { generateBuffHistories } from "./buffs";
 import { Combatant, generateCombatants } from "./combatants";
 import { normalizeDots } from "./debuffLinkNormalizer";
-import { damageEventsNormalizer } from "./supportLinkNormalizer";
+import { supportEventNormalizer } from "./supportEventNormalizer";
+import { supportEventLinkNormalizer } from "./supportLinkNormalizer";
 
 export type Buff = {
   abilityGameID: number;
@@ -128,12 +129,15 @@ export async function generateFights(
     try {
       const linkedEvents = normalizeDots(eventsToLink);
 
-      const normalizedDamageEvents = damageEventsNormalizer(
+      const linkedSupportEvents = supportEventLinkNormalizer(
         linkedEvents,
         combatants
       );
 
-      console.log("normalizedDamageEvents:", normalizedDamageEvents);
+      const normalizedDamageEvents = supportEventNormalizer(
+        linkedSupportEvents,
+        combatants
+      );
 
       const dammies: {
         name: string;

@@ -30,7 +30,7 @@ import { Combatant, Pet } from "./combatants";
  * @param combatants
  * @returns
  */
-export function damageEventsNormalizer(
+export function supportEventLinkNormalizer(
   events: DamageEvent[],
   combatants: Combatant[]
 ): NormalizedDamageEvent[] {
@@ -189,11 +189,6 @@ function getKey(
 /**
  * Here we take in an array of events, first entry should ALWAYS be the supported event
  * and the subsequent entries should ONLY be the support events.
- *
- * Here we want to figure out if the amount of support events line up with what we expect.
- * Fabricating any events that should have happened eg. broken re-attribution.
- *
- * We also normalize the supported event to sort out attributions.
  *
  * @param eventMap
  * @returns A new array with the normalized events along with any potentially fabricated ones.

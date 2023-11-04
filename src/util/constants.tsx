@@ -24,6 +24,7 @@ export const ABILITY_NO_SCALING: number[] = [
   322109, // Touch of Death
   400223, // Thorns of Iron
   124280, // Touch of Karma
+  404908, // Fate Mirror
 ];
 
 /** SpellIds that don't attribute to Breath of Eons */
@@ -55,6 +56,7 @@ export const ABILITY_NO_BOE_SCALING: number[] = [
   214397, // Mark of Dargrul (Landslide)
   408469, // Call to Suffering (Self Harm)
   374087, // Glacial Fury
+  404908, // Fate Mirror
 ];
 
 /** SpellsIds to softlist, ie. abilities that doesn't scale off mainstat but vers/crit */
@@ -87,6 +89,7 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   408469, // Call to Suffering (Self Harm)
   374087, // Glacial Fury
   184689, // Shield of Vengeance
+  404908, // Fate Mirror
 ];
 
 /** SpellsIds that don't re-attribute properly */
