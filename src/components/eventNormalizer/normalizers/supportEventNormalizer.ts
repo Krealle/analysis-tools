@@ -86,7 +86,7 @@ export function supportEventNormalizer(
       }
 
       /** like this we can basically just run through all our buffs
-       * and see if we have the correct amount of buffs, if we find some
+       * and see if we have the correct amount of support events, if we find some
        * missing we can fabricate and attribute directly to the correct player.
        *
        * We will also cross reference with our currently linked supportEvents
@@ -192,8 +192,8 @@ export function supportEventNormalizer(
 
       sourceEvent.normalizedAmount -= supportDamage;
 
-      normalizedEvents.push(...fabricatedEvents);
       normalizedEvents.push(sourceEvent);
+      normalizedEvents.push(...fabricatedEvents);
       continue;
     }
 
