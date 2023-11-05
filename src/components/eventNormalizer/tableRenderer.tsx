@@ -63,12 +63,15 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
 
     const difference = normalizedDamage - wclDamage;
 
+    const differencePercent =
+      Math.abs((wclDamage - normalizedDamage) / Math.abs(wclDamage)) * 100;
+
     playerDamage.push({
       combatant: player,
       wclAmount: wclDamage,
       normalizedAmount: normalizedDamage,
       difference: difference,
-      differencePercent: difference / normalizedDamage,
+      differencePercent: differencePercent,
       fabricatedEvents: fabricatedEvents,
     });
   }
@@ -108,7 +111,8 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
             : ""
         }
       >
-        {(player.differencePercent * 100).toFixed(2)}%
+        {player.difference < 0 && "-"}
+        {player.differencePercent.toFixed(2)}%
       </td>
       <td>{player.fabricatedEvents}</td>
     </tr>
