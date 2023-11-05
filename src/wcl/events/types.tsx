@@ -246,7 +246,7 @@ export type NormalizedDamageEvent = DamageEvent & {
   originalEvent: DamageEvent;
   normalizedAmount: number;
   activeBuffs: Buff[];
-  supportEvents?: SupportEvent[];
+  supportEvents: SupportEvent[];
   fabricated?: boolean;
 };
 export type SupportEvent = {

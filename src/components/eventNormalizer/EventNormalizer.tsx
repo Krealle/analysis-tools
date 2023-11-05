@@ -3,6 +3,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { Fight, generateFights } from "./generateFights";
 import FightButtons from "../FightButtons";
 import bearDancing from "/static/bear/dance.gif";
+import tableRenderer from "./tableRenderer";
 const EventNormalizer = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -15,6 +16,8 @@ const EventNormalizer = () => {
   const { parameterError, parameterErrorMsg } = useAppSelector(
     (state) => state.customFightParameters
   );
+
+  let fights: Fight[] = [];
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -37,7 +40,6 @@ const EventNormalizer = () => {
 
     try {
       await attemptNormalize();
-      setContent(null);
     } catch (error) {
       setContent(<>{error}</>);
     }
@@ -51,16 +53,18 @@ const EventNormalizer = () => {
     }
 
     /** FIXME: This is static so we can keep forcing new data */
-    const storedFights: Fight[] = [];
+    fights = [];
 
     try {
-      await generateFights(
+      fights = await generateFights(
         WCLReport,
         selectedFights,
         WCLReport.fights,
-        storedFights
+        fights
       );
-      setContent(null);
+      const content = tableRenderer(fights);
+
+      setContent(content);
     } catch (error) {
       setContent(<>{error}</>);
     }

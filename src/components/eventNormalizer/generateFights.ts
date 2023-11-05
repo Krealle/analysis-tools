@@ -42,12 +42,12 @@ export type Fight = {
   startTime: number;
   endTime: number;
   events: {
-    damageEvents: DamageEvent[];
+    damageEvents: NormalizedDamageEvent[];
     normalizedDamageEvents: NormalizedDamageEvent[];
-    buffHistory: Buff[];
   };
+  buffHistory: Buff[];
   combatants: Combatant[];
-  phaseHistory: PhaseStartEvent[];
+  phaseHistory?: PhaseStartEvent[];
 };
 
 /**
@@ -81,7 +81,7 @@ export async function generateFights(
   );
 
   for (const fightDataSet of newFightDataSets) {
-    console.log("event amount:", fightDataSet.events.length);
+    //console.log("event amount:", fightDataSet.events.length);
     const buffEvents: AnyBuffEvent[] = [];
     const eventsToLink: (DamageEvent | AnyDebuffEvent)[] = [];
     const unexpectedEvents: AnyEvent[] = [];
@@ -173,6 +173,19 @@ export async function generateFights(
       dammies.sort((a, b) => b.damage - a.damage);
       console.log("combatant damage:", dammies);
       console.log("totalDammies:", totalDammies);
+
+      newFights.push({
+        fightId: fightDataSet.fight.id,
+        reportCode: WCLReport.code,
+        startTime: fightDataSet.fight.startTime,
+        endTime: fightDataSet.fight.endTime,
+        events: {
+          damageEvents: linkedSupportEvents,
+          normalizedDamageEvents: normalizedDamageEvents,
+        },
+        buffHistory: buffHistories,
+        combatants: combatants,
+      });
     } catch (error) {
       console.error(error);
     }

@@ -26,10 +26,10 @@ export function formatThousands(number: number): string {
 }
 
 export function formatNumber(number: number): string {
-  if (number > 1000000) {
+  if (number > 1000000 || number < -1000000) {
     return `${(number / 1000000).toFixed(2)}m`;
   }
-  if (number > 10000) {
+  if (number > 10000 || number < -10000) {
     return `${Math.round(number / 1000)}k`;
   }
   return formatThousands(number);

@@ -73,6 +73,7 @@ export function supportEventLinkNormalizer(
       activeBuffs: activeBuffs,
       originalEvent: event,
       normalizedAmount: event.amount + (event.absorbed ?? 0),
+      supportEvents: [],
     };
 
     if (event.subtractsFromSupportedActor) {
