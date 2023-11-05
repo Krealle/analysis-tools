@@ -42,4 +42,4 @@ Currently, stats are not being accounted for when calculating damage values, ins
 
 ### Example
 Here is an example of how the damage attributions currently shifts around for this log: https://www.warcraftlogs.com/reports/X2yBtArq6RbVkD1Z#fight=5&type=damage-done
-![Down with Hunters!](https://i.imgur.com/6SrvpBX.png)
+![Down with Hunters!](https://github.com/Krealle/analysis-tools/assets/3404958/358cfefc-cdbe-44d9-bc66-31c665361126)
