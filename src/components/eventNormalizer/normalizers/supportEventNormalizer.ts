@@ -27,6 +27,8 @@ export function supportEventNormalizer(
   const normalizedEvents: NormalizedDamageEvent[] = [];
   const unexpectedEvents: AnyEvent[] = [];
 
+  const fabricatedEventsForPlayers: Record<number, number> = {};
+
   for (const event of events) {
     if (
       event.subtractsFromSupportedActor ||
@@ -163,6 +165,11 @@ export function supportEventNormalizer(
                   hookType: AttributionHook.FABRICATED_HOOK,
                 },
               ]);
+
+          fabricatedEventsForPlayers[sourceEvent.abilityGameID] =
+            fabricatedEventsForPlayers[sourceEvent.abilityGameID]
+              ? fabricatedEventsForPlayers[sourceEvent.abilityGameID] + 1
+              : 1;
         } else {
           const supportEvent = supportEvents.splice(index, 1)[0];
           supportDamage += supportEvent.amount + (supportEvent.absorbed ?? 0);
@@ -198,6 +205,12 @@ export function supportEventNormalizer(
     console.log("Unexpected events", unexpectedEvents);
     throw new Error("Unexpected events!");
   }
+
+  console.log(
+    Object.entries(fabricatedEventsForPlayers).sort(
+      ([, valueA], [, valueB]) => valueB - valueA
+    )
+  );
 
   return normalizedEvents;
 }

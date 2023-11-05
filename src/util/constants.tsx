@@ -17,6 +17,7 @@ export const WCL_CLIENT_SECRET = (() => {
 /** SpellIds to blacklist */
 export const ABILITY_BLACKLIST: number[] = [
   98021, // Spirit link totem
+  201657, // Earthen Wall Totem
 ];
 
 /** SpellIds for abilities that scale off armor/HP but attribute to Breath of Eons */
