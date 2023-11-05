@@ -17,8 +17,8 @@ import {
   HitType,
   NormalizedDamageEvent,
 } from "../../../wcl/events/types";
-import { Combatant } from "./combatants";
-import { Buff } from "./generateFights";
+import { Combatant } from "../combatant/combatants";
+import { Buff } from "../generateFights";
 
 export function supportEventNormalizer(
   events: NormalizedDamageEvent[],
@@ -113,6 +113,12 @@ export function supportEventNormalizer(
             (player) => player.id === buff.sourceID
           );
 
+          /**
+           * Important note about this:
+           *
+           * These values are essentially a lowball estimation of provided value,
+           * without proper tracking of stats this is kinda the best we can do for now.
+           */
           const multiplier =
             buffSpell === EBON_MIGHT_DAMAGE
               ? EBON_MIGHT_CORRECTION_VALUE

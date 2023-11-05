@@ -3,7 +3,7 @@ import {
   EBON_MIGHT_BUFF,
   PRESCIENCE_BUFF,
   SHIFTING_SANDS_BUFF,
-} from "../../../util/constants";
+} from "../../util/constants";
 import {
   AnyBuffEvent,
   AnyDebuffEvent,
@@ -12,18 +12,18 @@ import {
   EventType,
   NormalizedDamageEvent,
   PhaseStartEvent,
-} from "../../../wcl/events/types";
-import { ReportFight, WCLReport } from "../../../wcl/gql/types";
+} from "../../wcl/events/types";
+import { ReportFight, WCLReport } from "../../wcl/gql/types";
 import {
   EventVariables,
   getEvents,
   getSummaryTable,
-} from "../../../wcl/util/queryWCL";
-import { generateBuffHistories } from "./buffs";
-import { Combatant, generateCombatants } from "./combatants";
-import { normalizeDots } from "./debuffLinkNormalizer";
-import { supportEventNormalizer } from "./supportEventNormalizer";
-import { supportEventLinkNormalizer } from "./supportLinkNormalizer";
+} from "../../wcl/util/queryWCL";
+import { generateBuffHistories } from "./combatant/buffs";
+import { Combatant, generateCombatants } from "./combatant/combatants";
+import { normalizeDots } from "./normalizers/debuffLinkNormalizer";
+import { supportEventNormalizer } from "./normalizers/supportEventNormalizer";
+import { supportEventLinkNormalizer } from "./normalizers/supportLinkNormalizer";
 
 export type Buff = {
   abilityGameID: number;

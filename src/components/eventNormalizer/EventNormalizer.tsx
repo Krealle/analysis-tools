@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppSelector } from "../../redux/hooks";
-import { Fight, generateFights } from "./normalizers/generateFights";
+import { Fight, generateFights } from "./generateFights";
 import FightButtons from "../FightButtons";
 import bearDancing from "/static/bear/dance.gif";
 const EventNormalizer = () => {

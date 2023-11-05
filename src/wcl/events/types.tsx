@@ -1,5 +1,5 @@
-import { Pet } from "../../components/eventNormalizer/normalizers/combatants";
-import { Buff } from "../../components/eventNormalizer/normalizers/generateFights";
+import { Pet } from "../../components/eventNormalizer/combatant/combatants";
+import { Buff } from "../../components/eventNormalizer/generateFights";
 
 export type BaseEvent<T extends Record<string, unknown>> = T & {
   timestamp: number;

@@ -1,6 +1,6 @@
 import { AnyBuffEvent, EventType } from "../../../wcl/events/types";
 import { Combatant } from "./combatants";
-import { Buff } from "./generateFights";
+import { Buff } from "../generateFights";
 
 export function generateBuffHistories(
   events: AnyBuffEvent[],

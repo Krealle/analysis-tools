@@ -8,8 +8,8 @@ import {
   RemoveDebuffEvent,
   SupportEvent,
 } from "../../../wcl/events/types";
-import { getBuffs } from "./buffs";
-import { Combatant, Pet } from "./combatants";
+import { getBuffs } from "../combatant/buffs";
+import { Combatant, Pet } from "../combatant/combatants";
 
 /**
  * So in essence what needs to happen here is that we go through all the events that happened
