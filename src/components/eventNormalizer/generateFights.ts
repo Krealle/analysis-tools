@@ -24,7 +24,6 @@ import { Combatant, generateCombatants } from "./combatant/combatants";
 import { normalizeDots } from "./normalizers/debuffLinkNormalizer";
 import { supportEventNormalizer } from "./normalizers/supportEventNormalizer";
 import { supportEventLinkNormalizer } from "./normalizers/supportLinkNormalizer";
-import _ from "lodash";
 
 export type Buff = {
   abilityGameID: number;
@@ -42,10 +41,7 @@ export type Fight = {
   reportCode: string;
   startTime: number;
   endTime: number;
-  events: {
-    damageEvents: NormalizedDamageEvent[];
-    normalizedDamageEvents: NormalizedDamageEvent[];
-  };
+  normalizedDamageEvents: NormalizedDamageEvent[];
   buffHistory: Buff[];
   combatants: Combatant[];
   phaseHistory?: PhaseStartEvent[];
@@ -128,10 +124,8 @@ export async function generateFights(
 
     const damageEvents = supportEventLinkNormalizer(linkedEvents, combatants);
 
-    /** fuck mutability */
-    const damageEventsCopy = _.cloneDeep(damageEvents);
     const normalizedDamageEvents = supportEventNormalizer(
-      damageEventsCopy,
+      damageEvents,
       combatants
     );
 
@@ -140,10 +134,7 @@ export async function generateFights(
       reportCode: WCLReport.code,
       startTime: fightDataSet.fight.startTime,
       endTime: fightDataSet.fight.endTime,
-      events: {
-        damageEvents: damageEvents,
-        normalizedDamageEvents: normalizedDamageEvents,
-      },
+      normalizedDamageEvents: normalizedDamageEvents,
       buffHistory: buffHistories,
       combatants: combatants,
     });

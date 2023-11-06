@@ -4,6 +4,7 @@ import { Fight, generateFights } from "./generateFights";
 import FightButtons from "../FightButtons";
 import bearDancing from "/static/bear/dance.gif";
 import tableRenderer from "./tableRenderer";
+let fights: Fight[] = [];
 const EventNormalizer = () => {
   const [content, setContent] = useState<JSX.Element | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
@@ -16,8 +17,6 @@ const EventNormalizer = () => {
   const { parameterError, parameterErrorMsg } = useAppSelector(
     (state) => state.customFightParameters
   );
-
-  let fights: Fight[] = [];
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -52,9 +51,6 @@ const EventNormalizer = () => {
       throw new Error("No fight report found");
     }
 
-    /** FIXME: This is static so we can keep forcing new data */
-    fights = [];
-
     try {
       fights = await generateFights(
         WCLReport,
@@ -63,7 +59,11 @@ const EventNormalizer = () => {
         fights
       );
 
-      const content = tableRenderer(fights);
+      const fightsToRender = fights.filter((fight) =>
+        selectedFights.includes(fight.fightId)
+      );
+
+      const content = tableRenderer(fightsToRender);
 
       setContent(content);
     } catch (error) {

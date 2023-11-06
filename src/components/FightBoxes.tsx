@@ -16,8 +16,7 @@ export const FightBoxes = () => {
         setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id))
       );
     } else {
-      dispatch(setSelectedIds([id]));
-      //dispatch(setSelectedIds([...selectedIds, id]));
+      dispatch(setSelectedIds([...selectedIds, id]));
     }
   };
 

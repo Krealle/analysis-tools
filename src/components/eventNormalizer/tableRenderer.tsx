@@ -6,9 +6,7 @@ import "./styling.scss";
 
 const tableRenderer = (fights: Fight[]): JSX.Element => {
   /** This could easily be changed to be dynamic across multiple fights - but just leaving as is for now */
-  const fight = fights[0];
-  const combatants = fight.combatants;
-  const normalizedDamageEvents = fight.events.normalizedDamageEvents;
+  //const fight = fights[0];
 
   const headerRow = (
     <tr>
@@ -32,68 +30,87 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
   let totalWclDamage = 0;
   let totalNormalizedDamage = 0;
 
-  for (const player of combatants) {
-    let wclDamage = 0;
-    let normalizedDamage = 0;
-    let fabricatedEvents = 0;
-    const abilities: Record<number, number> = {};
+  for (const fight of fights) {
+    const combatants = fight.combatants;
+    const normalizedDamageEvents = fight.normalizedDamageEvents;
+    for (const player of combatants) {
+      let wclDamage = 0;
+      let normalizedDamage = 0;
+      let fabricatedEvents = 0;
+      //const abilities: Record<number, number> = {};
 
-    const playerEvents = normalizedDamageEvents.filter(
-      (event) => event.source.id === player.id
-    );
+      const playerEvents = normalizedDamageEvents.filter(
+        (event) => event.source.id === player.id
+      );
 
-    for (const event of playerEvents) {
-      const amount = event.normalizedAmount;
+      for (const event of playerEvents) {
+        const amount = event.normalizedAmount;
 
-      let stolenAmount = 0;
-      if (event.supportEvents) {
-        if (event.supportEvents.length > 0) {
-          for (const supportEvent of event.supportEvents) {
-            if (supportEvent.hookType === AttributionHook.FABRICATED_HOOK) {
-              stolenAmount +=
-                supportEvent.event.amount + (supportEvent.event.absorbed ?? 0);
-              fabricatedEvents += 1;
+        let stolenAmount = 0;
+        if (event.supportEvents) {
+          if (event.supportEvents.length > 0) {
+            for (const supportEvent of event.supportEvents) {
+              if (supportEvent.hookType === AttributionHook.FABRICATED_HOOK) {
+                stolenAmount +=
+                  supportEvent.event.amount +
+                  (supportEvent.event.absorbed ?? 0);
+                fabricatedEvents += 1;
+              }
             }
           }
         }
+        if (!event.fabricated) {
+          wclDamage += amount + stolenAmount;
+        }
+        /* if (event.abilityGameID in abilities) {
+          abilities[event.abilityGameID] += event.fabricated
+            ? 0
+            : amount + stolenAmount;
+        } else {
+          abilities[event.abilityGameID] = event.fabricated
+            ? 0
+            : amount + stolenAmount;
+        } */
+
+        normalizedDamage += amount;
       }
-      if (!event.fabricated) {
-        wclDamage += amount + stolenAmount;
-      }
-      if (event.abilityGameID in abilities) {
-        abilities[event.abilityGameID] += event.fabricated
-          ? 0
-          : amount + stolenAmount;
+      totalWclDamage += wclDamage;
+
+      /* const abilitiesArray = Object.entries(abilities);
+        abilitiesArray.sort((a, b) => b[1] - a[1]);
+        console.log(player.name, abilitiesArray); */
+
+      totalNormalizedDamage += normalizedDamage;
+
+      const curPlayerIndex = playerDamage.findIndex(
+        (p) => p.combatant.id === player.id
+      );
+
+      if (curPlayerIndex !== -1) {
+        playerDamage[curPlayerIndex].normalizedAmount += normalizedDamage;
+        playerDamage[curPlayerIndex].wclAmount += wclDamage;
+        playerDamage[curPlayerIndex].fabricatedEvents += fabricatedEvents;
       } else {
-        abilities[event.abilityGameID] = event.fabricated
-          ? 0
-          : amount + stolenAmount;
+        playerDamage.push({
+          combatant: player,
+          wclAmount: wclDamage,
+          normalizedAmount: normalizedDamage,
+          difference: 0,
+          differencePercent: 0,
+          fabricatedEvents: fabricatedEvents,
+        });
       }
-
-      normalizedDamage += amount;
     }
-    totalWclDamage += wclDamage;
-
-    const abilitiesArray = Object.entries(abilities);
-    abilitiesArray.sort((a, b) => b[1] - a[1]);
-    console.log(player.name, abilitiesArray);
-
-    totalNormalizedDamage += normalizedDamage;
-
-    const difference = normalizedDamage - wclDamage;
-
-    const differencePercent =
-      Math.abs((wclDamage - normalizedDamage) / Math.abs(wclDamage)) * 100;
-
-    playerDamage.push({
-      combatant: player,
-      wclAmount: wclDamage,
-      normalizedAmount: normalizedDamage,
-      difference: difference,
-      differencePercent: differencePercent,
-      fabricatedEvents: fabricatedEvents,
-    });
   }
+
+  playerDamage.forEach((player) => {
+    player.difference = player.normalizedAmount - player.wclAmount;
+    player.differencePercent =
+      Math.abs(
+        (player.wclAmount - player.normalizedAmount) /
+          Math.abs(player.wclAmount)
+      ) * 100;
+  });
 
   const sortedPlayerDamage = playerDamage.sort(
     (a, b) => b.normalizedAmount - a.normalizedAmount
