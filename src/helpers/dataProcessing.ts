@@ -1,9 +1,9 @@
 import { getBuffHistory } from "../components/findAttributionProblems/problemFinder";
 import {
-  EBON_MIGHT_BUFF,
+  EBON_MIGHT,
   EBON_MIGHT_CORRECTION_VALUE,
   MELEE_HIT,
-  SHIFTING_SANDS_BUFF,
+  SHIFTING_SANDS,
   SHIFTING_SANDS_CORRECTION_VALUE,
   mrtColorMap,
 } from "../util/constants";
@@ -266,13 +266,13 @@ export function handleFightData(
           ebonMightCount = getBuffCount(
             playerBuffEvents,
             sourceID,
-            EBON_MIGHT_BUFF,
+            EBON_MIGHT,
             event.timestamp
           );
           shiftingSandsCount = getBuffCount(
             playerBuffEvents,
             sourceID,
-            SHIFTING_SANDS_BUFF,
+            SHIFTING_SANDS,
             event.timestamp
           );
         }
@@ -337,7 +337,7 @@ function findBorkedEvents(
       getBuffCount(
         playerBuffEvents,
         actualSource,
-        EBON_MIGHT_BUFF,
+        EBON_MIGHT,
         event.timestamp
       ) > 0;
 
@@ -494,9 +494,7 @@ export async function parseFights(
         EventType.DamageEvent
       );
 
-      const buffFilter = getBuffFilter(
-        `${EBON_MIGHT_BUFF},${SHIFTING_SANDS_BUFF}`
-      );
+      const buffFilter = getBuffFilter(`${EBON_MIGHT},${SHIFTING_SANDS}`);
       variables.filterExpression = buffFilter;
       const buffEvents = await getEvents<ApplyBuffEvent | RemoveBuffEvent>(
         variables

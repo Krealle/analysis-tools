@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../redux/hooks";
 import { Fight, generateFights } from "./generateFights";
 import FightButtons from "../FightButtons";
@@ -8,7 +8,11 @@ import { FormattedTimeSkipIntervals } from "../../helpers/types";
 import { formatTime } from "../../util/format";
 import { getAverageIntervals } from "./interval/intervals";
 import intervalRenderer from "./interval/intervalRenderer";
+import CustomFightParameters from "../fightParameters/CustomFightParameters";
+
 let fights: Fight[] = [];
+const enemyTracker = new Map<number, number>();
+
 const EventNormalizer = () => {
   const [wclTableContent, setWclTableContent] = useState<JSX.Element | null>(
     null
@@ -27,11 +31,22 @@ const EventNormalizer = () => {
     parameterErrorMsg,
     timeSkipIntervals,
     abilityNoEMScaling,
-    abilityNoBoEScaling,
-    abilityNoScaling,
     abilityBlacklist,
     enemyBlacklist,
+    abilityNoShiftingScaling,
   } = useAppSelector((state) => state.customFightParameters);
+
+  useEffect(() => {
+    enemyTracker.clear();
+
+    if (WCLReport && WCLReport.masterData && WCLReport.masterData.actors) {
+      WCLReport.masterData.actors
+        .filter((actor) => actor.type === "NPC")
+        .forEach((actor) => {
+          enemyTracker.set(actor.id, actor.gameID ?? -1);
+        });
+    }
+  }, [WCLReport]);
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -97,7 +112,12 @@ const EventNormalizer = () => {
         fights,
         selectedFights,
         WCLReport.code,
-        formattedTimeSkipIntervals
+        formattedTimeSkipIntervals,
+        enemyTracker,
+        abilityNoEMScaling.split(",").map(Number),
+        abilityNoShiftingScaling.split(",").map(Number),
+        abilityBlacklist.split(",").map(Number),
+        enemyBlacklist
       );
 
       const intervalContent = intervalRenderer(intervals, fights[0].combatants);
@@ -117,6 +137,7 @@ const EventNormalizer = () => {
         isFetching={isFetching}
         handleButtonClick={handleButtonClick}
       />
+      <CustomFightParameters />
       {wclTableContent}
       {intervalsContent}
     </div>

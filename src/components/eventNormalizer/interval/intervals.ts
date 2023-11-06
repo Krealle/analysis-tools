@@ -1,4 +1,5 @@
 import {
+  EnemyTracker,
   FormattedTimeSkipIntervals,
   IntervalEntry,
   IntervalSet,
@@ -13,14 +14,14 @@ export function getAverageIntervals(
   fights: Fight[],
   selectedFights: number[],
   currentReportCode: string,
-  timeSkipIntervals: FormattedTimeSkipIntervals[]
-  /* abilityNoEMScaling: number[],
-  abilityNoBoEScaling: number[],
-  abilityNoScaling: number[],
-  abilityBrokenAttribution: number[] */
+  timeSkipIntervals: FormattedTimeSkipIntervals[],
+  enemyTracker: EnemyTracker,
+  abilityNoEMScaling: number[],
+  abilityNoShiftingScaling: number[],
+  abilityBlacklist: number[],
+  enemyBlacklist: number[]
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
-  console.log(fights);
 
   for (const fight of fights) {
     if (
@@ -36,11 +37,13 @@ export function getAverageIntervals(
     let intervalTimer = fight.startTime;
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
+    console.log(enemyBlacklist);
 
     for (const event of fight.normalizedDamageEvents) {
       if (
         event.source.spec === "Augmentation" ||
-        event.normalizedAmount === 0
+        event.normalizedAmount === 0 ||
+        enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)
       ) {
         continue;
       }

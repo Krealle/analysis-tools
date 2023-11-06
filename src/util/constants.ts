@@ -20,8 +20,16 @@ export const ABILITY_BLACKLIST: number[] = [
   201657, // Earthen Wall Totem
 ];
 
-/** SpellIds for abilities that scale off armor/HP but attribute to Breath of Eons */
+/** SpellIds that don't scale with buffs */
 export const ABILITY_NO_SCALING: number[] = [
+  404908, // Fate Mirror
+  410265, // Infernos Blessing
+  409632, // Breath of Eons
+  360828, // Blistering Scales
+];
+
+/** SpellIds for abilities that scale off armor/HP */
+export const ABILITY_NO_SHIFTING_SCALING: number[] = [
   322109, // Touch of Death
   400223, // Thorns of Iron
   124280, // Touch of Karma
@@ -125,13 +133,10 @@ export const mrtColorMap: Map<string, string> = new Map([
 ]);
 
 export const MELEE_HIT = 1;
-export const EBON_MIGHT_BUFF = 395152;
-export const SHIFTING_SANDS_BUFF = 413984;
-export const PRESCIENCE_BUFF = 410089;
+export const EBON_MIGHT = 395152;
+export const SHIFTING_SANDS = 413984;
+export const PRESCIENCE = 410089;
 
-export const EBON_MIGHT_DAMAGE = 395152;
-export const SHIFTING_SANDS_DAMAGE = 413984;
-export const PRESCIENCE_DAMAGE = 410089;
 /**
  * These values represent an estimation of about how much
  * these buffs provide to a players throughput

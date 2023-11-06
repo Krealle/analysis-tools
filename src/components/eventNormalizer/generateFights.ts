@@ -1,9 +1,4 @@
-import {
-  ABILITY_BLACKLIST,
-  EBON_MIGHT_BUFF,
-  PRESCIENCE_BUFF,
-  SHIFTING_SANDS_BUFF,
-} from "../../util/constants";
+import { EBON_MIGHT, PRESCIENCE, SHIFTING_SANDS } from "../../util/constants";
 import {
   AnyBuffEvent,
   AnyDebuffEvent,
@@ -200,14 +195,12 @@ async function getFightDataSets(
  * @returns WCL filter expression
  */
 function getDamageFilter(): string {
-  const abilityFilter = ABILITY_BLACKLIST.map((ability) => ability).join(`,`);
   const filter = `type = "damage" 
     AND (target.id != source.id)
     AND target.id not in(169428, 169430, 169429, 169426, 169421, 169425, 168932)
     AND not (target.id = source.owner.id)
     AND not (supportedActor.id = target.id)
     AND not (source.id = target.owner.id)
-    AND not ability.id in (${abilityFilter})
     AND source.disposition = "friendly"
     AND target.disposition != "friendly"
     AND (source.id > 0)`;
@@ -225,7 +218,7 @@ function getFilter(): string {
  * @returns WCL filter expression
  */
 function getBuffFilter(): string {
-  const filter = `(ability.id in (${EBON_MIGHT_BUFF},${SHIFTING_SANDS_BUFF},${PRESCIENCE_BUFF})) 
+  const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE})) 
     AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
   return filter;
 }

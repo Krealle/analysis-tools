@@ -1,14 +1,12 @@
 import {
   ABILITY_NO_EM_SCALING,
   ABILITY_NO_SCALING,
-  EBON_MIGHT_BUFF,
+  ABILITY_NO_SHIFTING_SCALING,
+  EBON_MIGHT,
   EBON_MIGHT_CORRECTION_VALUE,
-  EBON_MIGHT_DAMAGE,
-  PRESCIENCE_BUFF,
-  PRESCIENCE_DAMAGE,
-  SHIFTING_SANDS_BUFF,
+  PRESCIENCE,
+  SHIFTING_SANDS,
   SHIFTING_SANDS_CORRECTION_VALUE,
-  SHIFTING_SANDS_DAMAGE,
 } from "../../../util/constants";
 import {
   AnyEvent,
@@ -47,13 +45,9 @@ export function supportEventNormalizer(
 
       const fabricatedEvents: NormalizedDamageEvent[] = [];
 
-      /** These specific abilities are just 100% re-attribute without scaling with any buffs */
-      let playerBuffs: Buff[] = [
-        404908, // Fate Mirror
-        410265, // Infernos Blessing
-        409632, // Breath of Eons
-        360828, // Blistering Scales
-      ].includes(event.abilityGameID)
+      let playerBuffs: Buff[] = ABILITY_NO_SCALING.includes(
+        sourceEvent.abilityGameID
+      )
         ? []
         : sourceEvent.activeBuffs;
 
@@ -62,19 +56,19 @@ export function supportEventNormalizer(
         sourceEvent.abilityGameID !== 269576 // Master Marksman - hate this ability
       ) {
         playerBuffs = playerBuffs.filter(
-          (buff) => buff.abilityGameID !== PRESCIENCE_BUFF
+          (buff) => buff.abilityGameID !== PRESCIENCE
         );
       }
 
       if (ABILITY_NO_EM_SCALING.includes(sourceEvent.abilityGameID)) {
         playerBuffs = playerBuffs.filter(
-          (buff) => buff.abilityGameID !== EBON_MIGHT_BUFF
+          (buff) => buff.abilityGameID !== EBON_MIGHT
         );
       }
 
-      if (ABILITY_NO_SCALING.includes(sourceEvent.abilityGameID)) {
+      if (ABILITY_NO_SHIFTING_SCALING.includes(sourceEvent.abilityGameID)) {
         playerBuffs = playerBuffs.filter(
-          (buff) => buff.abilityGameID !== SHIFTING_SANDS_BUFF
+          (buff) => buff.abilityGameID !== SHIFTING_SANDS
         );
       }
 
@@ -89,11 +83,11 @@ export function supportEventNormalizer(
 
       for (const buff of playerBuffs) {
         const buffSpell =
-          buff.abilityGameID === EBON_MIGHT_BUFF
-            ? EBON_MIGHT_DAMAGE
-            : buff.abilityGameID === SHIFTING_SANDS_BUFF
-            ? SHIFTING_SANDS_DAMAGE
-            : PRESCIENCE_DAMAGE;
+          buff.abilityGameID === EBON_MIGHT
+            ? EBON_MIGHT
+            : buff.abilityGameID === SHIFTING_SANDS
+            ? SHIFTING_SANDS
+            : PRESCIENCE;
 
         const index = supportEvents.findIndex(
           (supEvent) =>
@@ -113,9 +107,9 @@ export function supportEventNormalizer(
            * without proper tracking of stats this is kinda the best we can do for now.
            */
           const multiplier =
-            buffSpell === EBON_MIGHT_DAMAGE
+            buffSpell === EBON_MIGHT
               ? EBON_MIGHT_CORRECTION_VALUE
-              : buffSpell === SHIFTING_SANDS_DAMAGE
+              : buffSpell === SHIFTING_SANDS
               ? SHIFTING_SANDS_CORRECTION_VALUE
               : 0.03;
 

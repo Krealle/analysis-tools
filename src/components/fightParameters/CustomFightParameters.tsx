@@ -16,7 +16,7 @@ const CustomFightParameters = () => {
     abilityNoBoEScaling,
     abilityNoEMScaling,
     abilityNoScaling,
-    abilityBrokenAttribution,
+    abilityNoShiftingScaling,
     timeSkipIntervals,
   } = useAppSelector((state) => state.customFightParameters);
 
@@ -44,7 +44,7 @@ const CustomFightParameters = () => {
       regex.test(abilityNoBoEScaling) &&
       regex.test(abilityNoEMScaling) &&
       regex.test(abilityNoScaling) &&
-      regex.test(abilityBrokenAttribution);
+      regex.test(abilityNoShiftingScaling);
     if (!abilityFilterValid) {
       dispatch(setParameterErrorMsg("Invalid ability filter"));
       dispatch(setParameterError(true));
@@ -59,7 +59,7 @@ const CustomFightParameters = () => {
     abilityNoEMScaling,
     abilityNoScaling,
     timeSkipIntervals,
-    abilityBrokenAttribution,
+    abilityNoShiftingScaling,
     dispatch,
   ]);
 

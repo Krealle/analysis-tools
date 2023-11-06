@@ -61,3 +61,5 @@ export type FightParameters = {
   timeIntervals: TimeIntervals[];
   customBlacklist: string;
 };
+
+export type EnemyTracker = Map<number, number>;

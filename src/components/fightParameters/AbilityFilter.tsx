@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   setAbilityBlacklist,
-  setAbilityBrokenAttribution,
+  setAbilityNoShiftingScaling,
   setAbilityNoBoEScaling,
   setAbilityNoEMScaling,
   setAbilityNoScaling,
@@ -16,14 +16,14 @@ const AbilityFilter: React.FC = () => {
     abilityNoBoEScaling,
     abilityNoScaling,
     abilityBlacklist,
-    abilityBrokenAttribution,
+    abilityNoShiftingScaling,
   } = useAppSelector((state) => state.customFightParameters);
 
   const content = (
     <div className="flex">
       <div className="flex container">
         <div className="flex title">
-          <big>No EM Scaling (-50%)</big>
+          <big>No EM Scaling</big>
         </div>
         <div className="flex abilities">
           <textarea
@@ -33,7 +33,7 @@ const AbilityFilter: React.FC = () => {
           />
         </div>
       </div>
-      <div className="flex container">
+      {/* <div className="flex container">
         <div className="flex title">
           <big>No BoE Scaling (-10%)</big>
         </div>
@@ -44,10 +44,24 @@ const AbilityFilter: React.FC = () => {
             className="mrtNoteTextbox"
           />
         </div>
+      </div> */}
+      <div className="flex container">
+        <div className="flex title">
+          <big>No Shifting Sands Scaling</big>
+        </div>
+        <div className="flex abilities">
+          <textarea
+            onChange={(e) =>
+              dispatch(setAbilityNoShiftingScaling(e.target.value))
+            }
+            value={abilityNoShiftingScaling}
+            className="mrtNoteTextbox"
+          />
+        </div>
       </div>
       <div className="flex container">
         <div className="flex title">
-          <big>No Scaling (-90%)</big>
+          <big>No Scaling (-100%)</big>
         </div>
         <div className="flex abilities">
           <textarea
@@ -65,20 +79,6 @@ const AbilityFilter: React.FC = () => {
           <textarea
             onChange={(e) => dispatch(setAbilityBlacklist(e.target.value))}
             value={abilityBlacklist}
-            className="mrtNoteTextbox"
-          />
-        </div>
-      </div>
-      <div className="flex container">
-        <div className="flex title">
-          <big>Broken Attribution</big>
-        </div>
-        <div className="flex abilities">
-          <textarea
-            onChange={(e) =>
-              dispatch(setAbilityBrokenAttribution(e.target.value))
-            }
-            value={abilityBrokenAttribution}
             className="mrtNoteTextbox"
           />
         </div>
