@@ -21,6 +21,7 @@ const EventNormalizer = () => {
     null
   );
   const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [refreshData, setRefreshData] = useState<boolean>(false);
 
   const WCLReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
   const selectedFights = useAppSelector(
@@ -32,6 +33,7 @@ const EventNormalizer = () => {
     timeSkipIntervals,
     abilityNoEMScaling,
     abilityBlacklist,
+    abilityNoScaling,
     enemyBlacklist,
     abilityNoShiftingScaling,
   } = useAppSelector((state) => state.customFightParameters);
@@ -47,6 +49,10 @@ const EventNormalizer = () => {
         });
     }
   }, [WCLReport]);
+
+  useEffect(() => {
+    setRefreshData(true);
+  }, [abilityNoEMScaling, abilityNoScaling, abilityNoShiftingScaling]);
 
   const handleButtonClick = async () => {
     if (selectedFights.length === 0) {
@@ -87,14 +93,23 @@ const EventNormalizer = () => {
         WCLReport,
         selectedFights,
         WCLReport.fights,
-        fights
+        fights,
+        abilityNoScaling.split(",").map(Number),
+        abilityNoEMScaling.split(",").map(Number),
+        abilityNoShiftingScaling.split(",").map(Number),
+        refreshData
       );
 
       const fightsToRender = fights.filter((fight) =>
         selectedFights.includes(fight.fightId)
       );
 
-      const wclTableContent = tableRenderer(fightsToRender);
+      const wclTableContent = tableRenderer(
+        fightsToRender,
+        enemyTracker,
+        abilityBlacklist.split(",").map(Number),
+        enemyBlacklist
+      );
 
       const formattedTimeSkipIntervals: FormattedTimeSkipIntervals[] = [];
       for (const interval of timeSkipIntervals) {
@@ -124,6 +139,7 @@ const EventNormalizer = () => {
 
       setWclTableContent(wclTableContent);
       setIntervalsContent(intervalContent);
+      setRefreshData(false);
     } catch (error) {
       setWclTableContent(<>{error}</>);
     }

@@ -54,9 +54,17 @@ export async function generateFights(
   WCLReport: WCLReport,
   selectedFights: number[],
   reportFights: ReportFight[],
-  storedFights: Fight[]
+  storedFights: Fight[],
+  abilityNoScaling: number[],
+  abilityNoEMScaling: number[],
+  abilityNoShiftingScaling: number[],
+  refreshData: boolean
 ): Promise<Fight[]> {
-  const newFights: Fight[] = [...storedFights];
+  /** This is a lazy mans approach to dealing with manual filter changes
+   * Ideally we wouldn't re-fetch all of our data, but due to the way it is structured,
+   * this is a simple approach, it doesn't really cost much in terms of time, only
+   * in API calls. */
+  const newFights: Fight[] = refreshData ? [] : [...storedFights];
 
   const fightsToGenerate = reportFights.filter(
     (fight) =>
@@ -121,7 +129,10 @@ export async function generateFights(
 
     const normalizedDamageEvents = supportEventNormalizer(
       damageEvents,
-      combatants
+      combatants,
+      abilityNoScaling,
+      abilityNoEMScaling,
+      abilityNoShiftingScaling
     );
 
     newFights.push({

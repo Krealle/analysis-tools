@@ -1,10 +1,16 @@
+import { EnemyTracker } from "../../helpers/types";
 import { formatNumber } from "../../util/format";
 import { AttributionHook } from "../../wcl/events/types";
 import { Combatant } from "./combatant/combatants";
 import { Fight } from "./generateFights";
 import "./styling.scss";
 
-const tableRenderer = (fights: Fight[]): JSX.Element => {
+const tableRenderer = (
+  fights: Fight[],
+  enemyTracker: EnemyTracker,
+  abilityBlacklist: number[],
+  enemyBlacklist: number[]
+): JSX.Element => {
   const headerRow = (
     <tr>
       <th>Name</th>
@@ -41,6 +47,13 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
       );
 
       for (const event of playerEvents) {
+        if (
+          enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1) ||
+          abilityBlacklist.includes(event.abilityGameID)
+        ) {
+          continue;
+        }
+
         const amount = event.normalizedAmount;
 
         let stolenAmount = 0;

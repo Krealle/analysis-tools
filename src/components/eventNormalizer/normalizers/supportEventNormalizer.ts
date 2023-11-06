@@ -1,7 +1,4 @@
 import {
-  ABILITY_NO_EM_SCALING,
-  ABILITY_NO_SCALING,
-  ABILITY_NO_SHIFTING_SCALING,
   EBON_MIGHT,
   EBON_MIGHT_CORRECTION_VALUE,
   PRESCIENCE,
@@ -20,7 +17,10 @@ import { Buff } from "../generateFights";
 
 export function supportEventNormalizer(
   events: NormalizedDamageEvent[],
-  combatants: Combatant[]
+  combatants: Combatant[],
+  abilityNoScaling: number[],
+  abilityNoEMScaling: number[],
+  abilityNoShiftingScaling: number[]
 ): NormalizedDamageEvent[] {
   const normalizedEvents: NormalizedDamageEvent[] = [];
   const unexpectedEvents: AnyEvent[] = [];
@@ -45,7 +45,7 @@ export function supportEventNormalizer(
 
       const fabricatedEvents: NormalizedDamageEvent[] = [];
 
-      let playerBuffs: Buff[] = ABILITY_NO_SCALING.includes(
+      let playerBuffs: Buff[] = abilityNoScaling.includes(
         sourceEvent.abilityGameID
       )
         ? []
@@ -60,13 +60,13 @@ export function supportEventNormalizer(
         );
       }
 
-      if (ABILITY_NO_EM_SCALING.includes(sourceEvent.abilityGameID)) {
+      if (abilityNoEMScaling.includes(sourceEvent.abilityGameID)) {
         playerBuffs = playerBuffs.filter(
           (buff) => buff.abilityGameID !== EBON_MIGHT
         );
       }
 
-      if (ABILITY_NO_SHIFTING_SCALING.includes(sourceEvent.abilityGameID)) {
+      if (abilityNoShiftingScaling.includes(sourceEvent.abilityGameID)) {
         playerBuffs = playerBuffs.filter(
           (buff) => buff.abilityGameID !== SHIFTING_SANDS
         );

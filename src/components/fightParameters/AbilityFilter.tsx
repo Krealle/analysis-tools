@@ -61,7 +61,7 @@ const AbilityFilter: React.FC = () => {
       </div>
       <div className="flex container">
         <div className="flex title">
-          <big>No Scaling (-100%)</big>
+          <big>No Scaling</big>
         </div>
         <div className="flex abilities">
           <textarea
