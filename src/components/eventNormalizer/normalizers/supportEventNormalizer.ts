@@ -45,24 +45,17 @@ export function supportEventNormalizer(
         ? event.supportEvents.map((entry) => entry.event)
         : [];
 
-      /** this stuff is just 100% Aug dammies so yea */
-      const dumbShit = [
-        360828, // Blistering scales
-        410265, // infernos blessing
-        404908, // Fate Mirror
-        409632, // Breath of Eons
-      ];
-
-      if (dumbShit.includes(sourceEvent.abilityGameID)) {
-        sourceEvent.normalizedAmount -= sourceEvent.normalizedAmount;
-
-        normalizedEvents.push(sourceEvent);
-        continue;
-      }
-
       const fabricatedEvents: NormalizedDamageEvent[] = [];
 
-      let playerBuffs: Buff[] = sourceEvent.activeBuffs;
+      /** These specific abilities are just 100% re-attribute without scaling with any buffs */
+      let playerBuffs: Buff[] = [
+        404908, // Fate Mirror
+        410265, // Infernos Blessing
+        409632, // Breath of Eons
+        360828, // Blistering Scales
+      ].includes(event.abilityGameID)
+        ? []
+        : sourceEvent.activeBuffs;
 
       if (
         sourceEvent.hitType !== HitType.Crit &&
@@ -152,6 +145,7 @@ export function supportEventNormalizer(
             originalEvent: sourceEvent, // This can *potentially* be misleading, but also the opposite, since this leaves a trace from fabrication to source event
             fabricated: true,
             activeBuffs: [],
+            supportEvents: [],
           };
 
           supportDamage += attributedAmount;

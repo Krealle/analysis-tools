@@ -40,7 +40,6 @@ export function generateCombatants(
   playerDetails: PlayerDetails,
   actors: Actor[] | undefined
 ): Combatant[] {
-  console.log(playerDetails);
   const combatants: Combatant[] = Object.keys(playerDetails)
     .flatMap((key) => {
       return playerDetails[key as keyof PlayerDetails].map((player) => {

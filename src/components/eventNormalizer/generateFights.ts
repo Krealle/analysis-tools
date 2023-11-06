@@ -24,6 +24,7 @@ import { Combatant, generateCombatants } from "./combatant/combatants";
 import { normalizeDots } from "./normalizers/debuffLinkNormalizer";
 import { supportEventNormalizer } from "./normalizers/supportEventNormalizer";
 import { supportEventLinkNormalizer } from "./normalizers/supportLinkNormalizer";
+import _ from "lodash";
 
 export type Buff = {
   abilityGameID: number;
@@ -81,7 +82,6 @@ export async function generateFights(
   );
 
   for (const fightDataSet of newFightDataSets) {
-    //console.log("event amount:", fightDataSet.events.length);
     const buffEvents: AnyBuffEvent[] = [];
     const eventsToLink: (DamageEvent | AnyDebuffEvent)[] = [];
     const unexpectedEvents: AnyEvent[] = [];
@@ -109,8 +109,6 @@ export async function generateFights(
     if (unexpectedEvents.length > 0) {
       console.error("Unexpected events!", unexpectedEvents);
     }
-    console.log("buff events:", buffEvents);
-    console.log("dot events:", eventsToLink);
 
     const buffHistories: Buff[] = generateBuffHistories(
       buffEvents,
@@ -126,69 +124,29 @@ export async function generateFights(
 
     console.log("combatants:", combatants);
 
-    try {
-      const linkedEvents = normalizeDots(eventsToLink);
+    const linkedEvents = normalizeDots(eventsToLink);
 
-      const linkedSupportEvents = supportEventLinkNormalizer(
-        linkedEvents,
-        combatants
-      );
+    const damageEvents = supportEventLinkNormalizer(linkedEvents, combatants);
 
-      const normalizedDamageEvents = supportEventNormalizer(
-        linkedSupportEvents,
-        combatants
-      );
+    /** fuck mutability */
+    const damageEventsCopy = _.cloneDeep(damageEvents);
+    const normalizedDamageEvents = supportEventNormalizer(
+      damageEventsCopy,
+      combatants
+    );
 
-      const dammies: {
-        name: string;
-        damage: number;
-        events: NormalizedDamageEvent[];
-      }[] = [];
-      const totalDammies = normalizedDamageEvents.reduce((acc, e) => {
-        if (e.subtractsFromSupportedActor) {
-          return acc;
-        }
-        const amount: number =
-          e.originalEvent.amount + (e.originalEvent.absorbed ?? 0);
-        return acc + amount;
-      }, 0);
-
-      for (const player of combatants) {
-        const damage = normalizedDamageEvents
-          .filter((event) => event.source.id === player.id)
-          .reduce((acc, e) => {
-            const amount: number = e.normalizedAmount;
-            return acc + amount;
-          }, 0);
-
-        dammies.push({
-          name: player.name,
-          damage: damage,
-          events: normalizedDamageEvents.filter(
-            (event) => event.source.id === player.id
-          ),
-        });
-      }
-
-      dammies.sort((a, b) => b.damage - a.damage);
-      console.log("combatant damage:", dammies);
-      console.log("totalDammies:", totalDammies);
-
-      newFights.push({
-        fightId: fightDataSet.fight.id,
-        reportCode: WCLReport.code,
-        startTime: fightDataSet.fight.startTime,
-        endTime: fightDataSet.fight.endTime,
-        events: {
-          damageEvents: linkedSupportEvents,
-          normalizedDamageEvents: normalizedDamageEvents,
-        },
-        buffHistory: buffHistories,
-        combatants: combatants,
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    newFights.push({
+      fightId: fightDataSet.fight.id,
+      reportCode: WCLReport.code,
+      startTime: fightDataSet.fight.startTime,
+      endTime: fightDataSet.fight.endTime,
+      events: {
+        damageEvents: damageEvents,
+        normalizedDamageEvents: normalizedDamageEvents,
+      },
+      buffHistory: buffHistories,
+      combatants: combatants,
+    });
   }
 
   return newFights;
@@ -246,6 +204,8 @@ async function getFightDataSets(
  *
  * Only collect friendly damage
  *
+ * Ignore friendly fire
+ *
  * @returns WCL filter expression
  */
 function getDamageFilter(): string {
@@ -258,6 +218,7 @@ function getDamageFilter(): string {
     AND not (source.id = target.owner.id)
     AND not ability.id in (${abilityFilter})
     AND source.disposition = "friendly"
+    AND target.disposition != "friendly"
     AND (source.id > 0)`;
   return filter;
 }

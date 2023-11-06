@@ -87,7 +87,8 @@ export function supportEventLinkNormalizer(
         if (
           lastEvent?.sourceID === event.supportID &&
           lastEvent?.targetID === event.targetID &&
-          lastEvent.sourceInstance === event.sourceInstance &&
+          lastEvent.targetInstance === event.targetInstance &&
+          lastEvent.sourceInstance === event.supportInstance &&
           normalizedEvents.length > 0
         ) {
           const lastNormalizedEvent = normalizedEvents.pop();
@@ -95,31 +96,15 @@ export function supportEventLinkNormalizer(
             supportEventsRecord[supportKey] = [lastNormalizedEvent];
             supportEventsRecord[supportKey].push(normalizedEvent);
 
-            const newNormalizedEvents = createEventLinks(
-              supportEventsRecord[key]
-            );
-
-            supportEventsRecord[key] = [];
-            normalizedEvents.push(...newNormalizedEvents);
-            /* console.warn(
-              "Support event without parent found but we were able to correct the issue.",
-              "event",
-              normalizedEvent,
-              "lastEvent",
-              lastEvent
-            ); */
-            lastEvent = normalizedEvent;
             continue;
           }
         }
         console.log("dumb shit happening");
         console.log("event", event, "lastEvent", lastEvent);
-        lastEvent = normalizedEvent;
         continue;
       }
 
       supportEventsRecord[supportKey].push(normalizedEvent);
-      lastEvent = normalizedEvent;
       continue;
     }
 
@@ -130,12 +115,7 @@ export function supportEventLinkNormalizer(
       normalizedEvents.push(...newNormalizedEvent);
     }
 
-    if (
-      normalizedEvent.activeBuffs.length > 0 ||
-      event.abilityGameID === 360828 || // Blistering scales SMILERS
-      event.abilityGameID === 410265 || // infernos blessing
-      event.abilityGameID === 404908 // Fate Mirror
-    ) {
+    if (normalizedEvent.activeBuffs.length > 0) {
       // target is buffed and we need to catch buff events before we push it
       supportEventsRecord[key] = [normalizedEvent];
     } else {
@@ -153,7 +133,7 @@ export function supportEventLinkNormalizer(
     normalizedEvents.push(...newNormalizedEvent);
   });
 
-  if (normalizedEvents.length - events.length !== 0) {
+  if (normalizedEvents.length !== events.length) {
     console.warn(
       "expected events:",
       events.length,

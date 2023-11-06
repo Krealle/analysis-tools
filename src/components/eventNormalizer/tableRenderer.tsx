@@ -29,11 +29,14 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
     differencePercent: number;
     fabricatedEvents: number;
   }[] = [];
+  let totalWclDamage = 0;
+  let totalNormalizedDamage = 0;
 
   for (const player of combatants) {
     let wclDamage = 0;
     let normalizedDamage = 0;
     let fabricatedEvents = 0;
+    const abilities: Record<number, number> = {};
 
     const playerEvents = normalizedDamageEvents.filter(
       (event) => event.source.id === player.id
@@ -57,9 +60,25 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
       if (!event.fabricated) {
         wclDamage += amount + stolenAmount;
       }
+      if (event.abilityGameID in abilities) {
+        abilities[event.abilityGameID] += event.fabricated
+          ? 0
+          : amount + stolenAmount;
+      } else {
+        abilities[event.abilityGameID] = event.fabricated
+          ? 0
+          : amount + stolenAmount;
+      }
 
       normalizedDamage += amount;
     }
+    totalWclDamage += wclDamage;
+
+    const abilitiesArray = Object.entries(abilities);
+    abilitiesArray.sort((a, b) => b[1] - a[1]);
+    console.log(player.name, abilitiesArray);
+
+    totalNormalizedDamage += normalizedDamage;
 
     const difference = normalizedDamage - wclDamage;
 
@@ -118,6 +137,18 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
     </tr>
   ));
 
+  /** This is essentially just for quick reference point
+   * we currently have a discrepancy of ~0.004%
+   * On Echo we have a discrepancy of ~0.18% most likely a weird interaction with the reduced damage
+   * These already cause support events that steal too much (on blizzards end) */
+  const bottomRow = (
+    <tr>
+      <td>Total</td>
+      <td>{totalWclDamage}</td>
+      <td>{totalNormalizedDamage}</td>
+    </tr>
+  );
+
   return (
     <>
       <div>
@@ -125,6 +156,7 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
           <tbody>
             {headerRow}
             {tableRows}
+            {bottomRow}
           </tbody>
         </table>
       </div>

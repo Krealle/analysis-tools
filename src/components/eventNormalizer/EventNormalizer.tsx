@@ -62,6 +62,7 @@ const EventNormalizer = () => {
         WCLReport.fights,
         fights
       );
+
       const content = tableRenderer(fights);
 
       setContent(content);

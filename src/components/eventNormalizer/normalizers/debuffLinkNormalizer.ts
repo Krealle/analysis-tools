@@ -69,22 +69,16 @@ export function normalizeDots(
           newEvent.parentEvent = lastRecord;
           /* console.log("parent event not found but we corrected it", newEvent); */
         } else {
-          console.error(
+          // This should only happen for prepull dots, lets just ignore those for now.
+          /* console.error(
             "parent event not found and we weren't able to correct it"
           );
-          console.warn(
-            "newEvent",
-            newEvent,
-            "key",
-            key,
-            "parentEventRecord event",
-            parentEventRecord[key],
-            "parentEventRecord",
-            parentEventRecord,
-            "lastRecord",
-            lastRecord
-          );
-          throw new Error(`parent event not found`);
+          console.warn("newEvent", newEvent);
+          console.log("key", key);
+          console.log("parentEventRecord event", parentEventRecord[key]);
+          console.log("parentEventRecord", parentEventRecord);
+          console.log("lastRecord", lastRecord); */
+          //throw new Error(`parent event not found`);
         }
       }
 
