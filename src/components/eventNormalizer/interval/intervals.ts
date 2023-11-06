@@ -37,7 +37,6 @@ export function getAverageIntervals(
     let intervalTimer = fight.startTime;
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
-    console.log(enemyBlacklist);
 
     for (const event of fight.normalizedDamageEvents) {
       if (

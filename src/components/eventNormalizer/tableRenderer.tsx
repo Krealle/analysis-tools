@@ -5,9 +5,6 @@ import { Fight } from "./generateFights";
 import "./styling.scss";
 
 const tableRenderer = (fights: Fight[]): JSX.Element => {
-  /** This could easily be changed to be dynamic across multiple fights - but just leaving as is for now */
-  //const fight = fights[0];
-
   const headerRow = (
     <tr>
       <th>Name</th>
@@ -162,7 +159,7 @@ const tableRenderer = (fights: Fight[]): JSX.Element => {
     <tr>
       <td>Total</td>
       <td>{totalWclDamage}</td>
-      <td>{totalNormalizedDamage}</td>
+      <td>{Math.round(totalNormalizedDamage)}</td>
     </tr>
   );
 
