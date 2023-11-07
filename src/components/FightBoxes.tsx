@@ -7,6 +7,7 @@ import ButtonCheckbox from "./generic/ButtonCheckbox";
 export const FightBoxes = () => {
   const report = useAppSelector((state) => state.WCLUrlInput.fightReport);
   const selectedIds = useAppSelector((state) => state.fightBoxes.selectedIds);
+  const { isFetching } = useAppSelector((state) => state.status);
   const dispatch = useAppDispatch();
 
   const handleDivClick = (id: number) => {
@@ -44,6 +45,7 @@ export const FightBoxes = () => {
                   })`
             }`}
             id={fight.kill ? "fight-kill" : "fight-wipe"}
+            disabled={isFetching}
           />
         ))}
     </div>

@@ -11,6 +11,7 @@ const IntervalSettings: React.FC = () => {
   const { intervalTimer, ebonMightWeight } = useAppSelector(
     (state) => state.customFightParameters
   );
+  const { isFetching } = useAppSelector((state) => state.status);
 
   const intervals: number[] = Array.from(
     { length: 60 },
@@ -64,7 +65,13 @@ const IntervalSettings: React.FC = () => {
     </div>
   );
 
-  return <PopupContent content={content} name={"Interval Settings"} />;
+  return (
+    <PopupContent
+      content={content}
+      name={"Interval Settings"}
+      disabled={isFetching}
+    />
+  );
 };
 
 export default IntervalSettings;

@@ -4,14 +4,17 @@ import "./genericStyling.scss";
 interface PopupProps {
   content: React.ReactNode;
   name: string;
+  disabled?: boolean;
 }
 
-const PopupContent: React.FC<PopupProps> = ({ content, name }) => {
+const PopupContent: React.FC<PopupProps> = ({ content, name, disabled }) => {
   const [isPopupOpen, setPopupOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setPopupOpen(true)}>{name}</button>
+      <button onClick={() => setPopupOpen(true)} disabled={disabled}>
+        {name}
+      </button>
       {isPopupOpen && (
         <div className="popup-overlay flex">
           <div className="popup-content">

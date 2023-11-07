@@ -6,6 +6,7 @@ type ButtonCheckboxProps = {
   flavorText?: string;
   title?: string;
   id?: string;
+  disabled?: boolean;
 };
 
 export const ButtonCheckbox: React.FC<ButtonCheckboxProps> = ({
@@ -14,11 +15,16 @@ export const ButtonCheckbox: React.FC<ButtonCheckboxProps> = ({
   flavorText,
   title,
   id,
+  disabled,
 }) => {
   return (
     <div
       className={`buttonCheckbox flex ${selected ? "selected" : ""}`}
-      onClick={() => onClick()}
+      onClick={() => {
+        if (!disabled) {
+          onClick();
+        }
+      }}
       id={id}
     >
       <div>

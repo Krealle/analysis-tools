@@ -18,6 +18,7 @@ const AbilityFilter: React.FC = () => {
     abilityBlacklist,
     abilityNoShiftingScaling,
   } = useAppSelector((state) => state.customFightParameters);
+  const { isFetching } = useAppSelector((state) => state.status);
 
   const content = (
     <div className="flex">
@@ -86,7 +87,13 @@ const AbilityFilter: React.FC = () => {
     </div>
   );
 
-  return <PopupContent content={content} name={"Ability Filter"} />;
+  return (
+    <PopupContent
+      content={content}
+      name={"Ability Filter"}
+      disabled={isFetching}
+    />
+  );
 };
 
 export default AbilityFilter;

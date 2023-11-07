@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { Fight, generateFights } from "./generateFights";
 import FightButtons from "../FightButtons";
 import bearDancing from "/static/bear/dance.gif";
@@ -9,6 +9,7 @@ import { formatTime } from "../../util/format";
 import { getAverageIntervals } from "./interval/intervals";
 import intervalRenderer from "./interval/intervalRenderer";
 import CustomFightParameters from "../fightParameters/CustomFightParameters";
+import { setIsFetching } from "../../redux/slices/statusSlice";
 
 let fights: Fight[] = [];
 const enemyTracker = new Map<number, number>();
@@ -20,7 +21,6 @@ const EventNormalizer = () => {
   const [intervalsContent, setIntervalsContent] = useState<JSX.Element | null>(
     null
   );
-  const [isFetching, setIsFetching] = useState<boolean>(false);
   const [refreshData, setRefreshData] = useState<boolean>(false);
 
   const WCLReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
@@ -39,6 +39,8 @@ const EventNormalizer = () => {
     ebonMightWeight,
     intervalTimer,
   } = useAppSelector((state) => state.customFightParameters);
+  const { isFetching } = useAppSelector((state) => state.status);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     enemyTracker.clear();
@@ -66,7 +68,7 @@ const EventNormalizer = () => {
       return;
     }
 
-    setIsFetching(true);
+    dispatch(setIsFetching(true));
     setWclTableContent(
       <>
         <big>Fetching data</big>
@@ -82,7 +84,7 @@ const EventNormalizer = () => {
       setWclTableContent(<>{error}</>);
     }
 
-    setIsFetching(false);
+    dispatch(setIsFetching(false));
   };
 
   async function attemptNormalize() {
@@ -147,8 +149,7 @@ const EventNormalizer = () => {
     } catch (error) {
       setWclTableContent(<>{error}</>);
     }
-
-    setIsFetching(false);
+    dispatch(setIsFetching(false));
   }
 
   return (

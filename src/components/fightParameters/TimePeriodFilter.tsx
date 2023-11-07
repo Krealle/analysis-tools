@@ -10,6 +10,7 @@ const TimePeriodFilter: React.FC = () => {
   const timeIntervals = useAppSelector(
     (state) => state.customFightParameters.timeSkipIntervals
   );
+  const { isFetching } = useAppSelector((state) => state.status);
   const dispatch = useAppDispatch();
 
   const content = (
@@ -60,7 +61,13 @@ const TimePeriodFilter: React.FC = () => {
     </div>
   );
 
-  return <PopupContent content={content} name={"Time Filter"} />;
+  return (
+    <PopupContent
+      content={content}
+      name={"Time Filter"}
+      disabled={isFetching}
+    />
+  );
 };
 
 export default TimePeriodFilter;

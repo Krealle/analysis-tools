@@ -14,6 +14,7 @@ const EnemyFilter: React.FC = () => {
   const enemyBlacklist = useAppSelector(
     (state) => state.customFightParameters.enemyBlacklist
   );
+  const { isFetching } = useAppSelector((state) => state.status);
 
   const content = Object.entries(AberrusEnemies).map(([encounter, enemies]) => {
     return (
@@ -45,7 +46,13 @@ const EnemyFilter: React.FC = () => {
       </div>
     );
   });
-  return <PopupContent content={content} name={"Enemy Filter"} />;
+  return (
+    <PopupContent
+      content={content}
+      name={"Enemy Filter"}
+      disabled={isFetching}
+    />
+  );
 };
 
 export default EnemyFilter;
