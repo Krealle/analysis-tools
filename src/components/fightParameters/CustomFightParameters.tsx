@@ -8,6 +8,7 @@ import { formatTime } from "../../util/format";
 import EnemyFilter from "./EnemyFilter";
 import AbilityFilter from "./AbilityFilter";
 import TimePeriodFilter from "./TimePeriodFilter";
+import IntervalSettings from "./IntervalSettings";
 
 const CustomFightParameters = () => {
   const dispatch = useAppDispatch();
@@ -68,6 +69,7 @@ const CustomFightParameters = () => {
       <TimePeriodFilter />
       <AbilityFilter />
       <EnemyFilter />
+      <IntervalSettings />
     </div>
   );
 };

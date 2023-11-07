@@ -96,6 +96,9 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   408469, // Call to Suffering (Self Harm)
   374087, // Glacial Fury
   184689, // Shield of Vengeance
+  322109, // Touch of Death
+  400223, // Thorns of Iron
+  124280, // Touch of Karma
 ];
 
 /** SpellsIds that don't appear to re-attribute properly.

@@ -17,7 +17,9 @@ export function getAverageIntervals(
   timeSkipIntervals: FormattedTimeSkipIntervals[],
   enemyTracker: EnemyTracker,
   abilityNoEMScaling: number[],
-  abilityNoShiftingScaling: number[],
+  abilityNoScaling: number[],
+  ebonWeight: number,
+  intervalDuration: number,
   abilityBlacklist: number[],
   enemyBlacklist: number[]
 ): TotInterval[] {
@@ -32,8 +34,7 @@ export function getAverageIntervals(
     }
     let currentInterval = 1;
 
-    // TODO: should be variable
-    const intervalDur = 30_000;
+    const intervalDur = intervalDuration * 1000;
     let intervalTimer = fight.startTime;
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
@@ -42,7 +43,9 @@ export function getAverageIntervals(
       if (
         event.source.spec === "Augmentation" ||
         event.normalizedAmount === 0 ||
-        enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1)
+        enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1) ||
+        abilityBlacklist.includes(event.abilityGameID) ||
+        abilityNoScaling.includes(event.abilityGameID)
       ) {
         continue;
       }
@@ -95,7 +98,11 @@ export function getAverageIntervals(
         (entry) => entry.id === event.source.id
       );
 
-      const amount = event.normalizedAmount;
+      const multiplier = abilityNoEMScaling.includes(event.abilityGameID)
+        ? ebonWeight
+        : 0;
+
+      const amount = event.normalizedAmount * (1 - multiplier);
 
       if (intervalEntry) {
         intervalEntry.damage += amount;

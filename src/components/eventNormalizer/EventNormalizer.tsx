@@ -36,6 +36,8 @@ const EventNormalizer = () => {
     abilityNoScaling,
     enemyBlacklist,
     abilityNoShiftingScaling,
+    ebonMightWeight,
+    intervalTimer,
   } = useAppSelector((state) => state.customFightParameters);
 
   useEffect(() => {
@@ -130,7 +132,9 @@ const EventNormalizer = () => {
         formattedTimeSkipIntervals,
         enemyTracker,
         abilityNoEMScaling.split(",").map(Number),
-        abilityNoShiftingScaling.split(",").map(Number),
+        abilityNoScaling.split(",").map(Number),
+        ebonMightWeight,
+        intervalTimer,
         abilityBlacklist.split(",").map(Number),
         enemyBlacklist
       );

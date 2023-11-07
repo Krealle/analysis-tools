@@ -19,6 +19,8 @@ type initialState = {
   abilityNoBoEScaling: string;
   abilityNoEMScaling: string;
   abilityNoShiftingScaling: string;
+  ebonMightWeight: number;
+  intervalTimer: number;
 };
 
 const initialState: initialState = {
@@ -32,6 +34,8 @@ const initialState: initialState = {
   abilityNoBoEScaling: ABILITY_NO_BOE_SCALING.toString(),
   abilityNoEMScaling: ABILITY_NO_EM_SCALING.toString(),
   abilityNoShiftingScaling: ABILITY_NO_SHIFTING_SCALING.toString(),
+  ebonMightWeight: 0.5,
+  intervalTimer: 30,
 };
 
 const customFightParametersSlice = createSlice({
@@ -102,6 +106,12 @@ const customFightParametersSlice = createSlice({
     setAbilityNoShiftingScaling: (state, action: PayloadAction<string>) => {
       state.abilityNoShiftingScaling = action.payload;
     },
+    setEbonMightWeight: (state, action: PayloadAction<number>) => {
+      state.ebonMightWeight = action.payload;
+    },
+    setIntervalTimer: (state, action: PayloadAction<number>) => {
+      state.intervalTimer = action.payload;
+    },
   },
 });
 
@@ -119,5 +129,7 @@ export const {
   addTimeSkipInterval,
   removeTimeSkipInterval,
   changeTimeSkipInterval,
+  setEbonMightWeight,
+  setIntervalTimer,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;
