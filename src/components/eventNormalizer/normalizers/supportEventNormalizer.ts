@@ -1,5 +1,6 @@
 import {
   ABILITY_BROKEN_ATTRIBUTION,
+  COMBUSTION_BUFF,
   EBON_MIGHT,
   EBON_MIGHT_CORRECTION_VALUE,
   PRESCIENCE,
@@ -53,20 +54,24 @@ export function supportEventNormalizer(
 
       const fabricatedEvents: NormalizedDamageEvent[] = [];
 
+      const hasCombustion = sourceEvent.activeBuffs.find(
+        (buff) => buff.abilityGameID === COMBUSTION_BUFF
+      );
+
       let playerBuffs: Buff[] = abilityNoScaling.includes(
         sourceEvent.abilityGameID
       )
         ? []
-        : sourceEvent.activeBuffs;
+        : sourceEvent.activeBuffs.filter(
+            (buff) =>
+              buff.abilityGameID === EBON_MIGHT ||
+              buff.abilityGameID === SHIFTING_SANDS ||
+              buff.abilityGameID === PRESCIENCE
+          );
 
-      // FIXME: COMBUST!
-      // https://www.wowhead.com/spell=226757/conflagration
-      // pheonix flames
-      // https://www.wowhead.com/spell=205345
       // https://www.wowhead.com/spell=198030/eye-beam
-      // https://www.wowhead.com/spell=155158/meteor-burn
       if (
-        sourceEvent.hitType !== HitType.Crit &&
+        (sourceEvent.hitType !== HitType.Crit || hasCombustion) &&
         sourceEvent.abilityGameID !== 269576 // Master Marksman - hate this ability
       ) {
         playerBuffs = playerBuffs.filter(
@@ -96,6 +101,14 @@ export function supportEventNormalizer(
       let supportDamage = 0;
 
       for (const buff of playerBuffs) {
+        /** whenever EM drops/applies on the same tick weird stuff happens, so lets just ignore these edge cases */
+        if (
+          buff.end === sourceEvent.timestamp ||
+          buff.start === sourceEvent.timestamp
+        ) {
+          continue;
+        }
+
         const buffSpell =
           buff.abilityGameID === EBON_MIGHT
             ? EBON_MIGHT
@@ -179,8 +192,6 @@ export function supportEventNormalizer(
               ? fabricatedEventsForPlayers[sourceEvent.abilityGameID] + 1
               : 1;
           if (!ABILITY_BROKEN_ATTRIBUTION.includes(sourceEvent.abilityGameID)) {
-            //const pin = `&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability`;
-
             const pin = `&pins=2%24Off%24rgb(78%25, 61%25, 43%25)%24expression%24supportedActor.name %3D '${sourceEvent.source.name}' or source.name %3D '${sourceEvent.source.name}'^0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24${sourceEvent.abilityGameID}^0%24Separate%24%23a04D8A%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152^0%24Separate%24%23DF5353%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24413984^0%24Separate%24rgb(78%25, 61%25, 43%25)%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24410089`;
 
             const wclUrl = `https://www.warcraftlogs.com/reports/${

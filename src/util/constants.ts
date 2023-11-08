@@ -110,19 +110,53 @@ export const ABILITY_NO_EM_SCALING: number[] = [
  * Non-exhaustive list.
  */
 export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
-  /* //394021, // Mutilated Flesh
-  //10444, // Flametongue Attack
+  388070, // Fel Barrage
+  271971, // Dreadbite
+  205196, // Dreadbite 2.0
+  259756, // Entropic Embrace
+  // 394021, // Mutilated Flesh
+  91778, // Sweeping Claws
+  91776, // Claw
+  47632, // Death Coil
+  390271, // Coil of Devastation
+  10444, // Flametongue Attack
   83381, // Kill command
   426703, // Kill Command 2.0
   16827, // Claw
+  75, // Auto Shot
+  389448, // Kill Cleave
   386301, // Completely Safe Rocket Blast
-  385638, // Razor Fragments
+  // 385638, // Razor Fragments
   118459, // Beast Cleave
-  //419737, // Timestrike
-  //409483, // Poisoned Edges
-  //201754, // Stomp
+  344572, // Bestial Wrath
+  321538, // Bloodshed
+  118459, // Beast Cleave
+  // 409483, // Poisoned Edges
+  // 201754, // Stomp
   116858, // Chaos Bolt (Prescience)
-  425610, // Dumb boss spell */
+  425610, // Dumb boss spell
+  428493, // Chaotic Disposition
+  258922, // Immolation Aura
+  258921, // Immolation Aura 2.0
+  // 204598, // Sigil of Flame
+  423193, // Sanguine Blades
+  409483, // Poisoned Edges
+  409605, // Soulreave
+  409604, // Soulrip
+  419800, // Intensifying Flame
+  //351140, // Meteor
+  12654, // Ignite
+  408310, // Crashing Star
+  394061, // Astral Smolder
+  394047, // Goldrinn's Fang
+  202497, // Shooting Stars
+  191037, // Starfall
+  164815, // Sunfire
+  164812, // Moonfire
+  384391, // Sidearm
+  361500, // Living Flame
+  359077, // Eternity Surge
+  418588, // Mirror trinket (Sand Cleave)
 ];
 
 export const SNAPSHOTTED_DOTS: number[] = [
@@ -149,6 +183,7 @@ export const MELEE_HIT = 1;
 export const EBON_MIGHT = 395152;
 export const SHIFTING_SANDS = 413984;
 export const PRESCIENCE = 410089;
+export const COMBUSTION_BUFF = 190319;
 
 /**
  * These values represent an estimation of about how much

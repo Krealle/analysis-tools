@@ -1,4 +1,9 @@
-import { EBON_MIGHT, PRESCIENCE, SHIFTING_SANDS } from "../../util/constants";
+import {
+  COMBUSTION_BUFF,
+  EBON_MIGHT,
+  PRESCIENCE,
+  SHIFTING_SANDS,
+} from "../../util/constants";
 import {
   AnyBuffEvent,
   AnyDebuffEvent,
@@ -247,7 +252,7 @@ function getFilter(): string {
 }
 
 function getBuffFilter(): string {
-  const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE})) 
+  const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE},${COMBUSTION_BUFF})) 
     AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
   return filter;
 }
