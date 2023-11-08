@@ -162,9 +162,9 @@ export async function generateFights(
     });
   }
 
-  const csvData = convertToCSV(logDataTot);
+  //const csvData = convertToCSV(logDataTot);
 
-  downloadCSV(csvData, "This shit is whack");
+  //downloadCSV(csvData, "This shit is whack");
 
   return newFights;
 }

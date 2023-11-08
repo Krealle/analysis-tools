@@ -10,6 +10,8 @@ import { getAverageIntervals } from "./interval/intervals";
 import intervalRenderer from "./interval/intervalRenderer";
 import CustomFightParameters from "../fightParameters/CustomFightParameters";
 import { setIsFetching } from "../../redux/slices/statusSlice";
+import { setSelectedIds } from "../../redux/slices/fightBoxesSlice";
+import { Combatant } from "./combatant/combatants";
 
 let fights: Fight[] = [];
 const enemyTracker = new Map<number, number>();
@@ -44,6 +46,7 @@ const EventNormalizer = () => {
 
   useEffect(() => {
     enemyTracker.clear();
+    dispatch(setSelectedIds([]));
 
     if (WCLReport && WCLReport.masterData && WCLReport.masterData.actors) {
       WCLReport.masterData.actors
@@ -52,7 +55,7 @@ const EventNormalizer = () => {
           enemyTracker.set(actor.id, actor.gameID ?? -1);
         });
     }
-  }, [WCLReport]);
+  }, [WCLReport, dispatch]);
 
   useEffect(() => {
     setRefreshData(true);
@@ -104,8 +107,10 @@ const EventNormalizer = () => {
         refreshData
       );
 
-      const fightsToRender = fights.filter((fight) =>
-        selectedFights.includes(fight.fightId)
+      const fightsToRender = fights.filter(
+        (fight) =>
+          selectedFights.includes(fight.fightId) &&
+          fight.reportCode === WCLReport.code
       );
 
       const wclTableContent = tableRenderer(
@@ -128,7 +133,7 @@ const EventNormalizer = () => {
       }
 
       const intervals = getAverageIntervals(
-        fights,
+        fightsToRender,
         selectedFights,
         WCLReport.code,
         formattedTimeSkipIntervals,
@@ -141,7 +146,23 @@ const EventNormalizer = () => {
         enemyBlacklist
       );
 
-      const intervalContent = intervalRenderer(intervals, fights[0].combatants);
+      const combinedCombatants: Combatant[] = [];
+
+      fightsToRender.forEach((fight) => {
+        const combatants = fight.combatants;
+
+        combatants.forEach((combatant) => {
+          const isUnique = !combinedCombatants.some(
+            (unique) => unique.id === combatant.id
+          );
+
+          if (isUnique) {
+            combinedCombatants.push(combatant);
+          }
+        });
+      });
+
+      const intervalContent = intervalRenderer(intervals, combinedCombatants);
 
       setWclTableContent(wclTableContent);
       setIntervalsContent(intervalContent);
