@@ -3,12 +3,13 @@ import {
   AnyBuffEvent,
   AnyDebuffEvent,
   AnyEvent,
+  CastEvent,
   DamageEvent,
   EventType,
   NormalizedDamageEvent,
   PhaseStartEvent,
 } from "../../wcl/events/types";
-import { ReportFight, WCLReport } from "../../wcl/gql/types";
+import { ReportFight, SummaryTable, WCLReport } from "../../wcl/gql/types";
 import {
   EventVariables,
   getEvents,
@@ -16,7 +17,7 @@ import {
 } from "../../wcl/util/queryWCL";
 import { generateBuffHistories } from "./combatant/buffs";
 import { Combatant, generateCombatants } from "./combatant/combatants";
-import { normalizeDots } from "./normalizers/debuffLinkNormalizer";
+import { eventLinkNormalizer } from "./normalizers/eventLinkNormalizer";
 import { supportEventNormalizer } from "./normalizers/supportEventNormalizer";
 import { supportEventLinkNormalizer } from "./normalizers/supportLinkNormalizer";
 
@@ -80,9 +81,15 @@ export async function generateFights(
     WCLReport.code
   );
 
+  const logDataTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
   for (const fightDataSet of newFightDataSets) {
     const buffEvents: AnyBuffEvent[] = [];
-    const eventsToLink: (DamageEvent | AnyDebuffEvent)[] = [];
+    const eventsToLink: (DamageEvent | AnyDebuffEvent | CastEvent)[] = [];
     const unexpectedEvents: AnyEvent[] = [];
 
     for (const event of fightDataSet.events) {
@@ -97,7 +104,8 @@ export async function generateFights(
         event.type === EventType.DamageEvent ||
         event.type === EventType.RefreshDebuffEvent ||
         event.type === EventType.ApplyDebuffEvent ||
-        event.type === EventType.RemoveDebuffEvent
+        event.type === EventType.RemoveDebuffEvent ||
+        event.type === EventType.CastEvent
       ) {
         eventsToLink.push(event);
         continue;
@@ -123,32 +131,44 @@ export async function generateFights(
 
     console.log("combatants:", combatants);
 
-    const linkedEvents = normalizeDots(eventsToLink);
+    const linkedEvents = eventLinkNormalizer(eventsToLink);
 
     const damageEvents = supportEventLinkNormalizer(linkedEvents, combatants);
 
-    const normalizedDamageEvents = supportEventNormalizer(
+    const { normalizedEvents, logData } = supportEventNormalizer(
       damageEvents,
       combatants,
       abilityNoScaling,
       abilityNoEMScaling,
-      abilityNoShiftingScaling
+      abilityNoShiftingScaling,
+      fightDataSet
     );
+
+    logDataTot.push(...logData);
 
     newFights.push({
       fightId: fightDataSet.fight.id,
       reportCode: WCLReport.code,
       startTime: fightDataSet.fight.startTime,
       endTime: fightDataSet.fight.endTime,
-      normalizedDamageEvents: normalizedDamageEvents,
+      normalizedDamageEvents: normalizedEvents,
       buffHistory: buffHistories,
       combatants: combatants,
     });
   }
 
+  const csvData = convertToCSV(logDataTot);
+
+  downloadCSV(csvData, "This shit is whack");
+
   return newFights;
 }
 
+export type FightDataSet = {
+  fight: ReportFight;
+  summaryTable: SummaryTable;
+  events: AnyEvent[];
+};
 /**
  *
  * @param fightsToGenerate  selected fights
@@ -158,7 +178,7 @@ export async function generateFights(
 async function getFightDataSets(
   fightsToGenerate: ReportFight[],
   reportCode: string
-) {
+): Promise<FightDataSet[]> {
   const fetchPromises = fightsToGenerate.map(async (fight) => {
     const variables: EventVariables = {
       reportID: reportCode,
@@ -173,7 +193,7 @@ async function getFightDataSets(
     const events = await getEvents(variables);
 
     return {
-      fight: fight,
+      fight: { ...fight, reportCode: reportCode },
       summaryTable: summaryTable,
       events: events,
     };
@@ -219,15 +239,13 @@ function getDamageFilter(): string {
 }
 
 function getFilter(): string {
-  const filter = `(${getBuffFilter()}) OR (${getDebuffFilter()}) OR (${getDamageFilter()})`;
+  const filter = `(${getBuffFilter()}) 
+  OR (${getDebuffFilter()}) 
+  OR (${getDamageFilter()}) 
+  OR (${getCastFilter()})`;
   return filter;
 }
 
-/**
- *
- * @param buffList - WCL filter expression for buff IDs to collect
- * @returns WCL filter expression
- */
 function getBuffFilter(): string {
   const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE})) 
     AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
@@ -239,4 +257,49 @@ function getDebuffFilter(): string {
   AND source.disposition = "friendly"`;
 
   return filter;
+}
+
+function getCastFilter(): string {
+  const filter = `type = "${EventType.CastEvent}"
+  AND source.disposition = "friendly"`;
+
+  return filter;
+}
+
+function convertToCSV(
+  objArray: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[]
+) {
+  const array = typeof objArray !== "object" ? JSON.parse(objArray) : objArray;
+  let str = "";
+
+  // Generate header row
+  const header = Object.keys(array[0]);
+  str += header.join("|") + "\r\n";
+
+  // Generate data rows
+  for (let i = 0; i < array.length; i++) {
+    let line = "";
+    for (const index in array[i]) {
+      if (line !== "") line += "|";
+      line += array[i][index];
+    }
+    str += line + "\r\n";
+  }
+
+  return str;
+}
+
+function downloadCSV(csvContent: string, fileName: string) {
+  const csvFile = new Blob([csvContent], { type: "text/csv" });
+  const downloadLink = document.createElement("a");
+  downloadLink.download = `${fileName}.csv`;
+  downloadLink.href = window.URL.createObjectURL(csvFile);
+  downloadLink.style.display = "none";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
 }

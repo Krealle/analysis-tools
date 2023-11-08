@@ -219,6 +219,7 @@ export type ReportArchiveStatus = {
 
 export type ReportFight = {
   id: number;
+  reportCode: string;
   startTime: number;
   endTime: number;
   gameZone: GameZone;

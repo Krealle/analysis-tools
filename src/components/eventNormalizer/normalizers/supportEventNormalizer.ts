@@ -1,4 +1,5 @@
 import {
+  ABILITY_BROKEN_ATTRIBUTION,
   EBON_MIGHT,
   EBON_MIGHT_CORRECTION_VALUE,
   PRESCIENCE,
@@ -13,17 +14,24 @@ import {
   NormalizedDamageEvent,
 } from "../../../wcl/events/types";
 import { Combatant } from "../combatant/combatants";
-import { Buff } from "../generateFights";
+import { Buff, FightDataSet } from "../generateFights";
 
 export function supportEventNormalizer(
   events: NormalizedDamageEvent[],
   combatants: Combatant[],
   abilityNoScaling: number[],
   abilityNoEMScaling: number[],
-  abilityNoShiftingScaling: number[]
-): NormalizedDamageEvent[] {
+  abilityNoShiftingScaling: number[],
+  fightDataSet: FightDataSet
+) {
   const normalizedEvents: NormalizedDamageEvent[] = [];
   const unexpectedEvents: AnyEvent[] = [];
+
+  const logData: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
 
   const fabricatedEventsForPlayers: Record<number, number> = {};
 
@@ -51,6 +59,12 @@ export function supportEventNormalizer(
         ? []
         : sourceEvent.activeBuffs;
 
+      // FIXME: COMBUST!
+      // https://www.wowhead.com/spell=226757/conflagration
+      // pheonix flames
+      // https://www.wowhead.com/spell=205345
+      // https://www.wowhead.com/spell=198030/eye-beam
+      // https://www.wowhead.com/spell=155158/meteor-burn
       if (
         sourceEvent.hitType !== HitType.Crit &&
         sourceEvent.abilityGameID !== 269576 // Master Marksman - hate this ability
@@ -164,6 +178,49 @@ export function supportEventNormalizer(
             fabricatedEventsForPlayers[sourceEvent.abilityGameID]
               ? fabricatedEventsForPlayers[sourceEvent.abilityGameID] + 1
               : 1;
+          if (!ABILITY_BROKEN_ATTRIBUTION.includes(sourceEvent.abilityGameID)) {
+            //const pin = `&pins=0%24Separate%24%23244F4B%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152%5E0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152&by=ability`;
+
+            const pin = `&pins=2%24Off%24rgb(78%25, 61%25, 43%25)%24expression%24supportedActor.name %3D '${sourceEvent.source.name}' or source.name %3D '${sourceEvent.source.name}'^0%24Separate%24%23909049%24damage%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24${sourceEvent.abilityGameID}^0%24Separate%24%23a04D8A%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24395152^0%24Separate%24%23DF5353%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24413984^0%24Separate%24rgb(78%25, 61%25, 43%25)%24auras-gained%240%240.0.0.Any%240.0.0.Any%24true%240.0.0.Any%24false%24410089`;
+
+            const wclUrl = `https://www.warcraftlogs.com/reports/${
+              fightDataSet.fight.reportCode
+            }#fight=${fightDataSet.fight.id}&type=damage-done&start=${
+              event.timestamp - 50
+            }&end=${event.timestamp + 50}&source=${
+              fabricatedSupportEvent.source.id
+            }&view=events${pin}`;
+
+            if (
+              sourceEvent.abilityGameID !== 269576 // Dumb ass master marksman
+            ) {
+              /* console.group(sourceEvent);
+              console.log(
+                buffSpell === EBON_MIGHT
+                  ? "Ebon Might"
+                  : buffSpell === SHIFTING_SANDS
+                  ? "Shifting Sands"
+                  : "Prescience"
+              );
+              
+              console.log(wclUrl);
+              console.groupEnd(); */
+
+              const spellId = sourceEvent.abilityGameID;
+              const data = {
+                spellId: `=HYPERLINK("https://www.wowhead.com/spell=${spellId}", "${spellId}")`,
+                supportType:
+                  buffSpell === EBON_MIGHT
+                    ? "Ebon Might"
+                    : buffSpell === SHIFTING_SANDS
+                    ? "Shifting Sands"
+                    : "Prescience",
+                url: `=HYPERLINK("${wclUrl}", "Log")`,
+              };
+
+              logData.push(data);
+            }
+          }
         } else {
           const supportEvent = supportEvents.splice(index, 1)[0];
           supportDamage += supportEvent.amount + (supportEvent.absorbed ?? 0);
@@ -206,5 +263,5 @@ export function supportEventNormalizer(
     )
   );
 
-  return normalizedEvents;
+  return { normalizedEvents, logData };
 }

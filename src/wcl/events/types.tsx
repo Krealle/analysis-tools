@@ -238,7 +238,8 @@ export type DamageEvent = BaseEvent<{
   targetInstance?: number;
   overkill?: number;
   /** used for dots, the event that applied/refreshed the dot */
-  parentEvent?: ApplyDebuffEvent | RefreshDebuffEvent;
+  parentDotEvent?: ApplyDebuffEvent | RefreshDebuffEvent;
+  castEvent?: CastEvent;
 }>;
 
 export type NormalizedDamageEvent = DamageEvent & {

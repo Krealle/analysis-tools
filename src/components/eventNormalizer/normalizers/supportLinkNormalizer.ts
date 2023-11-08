@@ -55,8 +55,10 @@ export function supportEventLinkNormalizer(
     );
 
     const activeBuffs =
-      SNAPSHOTTED_DOTS.includes(event.abilityGameID) && event.parentEvent
-        ? getBuffs(event.parentEvent.timestamp, player)
+      event.castEvent && !event.tick
+        ? getBuffs(event.castEvent.timestamp)
+        : SNAPSHOTTED_DOTS.includes(event.abilityGameID) && event.parentDotEvent
+        ? getBuffs(event.parentDotEvent.timestamp, player)
         : getBuffs(event.timestamp, player);
 
     const key = getKey(event);

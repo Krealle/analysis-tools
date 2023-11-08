@@ -39,6 +39,7 @@ export const ABILITY_NO_SHIFTING_SCALING: number[] = [
 export const ABILITY_NO_BOE_SCALING: number[] = [
   402583, // Beacon
   408682, // Dragonfire Bomb Dispenser
+  408694, // Dragonfire Bomb Dispenser
   401324, // Pocket Anvil (Echoed Flare)
   401306, // Pocket Anvil (Anvil Strike)
   401422, // Vessel of Searing Shadow (Shadow Spike)
@@ -66,10 +67,11 @@ export const ABILITY_NO_BOE_SCALING: number[] = [
   374087, // Glacial Fury
 ];
 
-/** SpellsIds to softlist, ie. abilities that doesn't scale off mainstat but vers/crit */
+/** SpellsIds that doesn't scale off mainstat but vers/crit */
 export const ABILITY_NO_EM_SCALING: number[] = [
   402583, // Beacon
   408682, // Dragonfire Bomb Dispenser
+  408694, // Dragonfire Bomb Dispenser
   401324, // Pocket Anvil (Echoed Flare)
   401306, // Pocket Anvil (Anvil Strike)
   401422, // Vessel of Searing Shadow (Shadow Spike)
@@ -99,20 +101,28 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   322109, // Touch of Death
   400223, // Thorns of Iron
   124280, // Touch of Karma
+
+  426564, // Augury of the Primal Flame (Annihilating Flame)
+  417458, // Accelerating Sandglass
 ];
 
 /** SpellsIds that don't appear to re-attribute properly.
  * Non-exhaustive list.
  */
 export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
-  394021, // Mutilated Flesh
-  10444, // Flametongue Attack
+  /* //394021, // Mutilated Flesh
+  //10444, // Flametongue Attack
   83381, // Kill command
+  426703, // Kill Command 2.0
   16827, // Claw
   386301, // Completely Safe Rocket Blast
-  419737, // Timestrike
-  409483, // Poisoned Edges
-  201754, // Stomp
+  385638, // Razor Fragments
+  118459, // Beast Cleave
+  //419737, // Timestrike
+  //409483, // Poisoned Edges
+  //201754, // Stomp
+  116858, // Chaos Bolt (Prescience)
+  425610, // Dumb boss spell */
 ];
 
 export const SNAPSHOTTED_DOTS: number[] = [
