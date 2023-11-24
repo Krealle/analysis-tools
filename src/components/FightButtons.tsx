@@ -1,6 +1,4 @@
 import { useAppSelector } from "../redux/hooks";
-import { ReportParseError } from "../wcl/util/parseWCLUrl";
-import ErrorBear from "./generic/ErrorBear";
 
 type FightButtonProps = {
   isFetching: boolean;
@@ -11,7 +9,7 @@ const FightButtons: React.FC<FightButtonProps> = ({
   isFetching,
   handleButtonClick,
 }) => {
-  const { parameterError, parameterErrorMsg } = useAppSelector(
+  const { parameterError } = useAppSelector(
     (state) => state.customFightParameters
   );
 
@@ -29,12 +27,6 @@ const FightButtons: React.FC<FightButtonProps> = ({
       >
         Get Pumpers + sus events
       </button>
-      {parameterError && (
-        <ErrorBear
-          error={ReportParseError.INVALID_FILTER}
-          customMsg={parameterErrorMsg}
-        />
-      )}
     </div>
   );
 };

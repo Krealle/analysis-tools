@@ -11,6 +11,8 @@ import intervalRenderer from "./interval/intervalRenderer";
 import CustomFightParameters from "../fightParameters/CustomFightParameters";
 import { setIsFetching } from "../../redux/slices/statusSlice";
 import { Combatant } from "./combatant/combatants";
+import ErrorBear from "../generic/ErrorBear";
+import { ReportParseError } from "../../wcl/util/parseWCLUrl";
 
 let fights: Fight[] = [];
 const enemyTracker = new Map<number, number>();
@@ -176,6 +178,12 @@ const EventNormalizer = () => {
 
   return (
     <div className="pumpers-container">
+      {parameterError && (
+        <ErrorBear
+          error={ReportParseError.INVALID_FILTER}
+          customMsg={parameterErrorMsg}
+        />
+      )}
       <FightButtons
         isFetching={isFetching}
         handleButtonClick={handleButtonClick}
