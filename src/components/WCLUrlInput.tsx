@@ -2,8 +2,9 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { getFights } from "../wcl/util/queryWCL";
 import { ReportParseError, parseWCLUrl } from "../wcl/util/parseWCLUrl";
 import ErrorBear from "./generic/ErrorBear";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setFightReport } from "../redux/slices/WCLUrlInputSlice";
+import { setSelectedIds } from "../redux/slices/fightBoxesSlice";
 
 export const WCLUrlInput = () => {
   const [url, setUrl] = useState<string>("");
@@ -11,6 +12,7 @@ export const WCLUrlInput = () => {
   const [errorBear, setErrorBear] = useState<ReportParseError | undefined>();
 
   const dispatch = useAppDispatch();
+  const WCLReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -28,6 +30,11 @@ export const WCLUrlInput = () => {
 
     try {
       const newFightReport = await getFights({ reportID: reportCode });
+
+      if (newFightReport?.code !== WCLReport?.code) {
+        dispatch(setSelectedIds([]));
+      }
+
       dispatch(setFightReport(newFightReport));
     } catch (error) {
       // Handle errors here
