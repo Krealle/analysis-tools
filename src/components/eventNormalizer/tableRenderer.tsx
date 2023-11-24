@@ -40,7 +40,6 @@ const tableRenderer = (
       let wclDamage = 0;
       let normalizedDamage = 0;
       let fabricatedEvents = 0;
-      //const abilities: Record<number, number> = {};
 
       const playerEvents = normalizedDamageEvents.filter(
         (event) => event.source.id === player.id
@@ -60,7 +59,10 @@ const tableRenderer = (
         if (event.supportEvents) {
           if (event.supportEvents.length > 0) {
             for (const supportEvent of event.supportEvents) {
-              if (supportEvent.hookType === AttributionHook.FABRICATED_HOOK) {
+              if (
+                supportEvent.hookType === AttributionHook.FABRICATED_HOOK ||
+                supportEvent.hookType === AttributionHook.EMPTY_HOOK
+              ) {
                 stolenAmount +=
                   supportEvent.event.amount +
                   (supportEvent.event.absorbed ?? 0);
@@ -72,23 +74,10 @@ const tableRenderer = (
         if (!event.fabricated) {
           wclDamage += amount + stolenAmount;
         }
-        /* if (event.abilityGameID in abilities) {
-          abilities[event.abilityGameID] += event.fabricated
-            ? 0
-            : amount + stolenAmount;
-        } else {
-          abilities[event.abilityGameID] = event.fabricated
-            ? 0
-            : amount + stolenAmount;
-        } */
 
         normalizedDamage += amount;
       }
       totalWclDamage += wclDamage;
-
-      /* const abilitiesArray = Object.entries(abilities);
-        abilitiesArray.sort((a, b) => b[1] - a[1]);
-        console.log(player.name, abilitiesArray); */
 
       totalNormalizedDamage += normalizedDamage;
 

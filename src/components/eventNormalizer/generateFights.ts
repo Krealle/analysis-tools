@@ -4,12 +4,14 @@ import {
   PRESCIENCE,
   SHIFTING_SANDS,
 } from "../../util/constants";
+import { convertToCSV, downloadCSV } from "../../util/csvHandler";
 import {
   AnyBuffEvent,
   AnyDebuffEvent,
   AnyEvent,
   CastEvent,
   DamageEvent,
+  DeathEvent,
   EventType,
   NormalizedDamageEvent,
   PhaseStartEvent,
@@ -43,6 +45,7 @@ export type Fight = {
   startTime: number;
   endTime: number;
   normalizedDamageEvents: NormalizedDamageEvent[];
+  deathEvents: DeathEvent[];
   buffHistory: Buff[];
   combatants: Combatant[];
   phaseHistory?: PhaseStartEvent[];
@@ -64,7 +67,8 @@ export async function generateFights(
   abilityNoScaling: number[],
   abilityNoEMScaling: number[],
   abilityNoShiftingScaling: number[],
-  refreshData: boolean
+  refreshData: boolean,
+  getCSV: boolean
 ): Promise<Fight[]> {
   /** This is a lazy mans approach to dealing with manual filter changes
    * Ideally we wouldn't re-fetch all of our data, but due to the way it is structured,
@@ -92,9 +96,40 @@ export async function generateFights(
     url: string;
   }[] = [];
 
+  const emptyEventsTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
+  const overStealTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
+  const susAmountTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
+  const underAttributeTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
+  const fullList: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
   for (const fightDataSet of newFightDataSets) {
     const buffEvents: AnyBuffEvent[] = [];
     const eventsToLink: (DamageEvent | AnyDebuffEvent | CastEvent)[] = [];
+    const deathEvents: DeathEvent[] = [];
     const unexpectedEvents: AnyEvent[] = [];
 
     for (const event of fightDataSet.events) {
@@ -113,6 +148,10 @@ export async function generateFights(
         event.type === EventType.CastEvent
       ) {
         eventsToLink.push(event);
+        continue;
+      }
+      if (event.type === EventType.DeathEvent) {
+        deathEvents.push(event);
         continue;
       }
       unexpectedEvents.push(event);
@@ -134,13 +173,18 @@ export async function generateFights(
       WCLReport.masterData?.actors
     );
 
-    console.log("combatants:", combatants);
-
     const linkedEvents = eventLinkNormalizer(eventsToLink);
 
     const damageEvents = supportEventLinkNormalizer(linkedEvents, combatants);
 
-    const { normalizedEvents, logData } = supportEventNormalizer(
+    const {
+      normalizedEvents,
+      logData,
+      emptyEvents,
+      overSteal,
+      susAmount,
+      underAttributedAmount,
+    } = supportEventNormalizer(
       damageEvents,
       combatants,
       abilityNoScaling,
@@ -150,6 +194,18 @@ export async function generateFights(
     );
 
     logDataTot.push(...logData);
+    emptyEventsTot.push(...emptyEvents);
+    overStealTot.push(...overSteal);
+    susAmountTot.push(...susAmount);
+    underAttributeTot.push(...underAttributedAmount);
+
+    fullList.push(
+      ...logDataTot,
+      ...emptyEventsTot,
+      ...overStealTot
+      //...susAmountTot
+      //...underAttributedAmount
+    );
 
     newFights.push({
       fightId: fightDataSet.fight.id,
@@ -157,14 +213,16 @@ export async function generateFights(
       startTime: fightDataSet.fight.startTime,
       endTime: fightDataSet.fight.endTime,
       normalizedDamageEvents: normalizedEvents,
+      deathEvents: deathEvents,
       buffHistory: buffHistories,
       combatants: combatants,
     });
   }
 
-  //const csvData = convertToCSV(logDataTot);
-
-  //downloadCSV(csvData, "This shit is whack");
+  if (fullList.length > 0 && getCSV) {
+    const csvData = convertToCSV(fullList);
+    downloadCSV(csvData, "FullData");
+  }
 
   return newFights;
 }
@@ -238,7 +296,6 @@ function getDamageFilter(): string {
     AND not (supportedActor.id = target.id)
     AND not (source.id = target.owner.id)
     AND source.disposition = "friendly"
-    AND target.disposition != "friendly"
     AND (source.id > 0)`;
   return filter;
 }
@@ -247,7 +304,8 @@ function getFilter(): string {
   const filter = `(${getBuffFilter()}) 
   OR (${getDebuffFilter()}) 
   OR (${getDamageFilter()}) 
-  OR (${getCastFilter()})`;
+  OR (${getCastFilter()}) 
+  OR (${getDeathFilter()})`;
   return filter;
 }
 
@@ -271,40 +329,11 @@ function getCastFilter(): string {
   return filter;
 }
 
-function convertToCSV(
-  objArray: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[]
-) {
-  const array = typeof objArray !== "object" ? JSON.parse(objArray) : objArray;
-  let str = "";
+function getDeathFilter(): string {
+  const filter = `type = "death"  
+  AND target.disposition = "friendly"
+  AND target.type = "player"
+  AND feign = false`;
 
-  // Generate header row
-  const header = Object.keys(array[0]);
-  str += header.join("|") + "\r\n";
-
-  // Generate data rows
-  for (let i = 0; i < array.length; i++) {
-    let line = "";
-    for (const index in array[i]) {
-      if (line !== "") line += "|";
-      line += array[i][index];
-    }
-    str += line + "\r\n";
-  }
-
-  return str;
-}
-
-function downloadCSV(csvContent: string, fileName: string) {
-  const csvFile = new Blob([csvContent], { type: "text/csv" });
-  const downloadLink = document.createElement("a");
-  downloadLink.download = `${fileName}.csv`;
-  downloadLink.href = window.URL.createObjectURL(csvFile);
-  downloadLink.style.display = "none";
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
+  return filter;
 }

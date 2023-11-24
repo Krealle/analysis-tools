@@ -10,7 +10,6 @@ import { getAverageIntervals } from "./interval/intervals";
 import intervalRenderer from "./interval/intervalRenderer";
 import CustomFightParameters from "../fightParameters/CustomFightParameters";
 import { setIsFetching } from "../../redux/slices/statusSlice";
-import { setSelectedIds } from "../../redux/slices/fightBoxesSlice";
 import { Combatant } from "./combatant/combatants";
 
 let fights: Fight[] = [];
@@ -40,13 +39,13 @@ const EventNormalizer = () => {
     abilityNoShiftingScaling,
     ebonMightWeight,
     intervalTimer,
+    deathCountFilter,
   } = useAppSelector((state) => state.customFightParameters);
   const { isFetching } = useAppSelector((state) => state.status);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     enemyTracker.clear();
-    dispatch(setSelectedIds([]));
 
     if (WCLReport && WCLReport.masterData && WCLReport.masterData.actors) {
       WCLReport.masterData.actors
@@ -61,7 +60,7 @@ const EventNormalizer = () => {
     setRefreshData(true);
   }, [abilityNoEMScaling, abilityNoScaling, abilityNoShiftingScaling]);
 
-  const handleButtonClick = async () => {
+  const handleButtonClick = async (getCSV: boolean) => {
     if (selectedFights.length === 0) {
       alert("No fight selected!");
       return;
@@ -82,15 +81,15 @@ const EventNormalizer = () => {
     setIntervalsContent(null);
 
     try {
-      await attemptNormalize();
+      await attemptNormalize(getCSV);
     } catch (error) {
-      setWclTableContent(<>{error}</>);
+      //setWclTableContent(<>{error}</>);
     }
 
     dispatch(setIsFetching(false));
   };
 
-  async function attemptNormalize() {
+  async function attemptNormalize(getCSV: boolean) {
     if (!WCLReport?.fights) {
       throw new Error("No fight report found");
     }
@@ -104,7 +103,8 @@ const EventNormalizer = () => {
         abilityNoScaling.split(",").map(Number),
         abilityNoEMScaling.split(",").map(Number),
         abilityNoShiftingScaling.split(",").map(Number),
-        refreshData
+        refreshData,
+        getCSV
       );
 
       const fightsToRender = fights.filter(
@@ -143,7 +143,8 @@ const EventNormalizer = () => {
         ebonMightWeight,
         intervalTimer,
         abilityBlacklist.split(",").map(Number),
-        enemyBlacklist
+        enemyBlacklist,
+        Number(deathCountFilter)
       );
 
       const combinedCombatants: Combatant[] = [];
