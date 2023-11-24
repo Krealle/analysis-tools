@@ -21,7 +21,8 @@ export function getAverageIntervals(
   ebonWeight: number,
   intervalDuration: number,
   abilityBlacklist: number[],
-  enemyBlacklist: number[]
+  enemyBlacklist: number[],
+  deathCutOff: number
 ): TotInterval[] {
   const sortedIntervals: TotInterval[] = [];
 
@@ -39,15 +40,25 @@ export function getAverageIntervals(
     let interval: IntervalSet = [];
     let latestTimestamp = 0;
 
+    const deathCutOffTime =
+      deathCutOff <= fight.deathEvents.length && deathCutOff !== 0
+        ? fight.deathEvents[deathCutOff - 1].timestamp
+        : undefined;
+
     for (const event of fight.normalizedDamageEvents) {
       if (
         event.source.spec === "Augmentation" ||
         event.normalizedAmount === 0 ||
         enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1) ||
         abilityBlacklist.includes(event.abilityGameID) ||
-        abilityNoScaling.includes(event.abilityGameID)
+        abilityNoScaling.includes(event.abilityGameID) ||
+        event.source.id === -1
       ) {
         continue;
+      }
+
+      if (deathCutOffTime && event.timestamp >= deathCutOffTime) {
+        break;
       }
 
       const overlapsWithTimeSkip = timeSkipIntervals.some((skipInterval) => {
@@ -114,7 +125,9 @@ export function getAverageIntervals(
       }
     }
   }
-  return sortedIntervals;
+  const averageIntervals = averageOutIntervals(sortedIntervals);
+
+  return averageIntervals;
 }
 
 export function averageOutIntervals(

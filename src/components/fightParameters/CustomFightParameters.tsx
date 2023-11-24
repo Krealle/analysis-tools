@@ -9,6 +9,7 @@ import EnemyFilter from "./EnemyFilter";
 import AbilityFilter from "./AbilityFilter";
 import TimePeriodFilter from "./TimePeriodFilter";
 import IntervalSettings from "./IntervalSettings";
+import DeathFilter from "./DeathFilter";
 
 const CustomFightParameters = () => {
   const dispatch = useAppDispatch();
@@ -70,6 +71,7 @@ const CustomFightParameters = () => {
       <AbilityFilter />
       <EnemyFilter />
       <IntervalSettings />
+      <DeathFilter />
     </div>
   );
 };

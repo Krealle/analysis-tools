@@ -21,6 +21,7 @@ type initialState = {
   abilityNoShiftingScaling: string;
   ebonMightWeight: number;
   intervalTimer: number;
+  deathCountFilter: string;
 };
 
 const initialState: initialState = {
@@ -36,6 +37,7 @@ const initialState: initialState = {
   abilityNoShiftingScaling: ABILITY_NO_SHIFTING_SCALING.toString(),
   ebonMightWeight: 0.5,
   intervalTimer: 30,
+  deathCountFilter: "",
 };
 
 const customFightParametersSlice = createSlice({
@@ -112,6 +114,9 @@ const customFightParametersSlice = createSlice({
     setIntervalTimer: (state, action: PayloadAction<number>) => {
       state.intervalTimer = action.payload;
     },
+    setDeathCountFilter: (state, action: PayloadAction<string>) => {
+      state.deathCountFilter = action.payload;
+    },
   },
 });
 
@@ -131,5 +136,6 @@ export const {
   changeTimeSkipInterval,
   setEbonMightWeight,
   setIntervalTimer,
+  setDeathCountFilter,
 } = customFightParametersSlice.actions;
 export default customFightParametersSlice.reducer;
