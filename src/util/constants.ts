@@ -65,6 +65,39 @@ export const ABILITY_NO_BOE_SCALING: number[] = [
   214397, // Mark of Dargrul (Landslide)
   408469, // Call to Suffering (Self Harm)
   374087, // Glacial Fury
+  370817, // Shocking Disclosure
+  426564, // Augury of the Primal Flame (Annihilating Flame)
+  417458, // Accelerating Sandglass
+  424965, // Thorn Spirit
+  425181, // Thorn Blast
+  419737, // Timestrike
+  265953, // Touch of Gold
+  425154, // Vicious Brand
+  425156, // Radiating Brand
+  422146, // Solar Maelstrom
+  426341, // Tindral's Fowl Fantasia
+  426431, // Denizen Of The Flame
+  426486, // Denizen Of The Flame Final
+  426339, // Igiras Cruel Nightmare
+  426527, // Flaying Torment
+  259756, // Entropic Embrace
+  427209, // Web of Dreams
+  422956, // Essence Splice
+  424324, // Hungering Shadowflame
+  419279, // Extinction Blast
+  215444, // Dark Blast
+  214168, // Brutal Haymaker
+  214169, // Brutal Haymaker
+  228784, // Brutal Haymaker Vulnerability
+  214350, // Nightmare Essence
+  422750, // Shadowflame Rage
+  425701, // Shadowflame Lash Enemy
+  422750, // Tainted Heart
+  425461, // Tainted Heart Enemy Damage
+  417458, // Accelerating Sandglass
+  215407, // Dark Blast
+  270827, // Webweavers Soul Gem
+  213785, // Nightfall
 ];
 
 /** SpellsIds that doesn't scale off mainstat but vers/crit */
@@ -101,16 +134,46 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   322109, // Touch of Death
   400223, // Thorns of Iron
   124280, // Touch of Karma
-
+  370817, // Shocking Disclosure
   426564, // Augury of the Primal Flame (Annihilating Flame)
   417458, // Accelerating Sandglass
+  424965, // Thorn Spirit
+  425181, // Thorn Blast
+  419737, // Timestrike
+  265953, // Touch of Gold
+  425154, // Vicious Brand
+  425156, // Radiating Brand
+  422146, // Solar Maelstrom
+  426341, // Tindral's Fowl Fantasia
+  426431, // Denizen Of The Flame
+  426486, // Denizen Of The Flame Final
+  426339, // Igiras Cruel Nightmare
+  426527, // Flaying Torment
+  259756, // Entropic Embrace
+  427209, // Web of Dreams
+  422956, // Essence Splice
+  424324, // Hungering Shadowflame
+  419279, // Extinction Blast
+  215444, // Dark Blast
+  214168, // Brutal Haymaker
+  214169, // Brutal Haymaker
+  228784, // Brutal Haymaker Vulnerability
+  214350, // Nightmare Essence
+  422750, // Shadowflame Rage
+  425701, // Shadowflame Lash Enemy
+  422750, // Tainted Heart
+  425461, // Tainted Heart Enemy Damage
+  417458, // Accelerating Sandglass
+  215407, // Dark Blast
+  270827, // Webweavers Soul Gem
+  213785, // Nightfall
 ];
 
 /** SpellsIds that don't appear to re-attribute properly.
  * Non-exhaustive list.
  */
 export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
-  388070, // Fel Barrage
+  /* 388070, // Fel Barrage
   271971, // Dreadbite
   205196, // Dreadbite 2.0
   259756, // Entropic Embrace
@@ -157,6 +220,8 @@ export const ABILITY_BROKEN_ATTRIBUTION: number[] = [
   361500, // Living Flame
   359077, // Eternity Surge
   418588, // Mirror trinket (Sand Cleave)
+  388009, // Blessing of Summer
+  22482, // Blade Flurry */
 ];
 
 export const SNAPSHOTTED_DOTS: number[] = [
@@ -193,5 +258,6 @@ export const COMBUSTION_BUFF = 190319;
  * but will help us with getting a more accurate idea of actual
  * throughput.
  */
-export const EBON_MIGHT_CORRECTION_VALUE = 0.09;
-export const SHIFTING_SANDS_CORRECTION_VALUE = 0.11;
+export const EBON_MIGHT_CORRECTION_VALUE = 0.06;
+export const SHIFTING_SANDS_CORRECTION_VALUE = 0.14;
+export const PRESCIENCE_CORRECTION_VALUE = 0.025;
