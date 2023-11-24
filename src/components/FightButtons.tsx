@@ -4,7 +4,7 @@ import ErrorBear from "./generic/ErrorBear";
 
 type FightButtonProps = {
   isFetching: boolean;
-  handleButtonClick: React.MouseEventHandler<HTMLButtonElement>;
+  handleButtonClick: (getCSV: boolean) => Promise<void>;
 };
 
 const FightButtons: React.FC<FightButtonProps> = ({
@@ -18,10 +18,16 @@ const FightButtons: React.FC<FightButtonProps> = ({
   return (
     <div className="pumpers-content">
       <button
-        onClick={handleButtonClick}
+        onClick={() => handleButtonClick(false)}
         disabled={isFetching || parameterError}
       >
         Get Pumpers
+      </button>
+      <button
+        onClick={() => handleButtonClick(true)}
+        disabled={isFetching || parameterError}
+      >
+        Get Pumpers + sus events
       </button>
       {parameterError && (
         <ErrorBear
