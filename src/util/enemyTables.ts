@@ -21,18 +21,39 @@ export const AmirdrassilEnemies: EnemyMap = {
   Gnarlroot: [
     createEnemy(209333, "Gnarlroot", EnemyType.Boss),
     createEnemy(210231, "Tainted Lasher", EnemyType.Add),
+    createEnemy(211904, "Tainted Treant", EnemyType.Add),
   ],
   IgiraTheCruel: [
     createEnemy(200926, "Igira the Cruel", EnemyType.Boss),
     createEnemy(207341, "Blistering Spear", EnemyType.Add),
   ],
-  Volcoross: [],
-  CouncilOfDreams: [],
-  LarodarKeeperOfTheFlame: [],
-  NymueWeaverOfTheCycle: [],
-  Smolderon: [],
-  TindralSageswiftSeerOfTheFlame: [],
-  FyrakkTheBlazing: [],
+  Volcoross: [createEnemy(208478, "Volcoross", EnemyType.Boss)],
+  CouncilOfDreams: [
+    createEnemy(208365, "Aerwynn", EnemyType.Boss),
+    createEnemy(208367, "Pip", EnemyType.Boss),
+    createEnemy(208363, "Urctos", EnemyType.Boss),
+  ],
+  LarodarKeeperOfTheFlame: [
+    createEnemy(208445, "Larodar, Keeper of the Flame", EnemyType.Boss),
+    createEnemy(208459, "Fiery Treant", EnemyType.Add),
+    createEnemy(208461, "Scorching Roots", EnemyType.Add),
+  ],
+  NymueWeaverOfTheCycle: [
+    createEnemy(206172, "Nymue", EnemyType.Boss),
+    createEnemy(209800, "Cycle Warden", EnemyType.Add),
+    createEnemy(213143, "Manifested Dream", EnemyType.Add),
+  ],
+  Smolderon: [createEnemy(200927, "Smolderon", EnemyType.Boss)],
+  TindralSageswiftSeerOfTheFlame: [
+    createEnemy(209090, "Tindral Sageswift", EnemyType.Boss),
+    createEnemy(211306, "Fiery Vines", EnemyType.Add),
+    createEnemy(214441, "Scorched Treant", EnemyType.Add),
+  ],
+  FyrakkTheBlazing: [
+    createEnemy(204931, "Fyrakk", EnemyType.Boss),
+    createEnemy(207796, "Burning Colossus", EnemyType.Add),
+    createEnemy(214608, "Screaming Soul", EnemyType.Add),
+  ],
 };
 
 export const AberrusEnemies: EnemyMap = {
@@ -109,6 +130,15 @@ export const EncounterImages: Record<string, string> = {
   "Magmorax": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-magmorax.png",
   "EchoOfNeltharion": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-echo-of-neltharion.png",
   "ScalecommanderSarkareth": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-scalecommander-sarkareth.png",
+  "Gnarlroot": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-gnarlroot.png",
+  "IgiraTheCruel": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-igira-the-cruel.png",
+  "Volcoross": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-volcoross.png",
+  "CouncilOfDreams": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-council-of-dreams.png",
+  "LarodarKeeperOfTheFlame": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-larodar-keeper-of-the-flame.png",
+  "NymueWeaverOfTheCycle": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-nymue-weaver-of-the-cycle.png",
+  "Smolderon": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-smolderon.png",
+  "TindralSageswiftSeerOfTheFlame": "",
+  "FyrakkTheBlazing": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-fyrakk-the-burning.png",
 }
 
 /* for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
