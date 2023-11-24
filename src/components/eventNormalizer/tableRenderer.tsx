@@ -122,7 +122,9 @@ const tableRenderer = (
     >
       <td className="name">
         <span className={player.combatant.class}>{player.combatant.name} </span>
-        <span className="spec">({player.combatant.spec})</span>
+        <span className="spec">
+          ({player.combatant.spec.replace(/(?<=[a-z])(?=[A-Z])/g, " ")})
+        </span>
       </td>
       <td>{formatNumber(player.wclAmount)}</td>
       <td>{formatNumber(player.normalizedAmount)}</td>
