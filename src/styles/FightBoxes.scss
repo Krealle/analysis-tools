@@ -1,0 +1,20 @@
+.fights {
+  flex-wrap: wrap;
+}
+
+.fightsName {
+  font-weight: bold;
+  font-size: x-large;
+}
+
+#fight-wipe {
+  .flavorText {
+    color: #e45f5a;
+  }
+}
+
+#fight-kill {
+  .flavorText {
+    color: #80e666;
+  }
+}

@@ -5,6 +5,7 @@ import ErrorBear from "./generic/ErrorBear";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setFightReport } from "../redux/slices/WCLUrlInputSlice";
 import { setSelectedIds } from "../redux/slices/fightBoxesSlice";
+import "../styles/WCLUrlInput.scss";
 
 export const WCLUrlInput = () => {
   const [url, setUrl] = useState<string>("");
@@ -49,18 +50,23 @@ export const WCLUrlInput = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="wcl-form-container">
-        <div className="inner-container">
-          <div className="input-container">
+      <form onSubmit={handleSubmit} className="flex">
+        <div className="flex">
+          <div>
             <input
               type="text"
               placeholder="Enter WCL URL"
+              className="wclUrlInput"
               value={url}
               onChange={handleChange}
               disabled={isSubmitting}
             />
           </div>
-          <button type="submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="wclUrlButton"
+          >
             {isSubmitting ? "Fetching..." : "Fetch Fights"}
           </button>
         </div>

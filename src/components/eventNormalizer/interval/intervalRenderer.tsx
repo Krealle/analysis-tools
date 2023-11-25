@@ -2,6 +2,7 @@ import { TotInterval } from "../../../helpers/types";
 import { formatDuration, formatNumber } from "../../../util/format";
 import { Combatant } from "../combatant/combatants";
 import { getMRTNote, getTop4Pumpers } from "./intervals";
+import "../../../styles/intervalRenderer.scss";
 
 const intervalRenderer = (
   intervals: TotInterval[],
@@ -59,14 +60,12 @@ const intervalRenderer = (
 
   return (
     <>
-      <div className="pumpers-content">
-        <table className="pumperTable">
-          <tbody>
-            {headerRow}
-            {tableRows}
-          </tbody>
-        </table>
-      </div>
+      <table className="intervalTable">
+        <tbody>
+          {headerRow}
+          {tableRows}
+        </tbody>
+      </table>
       {noteTextbox}
     </>
   );

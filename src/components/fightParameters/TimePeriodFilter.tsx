@@ -5,6 +5,7 @@ import {
   removeTimeSkipInterval,
 } from "../../redux/slices/customFightParametersSlice";
 import PopupContent from "../generic/PopupContent";
+import "./fightParameterStyling.scss";
 
 const TimePeriodFilter: React.FC = () => {
   const timeIntervals = useAppSelector(

@@ -1,9 +1,3 @@
-.flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .container {
   flex-direction: column;
   margin: 10px;
@@ -48,4 +42,18 @@
 .deathFilterInput {
   margin: 5px;
   width: 20px;
+}
+
+.time-intervals-container {
+  .time-intervals-content {
+    input {
+      width: 5rem;
+      text-align: center;
+      font-size: large;
+    }
+    button {
+      background-color: inherit;
+      padding: 0.2em 0.6em;
+    }
+  }
 }

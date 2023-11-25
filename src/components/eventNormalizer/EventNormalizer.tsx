@@ -177,7 +177,7 @@ const EventNormalizer = () => {
   }
 
   return (
-    <div className="pumpers-container">
+    <div className="flex gap column pad">
       {parameterError && (
         <ErrorBear
           error={ReportParseError.INVALID_FILTER}

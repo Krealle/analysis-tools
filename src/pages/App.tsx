@@ -21,7 +21,6 @@ function App() {
           <SelectFightButtons />
           <FightBoxes />
           <EventNormalizer />
-          {/* <GetTopPumpers /> */}
         </>
       )}
     </>

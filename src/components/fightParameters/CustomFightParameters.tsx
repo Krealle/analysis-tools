@@ -66,7 +66,7 @@ const CustomFightParameters = () => {
   ]);
 
   return (
-    <div className={`pumpers-content`}>
+    <div className={`flex gap`}>
       <TimePeriodFilter />
       <AbilityFilter />
       <EnemyFilter />

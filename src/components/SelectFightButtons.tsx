@@ -26,7 +26,7 @@ export const SelectFightButtons = () => {
   };
 
   return (
-    <div className="select-fights-button-container">
+    <div className="flex gap">
       <button onClick={() => handleSelectFights()}>Select All Fights</button>
       <button onClick={() => handleSelectFights(true)}>Select All Kills</button>
       <button onClick={() => handleSelectFights(false)}>
