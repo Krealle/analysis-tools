@@ -1,9 +1,10 @@
 import { useAppSelector } from "../redux/hooks";
-import { formatDuration } from "../util/format";
+import { formatDuration, formatUnixTime, toCamelCase } from "../util/format";
 import { useAppDispatch } from "../redux/hooks";
 import { setSelectedIds } from "../redux/slices/fightBoxesSlice";
 import ButtonCheckbox from "./generic/ButtonCheckbox";
 import "../styles/FightBoxes.scss";
+import { EncounterImages } from "../util/enemyTables";
 
 export const FightBoxes = () => {
   const report = useAppSelector((state) => state.WCLUrlInput.fightReport);
@@ -38,32 +39,79 @@ export const FightBoxes = () => {
 
   return (
     <div>
-      {Object.entries(fightsByName).map(([groupName, fights]) => (
-        <div key={groupName} className="flex column">
-          <div className="flex fightsName">{groupName}</div>
-          <div className="flex fights">
-            {fights.map((fight) => (
-              <ButtonCheckbox
-                key={fight.id}
-                onClick={() => handleDivClick(fight.id)}
-                selected={selectedIds.includes(fight.id)}
-                title={fight.name}
-                flavorText={`${fight.id} - ${formatDuration(
-                  fight.endTime - fight.startTime
-                )}${
-                  fight.kill
-                    ? " (kill)"
-                    : ` (${fight.fightPercentage}%${
-                        fight.lastPhase ?? 0 > 0 ? ` P${fight.lastPhase}` : ""
-                      })`
-                }`}
-                id={fight.kill ? "fight-kill" : "fight-wipe"}
-                disabled={isFetching}
-              />
-            ))}
+      {Object.entries(fightsByName).map(([groupName, fights]) => {
+        const normalizedGroupName = toCamelCase(groupName);
+        /* const imageUrl = `https://assets.rpglogs.com/img/warcraft/bosses/${EncounterIds[normalizedGroupName]}-tile.jpg`; */
+        return (
+          <div
+            key={groupName}
+            className="flex column fightContainer"
+            /* style={{
+              backgroundImage: `url(${imageUrl})`,
+            }} */
+          >
+            <div className="flex fightsName">
+              <img src={EncounterImages[normalizedGroupName]} />
+              {groupName}
+            </div>
+            <div className="flex fights">
+              {fights.map((fight) => {
+                const fightPercentageColor = fight.kill
+                  ? "kill"
+                  : !fight.fightPercentage
+                  ? ""
+                  : fight.fightPercentage > 70
+                  ? "common"
+                  : fight.fightPercentage > 50
+                  ? "uncommon"
+                  : fight.fightPercentage > 30
+                  ? "rare"
+                  : fight.fightPercentage > 10
+                  ? "epic"
+                  : fight.fightPercentage > 1
+                  ? "legendary"
+                  : "unfort";
+
+                const content = (
+                  <>
+                    <div className="flex column">
+                      <span
+                        className={`fightPercentage ${fightPercentageColor}`}
+                      >
+                        {fight.kill ? "KILL" : `${fight.fightPercentage}%`}
+                      </span>
+                      <span className="phase">
+                        {fight.lastPhase ?? 0 > 0 ? `P${fight.lastPhase}` : ""}
+                      </span>
+                    </div>
+                    <div className="flex column">
+                      <span className={fight.kill ? "kill" : "wipe"}>
+                        {`${fight.id} - (${formatDuration(
+                          fight.endTime - fight.startTime
+                        )})`}
+                      </span>
+                      <span>
+                        {formatUnixTime(fight.startTime + report.startTime)}
+                      </span>
+                    </div>
+                  </>
+                );
+
+                return (
+                  <ButtonCheckbox
+                    key={fight.id}
+                    onClick={() => handleDivClick(fight.id)}
+                    selected={selectedIds.includes(fight.id)}
+                    content={content}
+                    id={"fightButton"}
+                    disabled={isFetching}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

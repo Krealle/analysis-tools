@@ -1,3 +1,5 @@
+import { DateTime } from "luxon";
+
 export function formatDuration(
   duration: number,
   precision: number = 0
@@ -45,4 +47,17 @@ export function formatTime(time: string): number | undefined {
 
   const [minutes, seconds] = time.split(":").map(Number);
   return minutes * 60 * 1000 + seconds * 1000;
+}
+
+export function toCamelCase(input: string): string {
+  return input
+    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+export function formatUnixTime(unixTimestamp: number): string {
+  const dt = DateTime.fromMillis(unixTimestamp).setZone("Europe/Paris");
+  return dt.toFormat("HH:mm");
 }

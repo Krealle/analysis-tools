@@ -141,13 +141,16 @@ export const EncounterImages: Record<string, string> = {
   "FyrakkTheBlazing": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-fyrakk-the-burning.png",
 }
 
-/* for (const [encounter, enemies] of Object.entries(AmirdrassilEnemies)) {
-  console.log(`Encounter: ${encounter}`);
-  console.log(EncounterNames[encounter]);
-  for (const enemy of enemies) {
-    console.log(`  Enemy Name: ${enemy.name}`);
-    console.log(`  Enemy Type: ${enemy.type}`);
-    console.log(`  Enemy ID: ${enemy.id}`);
-  }
-}
- */
+// prettier-ignore
+export const EncounterIds: Record<string, string> = {
+  /** Amirdrassil */
+  "Gnarlroot": "2820",
+  "IgiraTheCruel": "2709",
+  "Volcoross": "2737",
+  "CouncilOfDreams": "2728",
+  "LarodarKeeperOfTheFlame": "2731",
+  "NymueWeaverOfTheCycle": "2708",
+  "Smolderon": "2824",
+  "TindralSageswiftSeerOfTheFlame": "2786",
+  "FyrakkTheBlazing": "2677",
+};

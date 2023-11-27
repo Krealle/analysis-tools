@@ -19,14 +19,14 @@ const FightButtons: React.FC<FightButtonProps> = ({
         onClick={() => handleButtonClick(false)}
         disabled={isFetching || parameterError}
       >
-        Get Pumpers
+        <b> Get DPS</b>
       </button>
-      <button
+      {/* <button
         onClick={() => handleButtonClick(true)}
         disabled={isFetching || parameterError}
       >
-        Get Pumpers + sus events
-      </button>
+        <b> Get DPS + sus events</b>
+      </button> */}
     </div>
   );
 };

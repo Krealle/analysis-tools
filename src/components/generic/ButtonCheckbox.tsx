@@ -7,6 +7,7 @@ type ButtonCheckboxProps = {
   title?: string;
   id?: string;
   disabled?: boolean;
+  content?: JSX.Element;
 };
 
 export const ButtonCheckbox: React.FC<ButtonCheckboxProps> = ({
@@ -16,6 +17,7 @@ export const ButtonCheckbox: React.FC<ButtonCheckboxProps> = ({
   title,
   id,
   disabled,
+  content,
 }) => {
   return (
     <div
@@ -27,15 +29,14 @@ export const ButtonCheckbox: React.FC<ButtonCheckboxProps> = ({
       }}
       id={id}
     >
-      <div>
-        <span className="title">{title}</span>
-        {flavorText && (
-          <>
-            <br />
-            <span className="flavorText">{flavorText}</span>
-          </>
-        )}
-      </div>
+      {title && <span className="title">{title}</span>}
+      {flavorText && (
+        <>
+          <br />
+          <span className="flavorText">{flavorText}</span>
+        </>
+      )}
+      {content}
     </div>
   );
 };

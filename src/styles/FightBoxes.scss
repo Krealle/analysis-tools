@@ -7,14 +7,39 @@
   font-size: x-large;
 }
 
-#fight-wipe {
-  .flavorText {
-    color: #e45f5a;
-  }
+#fightButton {
+  justify-content: space-evenly;
 }
 
-#fight-kill {
-  .flavorText {
-    color: #80e666;
-  }
+.wipe {
+  color: #e45f5a;
+}
+.kill {
+  color: #80e666;
+}
+.unfort {
+  color: #e268a8;
+}
+.legendary {
+  color: #d7822d;
+}
+.epic {
+  color: #a335ee;
+}
+.rare {
+  color: #0070ff;
+}
+.uncommon {
+  color: #51a347;
+}
+.common {
+  color: #afafaf;
+}
+
+.fightContainer {
+  margin: 10px;
+  /* position: relative;
+  background-size: cover;
+  background-position-y: -90px;
+  background-repeat: no-repeat; */
 }
