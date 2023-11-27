@@ -119,7 +119,8 @@ const EventNormalizer = () => {
         fightsToRender,
         enemyTracker,
         abilityBlacklist.split(",").map(Number),
-        enemyBlacklist
+        enemyBlacklist,
+        Number(deathCountFilter)
       );
 
       const formattedTimeSkipIntervals: FormattedTimeSkipIntervals[] = [];

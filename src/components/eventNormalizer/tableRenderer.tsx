@@ -9,7 +9,8 @@ const tableRenderer = (
   fights: Fight[],
   enemyTracker: EnemyTracker,
   abilityBlacklist: number[],
-  enemyBlacklist: number[]
+  enemyBlacklist: number[],
+  deathCutOff: number
 ): JSX.Element => {
   const headerRow = (
     <tr>
@@ -36,6 +37,12 @@ const tableRenderer = (
   for (const fight of fights) {
     const combatants = fight.combatants;
     const normalizedDamageEvents = fight.normalizedDamageEvents;
+
+    const deathCutOffTime =
+      deathCutOff <= fight.deathEvents.length && deathCutOff !== 0
+        ? fight.deathEvents[deathCutOff - 1].timestamp
+        : undefined;
+
     for (const player of combatants) {
       let wclDamage = 0;
       let normalizedDamage = 0;
@@ -51,6 +58,10 @@ const tableRenderer = (
           abilityBlacklist.includes(event.abilityGameID)
         ) {
           continue;
+        }
+
+        if (deathCutOffTime && event.timestamp >= deathCutOffTime) {
+          break;
         }
 
         const amount = event.normalizedAmount;
