@@ -30,6 +30,7 @@ import { supportEventLinkNormalizer } from "./normalizers/supportLinkNormalizer"
 
 export type Buff = {
   abilityGameID: number;
+  buffStacks: number;
   start: number;
   end: number;
   sourceID: number;
@@ -120,6 +121,12 @@ export async function generateFights(
     url: string;
   }[] = [];
 
+  const negativeAmountTot: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
   const fullList: {
     spellId: string;
     supportType: string;
@@ -135,7 +142,9 @@ export async function generateFights(
     for (const event of fightDataSet.events) {
       if (
         event.type === EventType.ApplyBuffEvent ||
-        event.type === EventType.RemoveBuffEvent
+        event.type === EventType.RemoveBuffEvent ||
+        event.type === EventType.ApplyBuffStackEvent ||
+        event.type === EventType.RemoveBuffStackEvent
       ) {
         buffEvents.push(event);
         continue;
@@ -173,6 +182,8 @@ export async function generateFights(
       WCLReport.masterData?.actors
     );
 
+    console.log(combatants);
+
     const linkedEvents = eventLinkNormalizer(eventsToLink);
 
     const damageEvents = supportEventLinkNormalizer(linkedEvents, combatants);
@@ -184,6 +195,7 @@ export async function generateFights(
       overSteal,
       susAmount,
       underAttributedAmount,
+      negativeAmount,
     } = supportEventNormalizer(
       damageEvents,
       combatants,
@@ -198,11 +210,13 @@ export async function generateFights(
     overStealTot.push(...overSteal);
     susAmountTot.push(...susAmount);
     underAttributeTot.push(...underAttributedAmount);
+    negativeAmountTot.push(...negativeAmount);
 
     fullList.push(
       ...logDataTot,
       ...emptyEventsTot,
-      ...overStealTot
+      ...overStealTot,
+      ...negativeAmountTot
       //...susAmountTot
       //...underAttributedAmount
     );
@@ -310,8 +324,8 @@ function getFilter(): string {
 }
 
 function getBuffFilter(): string {
-  const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE},${COMBUSTION_BUFF})) 
-    AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}"))`;
+  const filter = `(ability.id in (${EBON_MIGHT},${SHIFTING_SANDS},${PRESCIENCE},${COMBUSTION_BUFF},268998)) 
+    AND (type in ("${EventType.ApplyBuffEvent}", "${EventType.RemoveBuffEvent}","${EventType.ApplyBuffStackEvent}", "${EventType.RemoveBuffStackEvent}"))`;
   return filter;
 }
 

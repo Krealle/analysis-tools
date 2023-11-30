@@ -167,6 +167,7 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   215407, // Dark Blast
   270827, // Webweavers Soul Gem
   213785, // Nightfall
+  386297, // Completely Safe Rocket Blast
 ];
 
 /** SpellsIds that don't appear to re-attribute properly.

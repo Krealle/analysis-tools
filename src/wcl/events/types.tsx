@@ -188,6 +188,11 @@ export type ApplyBuffStackEvent = BaseEvent<{
   stack: number;
 }>;
 
+export type RemoveBuffStackEvent = BaseEvent<{
+  type: "removebuffstack";
+  stack: number;
+}>;
+
 export type InterruptEvent = BaseEvent<{
   type: "interrupt";
   extraAbilityGameID: number;
@@ -312,7 +317,8 @@ export type AnyEvent =
   | CombatantInfoEvent
   | EncounterStartEvent
   | DungeonEncounterEnd
-  | DungeonEnd;
+  | DungeonEnd
+  | RemoveBuffStackEvent;
 export type AllTrackedEventTypes =
   | CastEvent
   | ApplyDebuffStackEvent
@@ -323,10 +329,15 @@ export type AllTrackedEventTypes =
   | BeginCastEvent
   | HealEvent
   | ApplyBuffStackEvent
+  | RemoveBuffStackEvent
   | InterruptEvent
   | DeathEvent
   | RemoveDebuffEvent;
-export type AnyBuffEvent = ApplyBuffEvent | RemoveBuffEvent;
+export type AnyBuffEvent =
+  | ApplyBuffEvent
+  | RemoveBuffEvent
+  | ApplyBuffStackEvent
+  | RemoveBuffStackEvent;
 export type AnyDebuffEvent =
   | ApplyDebuffEvent
   | RemoveDebuffEvent
@@ -339,6 +350,7 @@ export enum EventType {
   AbsorbEvent = "absorbed",
   InterruptEvent = "interrupt",
   ApplyBuffStackEvent = "applybuffstack",
+  RemoveBuffStackEvent = "removebuffstack",
   ResourceChangeEvent = "resourcechange",
   HealEvent = "heal",
   PhaseStartEvent = "phasestart",

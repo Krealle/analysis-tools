@@ -15,7 +15,12 @@ export function generateBuffHistories(
 
   for (let index = 0; events.length > index; index++) {
     const event = events[index];
-    if (event.type === EventType.ApplyBuffEvent) {
+
+    if (
+      event.type === EventType.ApplyBuffEvent ||
+      event.type === EventType.ApplyBuffStackEvent ||
+      event.type === EventType.RemoveBuffStackEvent
+    ) {
       let endTime = fightEnd;
       const buffEvents: AnyBuffEvent[] = [event];
 
@@ -23,7 +28,7 @@ export function generateBuffHistories(
         const nextEvent = events[j];
 
         if (
-          nextEvent.type !== EventType.RemoveBuffEvent ||
+          nextEvent.type === EventType.ApplyBuffEvent ||
           !isSameBuff(event, nextEvent)
         ) {
           continue;
@@ -34,22 +39,51 @@ export function generateBuffHistories(
         break;
       }
 
-      buffHistory.push({
-        abilityGameID: event.abilityGameID,
-        start: event.timestamp,
-        end: endTime,
-        sourceID: event.sourceID,
-        sourceInstance: event.sourceInstance,
-        targetID: event.targetID,
-        targetInstance: event.targetInstance,
-        events: buffEvents,
-      });
+      const buffStacks =
+        event.type === EventType.ApplyBuffEvent ? 1 : event.stack;
+
+      const latestBuffIndex = buffHistory.findIndex(
+        (currentBuff) =>
+          currentBuff.abilityGameID === event.abilityGameID &&
+          currentBuff.start === event.timestamp &&
+          currentBuff.targetID === event.targetID &&
+          currentBuff.sourceID === event.sourceID
+      );
+
+      const latestBuff = buffHistory[latestBuffIndex];
+
+      if (
+        latestBuff &&
+        latestBuff.abilityGameID === event.abilityGameID &&
+        latestBuff.start === event.timestamp &&
+        latestBuff.targetID === event.targetID &&
+        latestBuff.sourceID === event.sourceID
+      ) {
+        latestBuff.buffStacks = buffStacks;
+        latestBuff.end = endTime;
+        if (latestBuff.events[latestBuff.events.length - 1] !== event) {
+          latestBuff.events = [...latestBuff.events, event];
+        }
+      } else {
+        buffHistory.push({
+          abilityGameID: event.abilityGameID,
+          start: event.timestamp,
+          buffStacks: buffStacks,
+          end: endTime,
+          sourceID: event.sourceID,
+          sourceInstance: event.sourceInstance,
+          targetID: event.targetID,
+          targetInstance: event.targetInstance,
+          events: buffEvents,
+        });
+      }
     } else if (event.type === EventType.RemoveBuffEvent) {
       const hasBuff = buffHistory.find((buff) => isSameBuff(buff, event));
 
       if (!hasBuff) {
         buffHistory.push({
           abilityGameID: event.abilityGameID,
+          buffStacks: 0,
           start: fightStart,
           end: event.timestamp,
           sourceID: event.sourceID,

@@ -60,6 +60,12 @@ export function supportEventNormalizer(
     url: string;
   }[] = [];
 
+  const negativeAmount: {
+    spellId: string;
+    supportType: string;
+    url: string;
+  }[] = [];
+
   const fabricatedEventsForPlayers: Record<number, number> = {};
 
   for (const event of events) {
@@ -371,6 +377,16 @@ export function supportEventNormalizer(
             underAttributedAmount.push(csvEntry);
           }
 
+          if (supportEvent.amount + (supportEvent.absorbed ?? 0) < 0) {
+            const csvEntry = generateCSVEntry(
+              fightDataSet,
+              sourceEvent,
+              supportEvent,
+              `Negative ${buffSpell}`
+            );
+            negativeAmount.push(csvEntry);
+          }
+
           supportDamage += supportEvent.amount + (supportEvent.absorbed ?? 0);
         }
       }
@@ -418,5 +434,6 @@ export function supportEventNormalizer(
     overSteal,
     susAmount,
     underAttributedAmount,
+    negativeAmount,
   };
 }

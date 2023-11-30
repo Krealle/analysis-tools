@@ -58,7 +58,7 @@ export interface Player {
    * in report K9Mfcb2CtjZ7pX6q fight 45, combatantInfo is an empty array
    * for a single player
    */
-  combatantInfo: CombatantInfo | never[];
+  combatantInfo: CombatantInfo /* | never[]; */;
 }
 
 export type CombatantInfo = {
@@ -89,6 +89,7 @@ type Stats = {
   Avoidance: Stat;
   Versatility: Stat;
   Intellect: Stat;
+  Strength: Stat;
 };
 
 type Stat = {
