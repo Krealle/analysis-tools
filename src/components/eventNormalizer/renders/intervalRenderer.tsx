@@ -1,8 +1,9 @@
 import { TotInterval } from "../../../helpers/types";
 import { formatDuration, formatNumber } from "../../../util/format";
 import { Combatant } from "../combatant/combatants";
-import { getMRTNote, getTop4Pumpers } from "./intervals";
+import { getTop4Pumpers } from "../interval/intervals";
 import "../../../styles/intervalRenderer.scss";
+import { getMRTNote } from "../interval/mrtNote";
 
 const intervalRenderer = (
   intervals: TotInterval[],

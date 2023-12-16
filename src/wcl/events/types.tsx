@@ -1,5 +1,5 @@
+import { Buff } from "../../components/eventNormalizer/combatant/buffs";
 import { Pet } from "../../components/eventNormalizer/combatant/combatants";
-import { Buff } from "../../components/eventNormalizer/generateFights";
 
 export type BaseEvent<T extends Record<string, unknown>> = T & {
   timestamp: number;
@@ -254,9 +254,11 @@ export type NormalizedDamageEvent = DamageEvent & {
   activeBuffs: Buff[];
   supportEvents: SupportEvent[];
   fabricated?: boolean;
+  modified?: boolean;
 };
+
 export type SupportEvent = {
-  event: DamageEvent;
+  event: NormalizedDamageEvent;
   delay: number;
   hookType: AttributionHook;
 };

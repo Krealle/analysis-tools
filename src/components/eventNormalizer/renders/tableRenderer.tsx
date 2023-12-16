@@ -1,9 +1,9 @@
-import { EnemyTracker } from "../../helpers/types";
-import { formatNumber } from "../../util/format";
-import { AttributionHook } from "../../wcl/events/types";
-import { Combatant } from "./combatant/combatants";
-import { Fight } from "./generateFights";
-import "./styling.scss";
+import { EnemyTracker } from "../../../helpers/types";
+import { formatNumber } from "../../../util/format";
+import { AttributionHook } from "../../../wcl/events/types";
+import { Combatant } from "../combatant/combatants";
+import { Fight } from "../util/generateFights";
+import "../styling.scss";
 
 const tableRenderer = (
   fights: Fight[],
@@ -20,6 +20,7 @@ const tableRenderer = (
       <th>Difference</th>
       <th>Difference %</th>
       <th>Fabricated Events</th>
+      <th>Empty Events</th>
     </tr>
   );
 
@@ -30,9 +31,13 @@ const tableRenderer = (
     difference: number;
     differencePercent: number;
     fabricatedEvents: number;
+    emptyEvents: number;
   }[] = [];
   let totalWclDamage = 0;
   let totalNormalizedDamage = 0;
+  let totalDifference = 0;
+  let totalFabricatedEvents = 0;
+  let totalEmptyEvents = 0;
 
   for (const fight of fights) {
     const combatants = fight.combatants;
@@ -47,6 +52,7 @@ const tableRenderer = (
       let wclDamage = 0;
       let normalizedDamage = 0;
       let fabricatedEvents = 0;
+      let emptyEvents = 0;
 
       const playerEvents = normalizedDamageEvents.filter(
         (event) => event.source.id === player.id
@@ -66,31 +72,29 @@ const tableRenderer = (
 
         const amount = event.normalizedAmount;
 
-        let stolenAmount = 0;
-        if (event.supportEvents) {
-          if (event.supportEvents.length > 0) {
-            for (const supportEvent of event.supportEvents) {
-              if (
-                supportEvent.hookType === AttributionHook.FABRICATED_HOOK ||
-                supportEvent.hookType === AttributionHook.EMPTY_HOOK
-              ) {
-                stolenAmount +=
-                  supportEvent.event.amount +
-                  (supportEvent.event.absorbed ?? 0);
-                fabricatedEvents += 1;
-              }
-            }
+        const stolenAmount = event.supportEvents.reduce((acc, supportEvent) => {
+          if (supportEvent.hookType === AttributionHook.FABRICATED_HOOK) {
+            acc += supportEvent.event.normalizedAmount;
+            fabricatedEvents++;
+          } else if (supportEvent.hookType === AttributionHook.EMPTY_HOOK) {
+            acc += supportEvent.event.normalizedAmount;
+            emptyEvents++;
           }
-        }
-        if (!event.fabricated) {
+
+          return acc;
+        }, 0);
+
+        if (!event.fabricated && !event.modified) {
           wclDamage += amount + stolenAmount;
         }
 
         normalizedDamage += amount;
       }
-      totalWclDamage += wclDamage;
 
+      totalWclDamage += wclDamage;
       totalNormalizedDamage += normalizedDamage;
+      totalFabricatedEvents += fabricatedEvents;
+      totalEmptyEvents += emptyEvents;
 
       const curPlayerIndex = playerDamage.findIndex(
         (p) => p.combatant.id === player.id
@@ -108,6 +112,7 @@ const tableRenderer = (
           difference: 0,
           differencePercent: 0,
           fabricatedEvents: fabricatedEvents,
+          emptyEvents: emptyEvents,
         });
       }
     }
@@ -120,6 +125,7 @@ const tableRenderer = (
         (player.wclAmount - player.normalizedAmount) /
           Math.abs(player.wclAmount)
       ) * 100;
+    totalDifference += player.difference;
   });
 
   const sortedPlayerDamage = playerDamage.sort(
@@ -163,18 +169,20 @@ const tableRenderer = (
         {player.differencePercent.toFixed(2)}%
       </td>
       <td>{player.fabricatedEvents}</td>
+      <td>{player.emptyEvents}</td>
     </tr>
   ));
 
-  /** This is essentially just for quick reference point
-   * we currently have a discrepancy of ~0.004%
-   * On Echo we have a discrepancy of ~0.18% most likely a weird interaction with the reduced damage
-   * These already cause support events that steal too much (on blizzards end) */
+  /** This is essentially just for quick reference point */
   const bottomRow = (
     <tr>
       <td>Total</td>
       <td>{totalWclDamage}</td>
       <td>{Math.round(totalNormalizedDamage)}</td>
+      <td>{Math.round(totalDifference)}</td>
+      <td>{}</td>
+      <td>{totalFabricatedEvents}</td>
+      <td>{totalEmptyEvents}</td>
     </tr>
   );
 

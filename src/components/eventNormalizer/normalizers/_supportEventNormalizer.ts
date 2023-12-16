@@ -8,7 +8,7 @@ import {
   SHIFTING_SANDS,
   SHIFTING_SANDS_CORRECTION_VALUE,
 } from "../../../util/constants";
-import { generateCSVEntry } from "../../../util/csvHandler";
+import { SuspectEvents, generateCSVEntry } from "../../../util/csvHandler";
 import {
   AnyEvent,
   AttributionHook,
@@ -16,9 +16,14 @@ import {
   HitType,
   NormalizedDamageEvent,
 } from "../../../wcl/events/types";
+import { Buff } from "../combatant/buffs";
 import { Combatant } from "../combatant/combatants";
-import { Buff, FightDataSet } from "../generateFights";
+import { FightDataSet } from "../util/generateFights";
 
+/**
+ * @deprecated This function is deprecated and should not be used.
+ * // TODO: Remove
+ */
 export function supportEventNormalizer(
   events: NormalizedDamageEvent[],
   combatants: Combatant[],
@@ -30,41 +35,7 @@ export function supportEventNormalizer(
   const normalizedEvents: NormalizedDamageEvent[] = [];
   const unexpectedEvents: AnyEvent[] = [];
 
-  const logData: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
-
-  const emptyEvents: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
-
-  const overSteal: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
-
-  const susAmount: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
-
-  const underAttributedAmount: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
-
-  const negativeAmount: {
-    spellId: string;
-    supportType: string;
-    url: string;
-  }[] = [];
+  const suspectEvents: SuspectEvents[] = [];
 
   const fabricatedEventsForPlayers: Record<number, number> = {};
 
@@ -240,7 +211,7 @@ export function supportEventNormalizer(
                   : "Prescience"
               );
 
-              logData.push(csvEntry);
+              suspectEvents.push(csvEntry);
             }
           }
         } else {
@@ -263,7 +234,7 @@ export function supportEventNormalizer(
               supportEvent,
               `Empty Event ${buffSpell}`
             );
-            emptyEvents.push(csvEntry);
+            suspectEvents.push(csvEntry);
 
             const multiplier =
               supportEvent.abilityGameID === EBON_MIGHT
@@ -334,7 +305,7 @@ export function supportEventNormalizer(
               supportEvent,
               `Full steal ${buffSpell}`
             );
-            overSteal.push(csvEntry);
+            suspectEvents.push(csvEntry);
           }
 
           if (
@@ -354,7 +325,7 @@ export function supportEventNormalizer(
               supportEvent,
               `Sus Attribution ${buffSpell}`
             );
-            susAmount.push(csvEntry);
+            suspectEvents.push(csvEntry);
           }
 
           if (
@@ -374,7 +345,7 @@ export function supportEventNormalizer(
               supportEvent,
               `Under Attribution ${buffSpell}`
             );
-            underAttributedAmount.push(csvEntry);
+            suspectEvents.push(csvEntry);
           }
 
           if (supportEvent.amount + (supportEvent.absorbed ?? 0) < 0) {
@@ -384,7 +355,7 @@ export function supportEventNormalizer(
               supportEvent,
               `Negative ${buffSpell}`
             );
-            negativeAmount.push(csvEntry);
+            suspectEvents.push(csvEntry);
           }
 
           supportDamage += supportEvent.amount + (supportEvent.absorbed ?? 0);
@@ -421,19 +392,8 @@ export function supportEventNormalizer(
     throw new Error("Unexpected events!");
   }
 
-  /* console.log(
-    Object.entries(fabricatedEventsForPlayers).sort(
-      ([, valueA], [, valueB]) => valueB - valueA
-    )
-  ); */
-
   return {
     normalizedEvents,
-    logData,
-    emptyEvents,
-    overSteal,
-    susAmount,
-    underAttributedAmount,
-    negativeAmount,
+    suspectEvents,
   };
 }

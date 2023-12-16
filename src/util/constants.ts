@@ -18,6 +18,7 @@ export const WCL_CLIENT_SECRET = (() => {
 export const ABILITY_BLACKLIST: number[] = [
   98021, // Spirit link totem
   201657, // Earthen Wall Totem
+  425610, // Empowering Flame
 ];
 
 /** SpellIds that don't scale with buffs */
@@ -168,6 +169,14 @@ export const ABILITY_NO_EM_SCALING: number[] = [
   270827, // Webweavers Soul Gem
   213785, // Nightfall
   386297, // Completely Safe Rocket Blast
+  213785, // Nightfall
+  425509, // Severed Embers (Branch of the Tormented Ancient)
+  414532, // Mark of Fyr'alath (Fyr'alath the Dreamrender)
+  417134, // Rage of Fyr'alath (Fyr'alath the Dreamrender)
+  413584, // Explosive Rage (Fyr'alath the Dreamrender)
+  424094, // Rage of Fyr'alath (Fyr'alath the Dreamrender)
+  386301, // Completely Safe Rocket
+  243991, // Blazefury Medallion
 ];
 
 /** SpellsIds that don't appear to re-attribute properly.

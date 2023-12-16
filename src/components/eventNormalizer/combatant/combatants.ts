@@ -1,11 +1,16 @@
-import {
-  Actor,
-  CombatantInfo,
-  Player,
-  PlayerDetails,
-} from "../../../wcl/gql/types";
+import { Actor, CombatantInfo, PlayerDetails } from "../../../wcl/gql/types";
 import { getBuffHistory } from "./buffs";
-import { Buff } from "../generateFights";
+import { Buff } from "../util/generateFights";
+
+export type BaseStats = {
+  timestamp: number;
+  playerId: number;
+  MainStat: number;
+  Mastery: number;
+  Haste: number;
+  Crit: number;
+  Versatility: number;
+};
 
 export type Combatant = {
   id: number;
@@ -25,14 +30,6 @@ export type Pet = {
   name: string;
   id: number;
   petOwner: number;
-};
-
-export type BaseStats = {
-  MainStat: number;
-  Mastery: number;
-  Haste: number;
-  Crit: number;
-  Versatility: number;
 };
 
 export function generateCombatants(
@@ -77,38 +74,4 @@ function findPets(playerId: number, actors: Actor[] | undefined): Pet[] {
 
     return acc;
   }, []);
-}
-
-/**
- * Since the stats received from WCL are both inaccurate and sometimes missing, we will need to
- * get these ourselves if we want accurate information to work with.
- * We will do this by going through a players gear and set a baseline based on that.
- */
-function getBaseStats(player: Player): BaseStats {
-  if (!player.combatantInfo) {
-    return {
-      MainStat: -1,
-      Mastery: -1,
-      Haste: -1,
-      Crit: -1,
-      Versatility: -1,
-    };
-  }
-
-  const playerStats = player.combatantInfo.stats;
-  const mainStat =
-    playerStats?.Agility?.min ??
-    playerStats?.Intellect?.min ??
-    playerStats?.Strength?.min ??
-    -1;
-
-  const stats: BaseStats = {
-    MainStat: mainStat,
-    Mastery: playerStats?.Mastery?.min ?? -1,
-    Haste: playerStats?.Haste?.min ?? -1,
-    Crit: playerStats?.Crit?.min ?? -1,
-    Versatility: playerStats?.Versatility?.min ?? -1,
-  };
-
-  return stats;
 }

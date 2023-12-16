@@ -137,7 +137,7 @@ export const EncounterImages: Record<string, string> = {
   "LarodarKeeperOfTheFlame": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-larodar-keeper-of-the-flame.png",
   "NymueWeaverOfTheCycle": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-nymue-weaver-of-the-cycle.png",
   "Smolderon": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-smolderon.png",
-  "TindralSageswiftSeerOfTheFlame": "",
+  "TindralSageswiftSeerOfTheFlame": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-tindral-sageswift-of-the-flame.png",//"https://assets.rpglogs.com/img/warcraft/bosses/2786-icon.jpg",
   "FyrakkTheBlazing": "https://wow.zamimg.com/images/wow/journal/ui-ej-boss-fyrakk-the-burning.png",
 }
 

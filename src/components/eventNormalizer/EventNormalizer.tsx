@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { Fight, generateFights } from "./generateFights";
+import { Fight, generateFights } from "./util/generateFights";
 import FightButtons from "../FightButtons";
 import bearDancing from "/static/bear/dance.gif";
-import tableRenderer from "./tableRenderer";
+import tableRenderer from "./renders/tableRenderer";
 import { FormattedTimeSkipIntervals } from "../../helpers/types";
 import { formatTime } from "../../util/format";
 import { getAverageIntervals } from "./interval/intervals";
-import intervalRenderer from "./interval/intervalRenderer";
+import intervalRenderer from "./renders/intervalRenderer";
 import CustomFightParameters from "../fightParameters/CustomFightParameters";
 import { setIsFetching } from "../../redux/slices/statusSlice";
 import { Combatant } from "./combatant/combatants";
 import ErrorBear from "../generic/ErrorBear";
 import { ReportParseError } from "../../wcl/util/parseWCLUrl";
+
+export type AbilityFilters = {
+  noScaling: number[];
+  noEMScaling: number[];
+  noShiftingScaling: number[];
+  blacklist: number[];
+};
 
 let fights: Fight[] = [];
 const enemyTracker = new Map<number, number>();
@@ -82,11 +89,11 @@ const EventNormalizer = () => {
     );
     setIntervalsContent(null);
 
-    try {
-      await attemptNormalize(getCSV);
-    } catch (error) {
+    /* try { */
+    await attemptNormalize(getCSV);
+    /* } catch (error) {
       //setWclTableContent(<>{error}</>);
-    }
+    } */
 
     dispatch(setIsFetching(false));
   };
@@ -96,15 +103,20 @@ const EventNormalizer = () => {
       throw new Error("No fight report found");
     }
 
+    const abilityFilters: AbilityFilters = {
+      noScaling: abilityNoScaling.split(",").map(Number),
+      noEMScaling: abilityNoEMScaling.split(",").map(Number),
+      noShiftingScaling: abilityNoShiftingScaling.split(",").map(Number),
+      blacklist: abilityBlacklist.split(",").map(Number),
+    };
+
     try {
       fights = await generateFights(
         WCLReport,
         selectedFights,
         WCLReport.fights,
         fights,
-        abilityNoScaling.split(",").map(Number),
-        abilityNoEMScaling.split(",").map(Number),
-        abilityNoShiftingScaling.split(",").map(Number),
+        abilityFilters,
         refreshData,
         getCSV
       );

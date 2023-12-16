@@ -26,6 +26,7 @@ import { Combatant, Pet } from "../combatant/combatants";
  * One issue is that if a player starts the fight with a certain buff, ie. popped a buff pre-pull, they will initialize with
  * a non-base stat value.
  *
+ * @deprecated
  * @param events
  * @param combatants
  * @returns
@@ -60,8 +61,6 @@ export function supportEventLinkNormalizer(
         : SNAPSHOTTED_DOTS.includes(event.abilityGameID) && event.parentDotEvent
         ? getBuffs(event.parentDotEvent.timestamp, player)
         : getBuffs(event.timestamp, player);
-
-    const key = getKey(event);
 
     const normalizedEvent: NormalizedDamageEvent = {
       ...event,
@@ -110,6 +109,7 @@ export function supportEventLinkNormalizer(
       continue;
     }
 
+    const key = getKey(event);
     // new damage event need to sort out old one
     if (supportEventsRecord[key] && supportEventsRecord[key].length > 0) {
       const newNormalizedEvent = createEventLinks(supportEventsRecord[key]);
