@@ -18,7 +18,7 @@ import {
 } from "../../../wcl/events/types";
 import { Buff } from "../combatant/buffs";
 import { Combatant } from "../combatant/combatants";
-import { FightDataSet } from "../util/generateFights";
+import { FightDataSet } from "../util/_generateFights";
 
 /**
  * @deprecated This function is deprecated and should not be used.

@@ -2,7 +2,7 @@ import { EnemyTracker } from "../../../helpers/types";
 import { formatNumber } from "../../../util/format";
 import { AttributionHook } from "../../../wcl/events/types";
 import { Combatant } from "../combatant/combatants";
-import { Fight } from "../util/generateFights";
+import { Fight } from "../util/_generateFights";
 import "../styling.scss";
 
 const tableRenderer = (

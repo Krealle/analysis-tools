@@ -1,4 +1,3 @@
-import { AbilityFilters } from "../../components/eventNormalizer/EventNormalizer";
 import {
   COMBUSTION_BUFF,
   EBON_MIGHT,
@@ -7,10 +6,10 @@ import {
 } from "../../util/constants";
 import { EventType } from "../events/types";
 
-export function getFilter(abilityFilters: AbilityFilters): string {
+export function getFilter(): string {
   const filter = `(${getBuffFilter()}) 
       OR (${getDebuffFilter()}) 
-      OR (${getDamageFilter(abilityFilters)}) 
+      OR (${getDamageFilter()}) 
       OR (${getCastFilter()}) 
       OR (${getDeathFilter()})`;
   return filter;
@@ -37,11 +36,8 @@ export function getFilter(abilityFilters: AbilityFilters): string {
  *
  * @returns WCL filter expression
  */
-export function getDamageFilter(abilityFilters: AbilityFilters): string {
-  const abilityBlacklist = abilityFilters.blacklist.join(",");
-  console.log(abilityBlacklist);
+export function getDamageFilter(): string {
   const filter = `type = "damage" 
-      AND not (ability.id in (${abilityBlacklist}))
       AND (target.id != source.id)
       AND target.id not in(169428, 169430, 169429, 169426, 169421, 169425, 168932)
       AND not (target.id = source.owner.id)

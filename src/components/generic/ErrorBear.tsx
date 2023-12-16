@@ -4,6 +4,7 @@ import {
   reportParseErrorIconMap,
   reportParseErrorMap,
 } from "../../wcl/util/parseWCLUrl";
+import "./genericStyling.scss";
 
 interface ErrorBearProps {
   error: ReportParseError;

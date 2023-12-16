@@ -44,3 +44,14 @@
   border: 2px solid white;
   transition: border-color 0.5s;
 }
+
+.error-bear-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+
+  p {
+    padding-left: 1rem;
+    color: rgb(239 68 68);
+  }
+}

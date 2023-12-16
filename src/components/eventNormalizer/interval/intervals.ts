@@ -5,7 +5,8 @@ import {
   IntervalSet,
   TotInterval,
 } from "../../../helpers/types";
-import { Fight } from "../util/generateFights";
+import { AbilityFilters } from "../EventNormalizer";
+import { Fight } from "../util/_generateFights";
 
 export function getAverageIntervals(
   fights: Fight[],
@@ -13,11 +14,9 @@ export function getAverageIntervals(
   currentReportCode: string,
   timeSkipIntervals: FormattedTimeSkipIntervals[],
   enemyTracker: EnemyTracker,
-  abilityNoEMScaling: number[],
-  abilityNoScaling: number[],
+  abilityFilters: AbilityFilters,
   ebonWeight: number,
   intervalDuration: number,
-  abilityBlacklist: number[],
   enemyBlacklist: number[],
   deathCutOff: number
 ): TotInterval[] {
@@ -47,8 +46,8 @@ export function getAverageIntervals(
         event.source.spec === "Augmentation" ||
         event.normalizedAmount === 0 ||
         enemyBlacklist.includes(enemyTracker.get(event.targetID) ?? -1) ||
-        abilityBlacklist.includes(event.abilityGameID) ||
-        abilityNoScaling.includes(event.abilityGameID) ||
+        abilityFilters.blacklist.includes(event.abilityGameID) ||
+        abilityFilters.noScaling.includes(event.abilityGameID) ||
         event.source.id === -1
       ) {
         continue;
@@ -106,7 +105,9 @@ export function getAverageIntervals(
         (entry) => entry.id === event.source.id
       );
 
-      const multiplier = abilityNoEMScaling.includes(event.abilityGameID)
+      const multiplier = abilityFilters.noEMScaling.includes(
+        event.abilityGameID
+      )
         ? ebonWeight
         : 0;
 

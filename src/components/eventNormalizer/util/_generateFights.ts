@@ -27,12 +27,14 @@ import { eventLinkNormalizer } from "../normalizers/eventLinkNormalizer";
 import { supportEventLinkNormalizer } from "../normalizers/supportEventLinkNormalizer";
 import { correctSupportEvents } from "../normalizers/supportEventCorrecter";
 import { AbilityFilters } from "../EventNormalizer";
+import { cloneDeep } from "lodash";
 
 export type Fight = {
   fightId: number;
   reportCode: string;
   startTime: number;
   endTime: number;
+  events: AnyEvent[];
   normalizedDamageEvents: NormalizedDamageEvent[];
   deathEvents: DeathEvent[];
   buffHistory: Buff[];
@@ -40,18 +42,6 @@ export type Fight = {
   phaseHistory?: PhaseStartEvent[];
 };
 
-/**
- * Generates fights from a WCL report.
- *
- * @param {WCLReport} WCLReport
- * @param {number[]} selectedFights
- * @param {ReportFight[]} reportFights
- * @param {Fight[]} storedFights
- * @param {AbilityFilters} abilityFilters
- * @param {boolean} refreshData
- * @param {boolean} getCSV
- * @returns {Fight[]}
- */
 export async function generateFights(
   WCLReport: WCLReport,
   selectedFights: number[],
@@ -65,7 +55,7 @@ export async function generateFights(
    * Ideally we wouldn't re-fetch all of our data, but due to the way it is structured,
    * this is a simple approach, it doesn't really cost much in terms of time, only
    * in API calls. */
-  const newFights: Fight[] = refreshData ? [] : [...storedFights];
+  const newFights: Fight[] = refreshData ? [] : cloneDeep(storedFights);
 
   const fightsToGenerate = reportFights.filter(
     (fight) =>
@@ -78,8 +68,7 @@ export async function generateFights(
 
   const newFightDataSets = await getFightDataSets(
     fightsToGenerate,
-    WCLReport.code,
-    abilityFilters
+    WCLReport.code
   );
   const totSuspectEvents: SuspectEvents[] = [];
 
@@ -155,6 +144,7 @@ export async function generateFights(
       startTime: fightDataSet.fight.startTime,
       endTime: fightDataSet.fight.endTime,
       normalizedDamageEvents: correctedEvents,
+      events: fightDataSet.events,
       deathEvents: deathEvents,
       buffHistory: buffHistories,
       combatants: combatants,
@@ -175,18 +165,9 @@ export type FightDataSet = {
   events: AnyEvent[];
 };
 
-/**
- * Gets fight data sets for a given set of fights.
- *
- * @param {ReportFight[]} fightsToGenerate
- * @param {string} reportCode
- * @param {AbilityFilters} abilityFilters
- * @returns {Promise<FightDataSet[]>}
- */
 async function getFightDataSets(
   fightsToGenerate: ReportFight[],
-  reportCode: string,
-  abilityFilters: AbilityFilters
+  reportCode: string
 ): Promise<FightDataSet[]> {
   const fetchPromises = fightsToGenerate.map(async (fight) => {
     const variables: EventVariables = {
@@ -198,7 +179,7 @@ async function getFightDataSets(
     };
     const summaryTable = await getSummaryTable(variables);
 
-    variables.filterExpression = getFilter(abilityFilters);
+    variables.filterExpression = getFilter();
     const events = await getEvents(variables);
 
     return {

@@ -137,16 +137,16 @@ function getRelevantPlayerBuffs(
     (buff) => buff.abilityGameID === COMBUSTION_BUFF
   );
 
-  let playerBuffs: Buff[] = abilityFilters.noScaling.includes(
-    event.abilityGameID
-  )
-    ? []
-    : event.activeBuffs.filter(
-        (buff) =>
-          buff.abilityGameID === EBON_MIGHT ||
-          buff.abilityGameID === SHIFTING_SANDS ||
-          buff.abilityGameID === PRESCIENCE
-      );
+  let playerBuffs: Buff[] =
+    abilityFilters.noScaling.includes(event.abilityGameID) ||
+    abilityFilters.blacklist.includes(event.abilityGameID)
+      ? []
+      : event.activeBuffs.filter(
+          (buff) =>
+            buff.abilityGameID === EBON_MIGHT ||
+            buff.abilityGameID === SHIFTING_SANDS ||
+            buff.abilityGameID === PRESCIENCE
+        );
   if (
     (event.hitType !== HitType.Crit ||
       hasCombustion ||

@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setFightReport } from "../redux/slices/WCLUrlInputSlice";
 import { setSelectedIds } from "../redux/slices/fightBoxesSlice";
 import "../styles/WCLUrlInput.scss";
+import { HandleUserAuthorization } from "../wcl/util/UserAuthorization";
 
 export const WCLUrlInput = () => {
   const [url, setUrl] = useState<string>("");
@@ -14,6 +15,7 @@ export const WCLUrlInput = () => {
 
   const dispatch = useAppDispatch();
   const WCLReport = useAppSelector((state) => state.WCLUrlInput.fightReport);
+  const hasAuth = useAppSelector((state) => state.status.hasAuth);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -64,13 +66,14 @@ export const WCLUrlInput = () => {
           </div>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !hasAuth}
             className="wclUrlButton"
           >
             {isSubmitting ? "Fetching..." : "Fetch Fights"}
           </button>
         </div>
       </form>
+      {!hasAuth && <HandleUserAuthorization />}
       {errorBear && <ErrorBear error={errorBear} />}
     </>
   );

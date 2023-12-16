@@ -8,10 +8,18 @@ export const WCL_CLIENT_ID = (() => {
 
 export const WCL_CLIENT_SECRET = (() => {
   if (!import.meta.env.VITE_WCL_CLIENT_SECRET) {
-    throw new Error('missing environment variable: "CLIENT_SECRET"');
+    throw new Error('missing environment variable: "WCL_CLIENT_SECRET"');
   }
 
   return import.meta.env.VITE_WCL_CLIENT_SECRET;
+})();
+
+export const REDIRECT_URL = (() => {
+  if (!import.meta.env.VITE_REDIRECT_URL) {
+    throw new Error('missing environment variable: "REDIRECT_URL"');
+  }
+
+  return import.meta.env.VITE_REDIRECT_URL;
 })();
 
 /** SpellIds to blacklist */
@@ -271,3 +279,18 @@ export const COMBUSTION_BUFF = 190319;
 export const EBON_MIGHT_CORRECTION_VALUE = 0.06;
 export const SHIFTING_SANDS_CORRECTION_VALUE = 0.14;
 export const PRESCIENCE_CORRECTION_VALUE = 0.025;
+
+export enum FetchStatus {
+  FETCHING = "FETCHING",
+  ANALYZING = "ANALYZING",
+}
+
+export const fetchStatusMap: Record<FetchStatus, string> = {
+  FETCHING: "Fetching data",
+  ANALYZING: "Analyzing data",
+};
+
+export const fetchStatusIconMap: Record<FetchStatus, string> = {
+  FETCHING: "/static/bear/dance.gif",
+  ANALYZING: "/static/bear/detective-256.png",
+};

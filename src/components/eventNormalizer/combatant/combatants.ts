@@ -1,6 +1,6 @@
 import { Actor, CombatantInfo, PlayerDetails } from "../../../wcl/gql/types";
 import { getBuffHistory } from "./buffs";
-import { Buff } from "../util/generateFights";
+import { Buff } from "../util/_generateFights";
 
 export type BaseStats = {
   timestamp: number;

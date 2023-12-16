@@ -1,5 +1,9 @@
 import axios from "axios";
-import { WCL_CLIENT_ID, WCL_CLIENT_SECRET } from "../../util/constants";
+import {
+  REDIRECT_URL,
+  WCL_CLIENT_ID,
+  WCL_CLIENT_SECRET,
+} from "../../util/constants";
 
 type WCLOAuthResponse = {
   access_token: string;
@@ -7,11 +11,35 @@ type WCLOAuthResponse = {
   token_type: "Bearer";
 };
 
-export const setWCLAuthentication = async (): Promise<void> => {
+export const hasValidWCLAuthentication = () => {
+  const storedAccessToken = localStorage.getItem("wcl_access_token");
+  const storedExpiresIn = localStorage.getItem("wcl_token_expires_in");
+
+  if (!storedAccessToken || !storedExpiresIn) {
+    return false;
+  } else {
+    const expires_in = parseInt(storedExpiresIn, 10);
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+    if (expires_in < currentTimeInSeconds) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const setWCLAuthentication = async (
+  authCode: string
+): Promise<boolean> => {
   try {
     const response = await axios.post<WCLOAuthResponse>(
       "https://www.warcraftlogs.com/oauth/token",
-      `grant_type=client_credentials`,
+      {
+        redirect_uri: REDIRECT_URL,
+        grant_type: "authorization_code",
+        code: authCode,
+      },
       {
         auth: {
           username: WCL_CLIENT_ID,
@@ -29,24 +57,16 @@ export const setWCLAuthentication = async (): Promise<void> => {
       "wcl_token_expires_in",
       actualExpirationTime.toString()
     );
+    return true;
   } catch (error) {
-    console.error("Error getting access token:", error);
+    console.warn(`Error getting access token: ${error}`);
+    return false;
   }
 };
 
 export const getWCLAuthentication = async (): Promise<string | null> => {
-  const storedAccessToken = localStorage.getItem("wcl_access_token");
-  const storedExpiresIn = localStorage.getItem("wcl_token_expires_in");
-
-  if (!storedAccessToken || !storedExpiresIn) {
-    await setWCLAuthentication();
-  } else {
-    const expires_in = parseInt(storedExpiresIn, 10);
-    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-
-    if (expires_in < currentTimeInSeconds) {
-      await setWCLAuthentication();
-    }
+  if (!hasValidWCLAuthentication()) {
+    /* await setWCLAuthentication(); */
   }
 
   const updatedAccessToken = localStorage.getItem("wcl_access_token");

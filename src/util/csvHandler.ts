@@ -1,4 +1,4 @@
-import { FightDataSet } from "../components/eventNormalizer/util/generateFights";
+import { FightDataSet } from "../components/eventNormalizer/util/_generateFights";
 import { DamageEvent, NormalizedDamageEvent } from "../wcl/events/types";
 
 export type SuspectEvents = {
