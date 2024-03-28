@@ -1,3 +1,6 @@
+# DEPRECATED
+Moved to remix here: https://github.com/Krealle/analysis-tools-remix
+
 # Analysis tools
 
 # Overview
